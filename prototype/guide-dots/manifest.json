@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Guide Dots",
+  "version": "0.1.0",
+  "description": "Overlay dots on the next UI target for a user goal.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "lib/tree.js",
+        "lib/dots.js",
+        "lib/ground.js",
+        "lib/fade.js",
+        "content.js"
+      ]
+    }
+  ]
+}

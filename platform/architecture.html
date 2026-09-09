@@ -1,0 +1,141 @@
+<title>Disha Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Deliberately light-only: these are screenshotted into slides. */
+  body { background:#FFFFFF; color:#141A26; font:400 16px/1.5 "Barlow",system-ui,sans-serif; margin:0; padding:28px; }
+  .sheet { max-width:1240px; margin:0 auto; }
+  h1 { font:600 30px/1.1 "Barlow Condensed",sans-serif; text-transform:uppercase; letter-spacing:.02em; margin:0 0 4px; }
+  .sub { color:#55607A; font-size:15px; margin:0 0 22px; }
+  svg { width:100%; height:auto; display:block; }
+  .legend { display:flex; flex-wrap:wrap; gap:22px; margin-top:20px; padding-top:18px; border-top:1px solid #D6DBE5; }
+  .lg { display:flex; align-items:center; gap:9px; font-size:14px; color:#55607A; }
+  .sw { width:14px; height:14px; border-radius:3px; flex:none; }
+  .foot { margin-top:16px; font-size:13px; color:#55607A; }
+  .foot strong { color:#141A26; }
+</style>
+
+<div class="sheet">
+  <h1>How Disha decides where to point</h1>
+  <p class="sub">Two independent judgements must agree before the learner is shown a confident marker.</p>
+
+  <svg viewBox="0 0 1240 660" role="img" aria-label="Disha architecture: read, decide, guide">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#55607A"/>
+      </marker>
+      <marker id="ar-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#2F4BD8"/>
+      </marker>
+    </defs>
+
+    <!-- stage bands -->
+    <rect x="10"  y="46" width="380" height="590" rx="10" fill="#F2F4F7" stroke="#D6DBE5"/>
+    <rect x="410" y="46" width="420" height="590" rx="10" fill="#EEF1FC" stroke="#C7D0F5"/>
+    <rect x="850" y="46" width="380" height="590" rx="10" fill="#F2F4F7" stroke="#D6DBE5"/>
+
+    <text x="30"  y="76" font-family="IBM Plex Mono, monospace" font-size="13" fill="#55607A" letter-spacing="2">1 · READ</text>
+    <text x="430" y="76" font-family="IBM Plex Mono, monospace" font-size="13" fill="#2F4BD8" letter-spacing="2">2 · DECIDE</text>
+    <text x="870" y="76" font-family="IBM Plex Mono, monospace" font-size="13" fill="#55607A" letter-spacing="2">3 · GUIDE</text>
+
+    <!-- STAGE 1 -->
+    <rect x="34" y="100" width="332" height="86" rx="7" fill="#FFFFFF" stroke="#D6DBE5"/>
+    <text x="54" y="132" font-size="18" font-weight="600" fill="#141A26">Any live web page</text>
+    <text x="54" y="158" font-size="14" fill="#55607A">Colab, a scholarship portal, a college ERP</text>
+
+    <path d="M200,186 L200,232" stroke="#55607A" stroke-width="2" marker-end="url(#ar)"/>
+
+    <rect x="34" y="236" width="332" height="112" rx="7" fill="#FFFFFF" stroke="#D6DBE5"/>
+    <text x="54" y="268" font-size="18" font-weight="600" fill="#141A26">Scan every control</text>
+    <text x="54" y="294" font-size="14" fill="#55607A">Buttons, links, fields — with their</text>
+    <text x="54" y="314" font-size="14" fill="#55607A">accessible names, and inside</text>
+    <text x="54" y="334" font-size="14" fill="#55607A">shadow roots that SPAs hide them in</text>
+
+    <path d="M200,348 L200,394" stroke="#55607A" stroke-width="2" marker-end="url(#ar)"/>
+
+    <rect x="34" y="398" width="332" height="104" rx="7" fill="#FFFFFF" stroke="#D6DBE5"/>
+    <text x="54" y="430" font-size="18" font-weight="600" fill="#141A26">Compact text list</text>
+    <text x="54" y="458" font-family="IBM Plex Mono, monospace" font-size="13" fill="#2F4BD8">14|button|Run cell|534,184</text>
+    <text x="54" y="482" font-size="14" fill="#55607A">No screenshots. No page content.</text>
+
+    <rect x="34" y="524" width="332" height="86" rx="7" fill="#FFF9E8" stroke="#E8D9A8"/>
+    <text x="54" y="554" font-size="15" font-weight="600" fill="#7A5B0B">Privacy boundary</text>
+    <text x="54" y="580" font-size="13.5" fill="#7A5B0B">Only control names leave the device —</text>
+    <text x="54" y="598" font-size="13.5" fill="#7A5B0B">never your text, never your credentials.</text>
+
+    <!-- into stage 2 -->
+    <path d="M366,290 L470,290 L470,190" stroke="#2F4BD8" stroke-width="2.5" fill="none" marker-end="url(#ar-a)"/>
+    <path d="M366,290 L470,290 L470,352" stroke="#2F4BD8" stroke-width="2.5" fill="none" marker-end="url(#ar-a)"/>
+
+    <!-- STAGE 2: the two judgements -->
+    <rect x="470" y="100" width="336" height="92" rx="7" fill="#FFFFFF" stroke="#2F4BD8" stroke-width="2"/>
+    <text x="492" y="132" font-size="18" font-weight="600" fill="#141A26">A · The model's opinion</text>
+    <text x="492" y="158" font-size="14" fill="#55607A">Gemini, or a local model with no</text>
+    <text x="492" y="178" font-size="14" fill="#55607A">internet. Returns one id + confidence.</text>
+
+    <rect x="470" y="356" width="336" height="112" rx="7" fill="#FFFFFF" stroke="#2F4BD8" stroke-width="2"/>
+    <text x="492" y="388" font-size="18" font-weight="600" fill="#141A26">B · The page's evidence</text>
+    <text x="492" y="414" font-size="14" fill="#55607A">Computed on-device, not asked for:</text>
+    <text x="492" y="434" font-size="14" fill="#55607A">is it named? does the name match the</text>
+    <text x="492" y="454" font-size="14" fill="#55607A">goal? unique? actually on top?</text>
+
+    <path d="M638,192 L638,246" stroke="#2F4BD8" stroke-width="2.5" marker-end="url(#ar-a)"/>
+    <path d="M638,356 L638,314" stroke="#2F4BD8" stroke-width="2.5" marker-end="url(#ar-a)"/>
+
+    <rect x="470" y="250" width="336" height="64" rx="32" fill="#2F4BD8"/>
+    <text x="638" y="279" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle">BOTH MUST AGREE</text>
+    <text x="638" y="301" font-size="13" fill="#C9D3FF" text-anchor="middle">a model marking its own homework is not evidence</text>
+
+    <rect x="470" y="504" width="336" height="106" rx="7" fill="#FFFFFF" stroke="#D6DBE5"/>
+    <text x="492" y="532" font-size="15" font-weight="600" fill="#141A26">Resulting band</text>
+    <circle cx="502" cy="558" r="7" fill="#14803C"/>
+    <text x="518" y="563" font-size="14" fill="#55607A">Green — follow it</text>
+    <circle cx="502" cy="584" r="7" fill="#B45309"/>
+    <text x="518" y="589" font-size="14" fill="#55607A">Amber — check first</text>
+    <circle cx="700" cy="558" r="7" fill="#C22B2B"/>
+    <text x="716" y="563" font-size="14" fill="#55607A">Red — verify,</text>
+    <text x="716" y="583" font-size="14" fill="#55607A">or can't be undone</text>
+
+    <path d="M806,280 L890,280 L890,190" stroke="#2F4BD8" stroke-width="2.5" fill="none" marker-end="url(#ar-a)"/>
+
+    <!-- STAGE 3 -->
+    <rect x="874" y="100" width="332" height="90" rx="7" fill="#FFFFFF" stroke="#D6DBE5"/>
+    <text x="894" y="132" font-size="18" font-weight="600" fill="#141A26">One dot appears</text>
+    <text x="894" y="158" font-size="14" fill="#55607A">On the real control, in the real page,</text>
+    <text x="894" y="178" font-size="14" fill="#55607A">with a plain-language reason.</text>
+
+    <path d="M1040,190 L1040,236" stroke="#55607A" stroke-width="2" marker-end="url(#ar)"/>
+
+    <rect x="874" y="240" width="332" height="90" rx="7" fill="#FFFFFF" stroke="#D6DBE5"/>
+    <text x="894" y="272" font-size="18" font-weight="600" fill="#141A26">The human clicks</text>
+    <text x="894" y="298" font-size="14" fill="#55607A">Disha never clicks, types, or submits.</text>
+    <text x="894" y="318" font-size="14" fill="#55607A">At an OTP or password it pauses.</text>
+
+    <path d="M1040,330 L1040,376" stroke="#55607A" stroke-width="2" marker-end="url(#ar)"/>
+
+    <rect x="874" y="380" width="332" height="90" rx="7" fill="#FFFFFF" stroke="#D6DBE5"/>
+    <text x="894" y="412" font-size="18" font-weight="600" fill="#141A26">Did the page change?</text>
+    <text x="894" y="438" font-size="14" fill="#55607A">If nothing happened, the guess was</text>
+    <text x="894" y="458" font-size="14" fill="#55607A">wrong — and confidence learns from it.</text>
+
+    <path d="M1040,470 L1040,516" stroke="#14803C" stroke-width="2.5" marker-end="url(#ar)"/>
+
+    <rect x="874" y="520" width="332" height="90" rx="7" fill="#E4F3EA" stroke="#9CCFB0"/>
+    <text x="894" y="551" font-size="18" font-weight="600" fill="#14803C">The guidance fades</text>
+    <text x="894" y="577" font-size="14" fill="#1B6B3A">Succeed and the dot dims. Get it wrong</text>
+    <text x="894" y="597" font-size="14" fill="#1B6B3A">and the help comes back. Mastery is earned.</text>
+  </svg>
+
+  <div class="legend">
+    <div class="lg"><span class="sw" style="background:#F2F4F7;border:1px solid #D6DBE5"></span> Runs on the learner's device</div>
+    <div class="lg"><span class="sw" style="background:#EEF1FC;border:1px solid #C7D0F5"></span> The decision layer — our contribution</div>
+    <div class="lg"><span class="sw" style="background:#FFF9E8;border:1px solid #E8D9A8"></span> Privacy boundary</div>
+  </div>
+
+  <p class="foot">
+    <strong>The one thing to take from this diagram:</strong> everyone else asks a model where to click and
+    believes the answer. Disha scores the page independently and requires both to agree — which is why its
+    confidence means something, and why it can honestly say "I'm not sure."
+  </p>
+</div>

@@ -1,0 +1,514 @@
+<title>Disha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --paper:      #F2F4F7;
+    --surface:    #FFFFFF;
+    --surface-2:  #E8EBF1;
+    --ink:        #141A26;
+    --ink-soft:   #55607A;
+    --line:       #D6DBE5;
+    --accent:     #2F4BD8;
+    --accent-ink: #FFFFFF;
+    --go:         #14803C;
+    --wait:       #B45309;
+    --stop:       #C22B2B;
+    --go-bg:      #E4F3EA;
+    --wait-bg:    #FBF0DD;
+    --stop-bg:    #FAE7E7;
+    --shadow:     0 1px 2px rgb(20 26 38 / 8%), 0 8px 24px rgb(20 26 38 / 6%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0D1220;
+      --surface:    #151C2C;
+      --surface-2:  #1E273A;
+      --ink:        #EAEEF6;
+      --ink-soft:   #98A3BA;
+      --line:       #2A3448;
+      --accent:     #7E92FF;
+      --accent-ink: #0D1220;
+      --go:         #4ADE80;
+      --wait:       #FBBF24;
+      --stop:       #F87171;
+      --go-bg:      #14301F;
+      --wait-bg:    #33260B;
+      --stop-bg:    #351717;
+      --shadow:     0 1px 2px rgb(0 0 0 / 40%), 0 10px 30px rgb(0 0 0 / 35%);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:      #0D1220;
+    --surface:    #151C2C;
+    --surface-2:  #1E273A;
+    --ink:        #EAEEF6;
+    --ink-soft:   #98A3BA;
+    --line:       #2A3448;
+    --accent:     #7E92FF;
+    --accent-ink: #0D1220;
+    --go:         #4ADE80;
+    --wait:       #FBBF24;
+    --stop:       #F87171;
+    --go-bg:      #14301F;
+    --wait-bg:    #33260B;
+    --stop-bg:    #351717;
+    --shadow:     0 1px 2px rgb(0 0 0 / 40%), 0 10px 30px rgb(0 0 0 / 35%);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 16px/1.6 "Barlow", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+  .eyebrow {
+    font: 600 12px/1 "Barlow", sans-serif;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---- signage bar ---- */
+  .topbar {
+    background: var(--ink); color: var(--paper);
+    border-bottom: 4px solid var(--accent);
+  }
+  .topbar .wrap { display: flex; align-items: center; gap: 16px; padding-block: 14px; }
+  .mark {
+    font: 700 26px/1 "Barlow Condensed", sans-serif;
+    letter-spacing: .12em; text-transform: uppercase;
+  }
+  .mark span { color: var(--accent); }
+  .topbar .meaning { font-size: 13px; color: #9AA6C0; margin-left: auto; }
+
+  /* ---- hero ---- */
+  .hero { padding: 56px 0 40px; }
+  .hero-grid { display: grid; grid-template-columns: 1fr; gap: 36px; }
+  @media (min-width: 900px) { .hero-grid { grid-template-columns: 1.05fr 1fr; align-items: center; } }
+  .hero h1 {
+    font: 600 clamp(38px, 5.4vw, 62px)/1.02 "Barlow Condensed", sans-serif;
+    letter-spacing: -.01em; text-transform: uppercase;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .lede { font-size: 19px; color: var(--ink-soft); margin-top: 18px; max-width: 46ch; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .btn {
+    font: 600 15px/1 "Barlow", sans-serif; padding: 13px 20px; border-radius: 3px;
+    border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+    cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn:focus-visible, .copy:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  /* ---- mock browser: the thesis ---- */
+  .screen {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .screen-bar {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 12px; background: var(--surface-2); border-bottom: 1px solid var(--line);
+  }
+  .tl { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .screen-url {
+    margin-left: 8px; font-size: 12px; color: var(--ink-soft);
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 3px; padding: 3px 10px; flex: 1;
+  }
+  .screen-body { position: relative; padding: 22px; min-height: 250px; }
+  .fake-h { height: 11px; border-radius: 2px; background: var(--surface-2); margin-bottom: 11px; }
+  .fake-h.w70 { width: 70%; } .fake-h.w45 { width: 45%; } .fake-h.w58 { width: 58%; }
+  .fake-btn {
+    display: inline-block; margin-top: 14px; padding: 10px 16px; border-radius: 4px;
+    border: 1px solid var(--line); background: var(--surface-2);
+    font-size: 14px; font-weight: 600; position: relative;
+  }
+  #target { border-color: var(--accent); }
+  .dot {
+    position: absolute; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--go); box-shadow: 0 0 0 3px var(--surface), 0 2px 8px rgb(0 0 0 / 35%);
+    transform: translate(-50%, -50%); transition: opacity .35s ease, background .35s ease;
+  }
+  .callout {
+    position: absolute; transform: translateY(-50%);
+    background: var(--ink); color: var(--paper); font-size: 12.5px; font-weight: 500;
+    padding: 6px 11px; border-radius: 4px; white-space: nowrap;
+    transition: opacity .35s ease;
+  }
+  .callout::before {
+    content: ""; position: absolute; left: -5px; top: 50%; transform: translateY(-50%);
+    border: 5px solid transparent; border-right-color: var(--ink); border-left: 0;
+  }
+  .pill {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    font: 500 12.5px/1 "Barlow", sans-serif; padding: 7px 13px; border-radius: 999px;
+    color: #fff; background: #14803C; white-space: nowrap;
+  }
+  .runner {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin-top: 12px; font-size: 13px; color: var(--ink-soft);
+  }
+  .runner b { color: var(--ink); font-weight: 600; }
+
+  /* ---- generic section ---- */
+  section { padding: 46px 0; border-top: 1px solid var(--line); }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 26px; flex-wrap: wrap; }
+  .sec-head h2 {
+    font: 600 clamp(24px, 3vw, 33px)/1.1 "Barlow Condensed", sans-serif;
+    text-transform: uppercase; letter-spacing: .01em;
+  }
+
+  /* ---- problem ---- */
+  .stat { display: grid; gap: 22px; grid-template-columns: 1fr; align-items: center; }
+  @media (min-width: 760px) { .stat { grid-template-columns: auto 1fr; gap: 34px; } }
+  .stat-num {
+    font: 600 clamp(64px, 11vw, 108px)/.85 "Barlow Condensed", sans-serif;
+    color: var(--accent); letter-spacing: -.02em;
+  }
+  .stat p { margin: 0; font-size: 18px; max-width: 54ch; }
+  .src { font-size: 13px; color: var(--ink-soft); margin-top: 10px; }
+
+  /* ---- steps ---- */
+  .steps { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  @media (min-width: 800px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+  .step { background: var(--surface); padding: 24px; }
+  .step .n {
+    font: 600 13px/1 "IBM Plex Mono", monospace; color: var(--accent);
+    letter-spacing: .1em; display: block; margin-bottom: 12px;
+  }
+  .step h3 { font: 600 19px/1.25 "Barlow", sans-serif; margin-bottom: 7px; }
+  .step p { margin: 0; font-size: 15px; color: var(--ink-soft); }
+
+  /* ---- dashboard ---- */
+  .panel {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 8px; box-shadow: var(--shadow); overflow: hidden;
+  }
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 15px 20px; border-bottom: 1px solid var(--line); background: var(--surface-2);
+    flex-wrap: wrap;
+  }
+  .panel-head h3 { font: 600 16px/1 "Barlow", sans-serif; }
+  .tag {
+    font: 500 11px/1 "IBM Plex Mono", monospace; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-soft);
+    border: 1px dashed var(--line); border-radius: 3px; padding: 5px 9px;
+  }
+  .skill { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  .skill:last-child { border-bottom: 0; }
+  @media (min-width: 720px) { .skill { grid-template-columns: 1.4fr 1fr auto; align-items: center; gap: 18px; } }
+  .skill-name { font-weight: 600; font-size: 15px; }
+  .skill-name small { display: block; font-weight: 400; color: var(--ink-soft); font-size: 13px; }
+  .track { height: 9px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+  .track i { display: block; height: 100%; border-radius: 99px; background: var(--accent); }
+  .state {
+    font: 600 11px/1 "Barlow", sans-serif; letter-spacing: .08em; text-transform: uppercase;
+    padding: 6px 10px; border-radius: 3px; white-space: nowrap; justify-self: start;
+  }
+  .s-go   { background: var(--go-bg);   color: var(--go); }
+  .s-wait { background: var(--wait-bg); color: var(--wait); }
+  .s-stop { background: var(--stop-bg); color: var(--stop); }
+
+  .tiles { display: grid; gap: 14px; grid-template-columns: 1fr; margin-top: 18px; }
+  @media (min-width: 760px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px 20px; }
+  .tile .v { font: 600 34px/1 "Barlow Condensed", sans-serif; }
+  .tile .k { font-size: 13.5px; color: var(--ink-soft); margin-top: 6px; }
+
+  /* ---- install ---- */
+  .install { display: grid; gap: 26px; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .install { grid-template-columns: 1fr 1fr; } }
+  ol.install-steps { margin: 0; padding-left: 20px; display: grid; gap: 11px; }
+  ol.install-steps li { font-size: 15.5px; }
+  .copybox {
+    display: flex; align-items: stretch; border: 1px solid var(--line);
+    border-radius: 4px; overflow: hidden; background: var(--surface); margin-bottom: 8px;
+  }
+  .copybox code {
+    flex: 1; padding: 13px 15px; font-family: "IBM Plex Mono", monospace; font-size: 14.5px;
+    color: var(--ink); overflow-x: auto; white-space: nowrap;
+  }
+  .copy {
+    border: 0; border-left: 1px solid var(--line); background: var(--surface-2);
+    color: var(--ink); font: 600 13px/1 "Barlow", sans-serif; padding: 0 18px; cursor: pointer;
+  }
+  .note { font-size: 13.5px; color: var(--ink-soft); }
+
+  /* ---- differentiators ---- */
+  .diffs { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  @media (min-width: 820px) { .diffs { grid-template-columns: 1fr 1fr; } }
+  .diff { background: var(--surface); padding: 22px 24px; }
+  .diff h3 { font: 600 17px/1.3 "Barlow", sans-serif; margin-bottom: 7px; }
+  .diff p { margin: 0; color: var(--ink-soft); font-size: 15px; }
+  .honest {
+    margin-top: 22px; border-left: 3px solid var(--accent);
+    background: var(--surface); padding: 18px 22px; font-size: 15px;
+  }
+  footer { padding: 30px 0 48px; color: var(--ink-soft); font-size: 13.5px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="mark">DIS<span>HA</span></div>
+    <div class="meaning">दिशा &nbsp;·&nbsp; direction</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">Smart India Hackathon 2026 · PS 26207</p>
+        <h1>It doesn't do it <em>for</em> you.<br>It teaches you to<br>do it yourself.</h1>
+        <p class="lede">
+          Disha watches the page you're already on, points at the one thing to click next —
+          and gets quieter every time you succeed, until you don't need it.
+        </p>
+        <div class="cta-row">
+          <a class="btn" href="#install">Install the extension</a>
+          <a class="btn ghost" href="#dashboard">See a learner's progress</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="screen">
+          <div class="screen-bar">
+            <i class="tl"></i><i class="tl"></i><i class="tl"></i>
+            <div class="screen-url">colab.research.google.com</div>
+          </div>
+          <div class="screen-body">
+            <div class="pill" id="pill">Found it</div>
+            <div style="margin-top:34px">
+              <div class="fake-h w70"></div>
+              <div class="fake-h w45"></div>
+              <div class="fake-h w58"></div>
+            </div>
+            <span class="fake-btn" id="target">Run cell</span>
+            <div class="dot" id="dot"></div>
+            <div class="callout" id="callout">Runs the code above; output appears below</div>
+          </div>
+        </div>
+        <div class="runner">
+          <span>Attempt <b id="attempt">1</b> of 4 — same task, repeated</span>
+          <span class="mono" id="opacity">opacity 1.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="stat">
+      <div class="stat-num">21<span style="font-size:.5em">%</span></div>
+      <div>
+        <p>
+          Only <strong>21% of rural Indians aged 15–24</strong> can do all three: search the
+          internet, use email, and complete online banking. The tools are on the screen.
+          People simply cannot find the button — so they pay someone else to click it.
+        </p>
+        <p class="src">MoSPI, Comprehensive Annual Modular Survey 2022–23 · Combined ICT-skill measure</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Mechanism</p>
+      <h2>Guidance that removes itself</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="n">SHOW</span>
+        <h3>Point, don't take over</h3>
+        <p>Disha reads the live page — every button, link and field with its accessible name — and marks the single next step. You do the clicking. It never types your password or presses submit.</p>
+      </div>
+      <div class="step">
+        <span class="n">CHECK</span>
+        <h3>Admit doubt honestly</h3>
+        <p>The colour isn't the AI's opinion of itself. Disha independently scores the page evidence, and the model and the page must agree before a dot turns green.</p>
+      </div>
+      <div class="step">
+        <span class="n">FADE</span>
+        <h3>Then get out of the way</h3>
+        <p>Every time you complete a step yourself the guidance dims. Get it wrong and the help returns. Mastery is earned, and it can be lost.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="dashboard">
+    <div class="sec-head">
+      <p class="eyebrow">For the learner and the institution</p>
+      <h2>What a student can now do alone</h2>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Skill progress</h3>
+        <span class="tag">Example learner view</span>
+      </div>
+
+      <div class="skill">
+        <div class="skill-name">Run a notebook cell<small>colab.research.google.com</small></div>
+        <div class="track"><i style="width:100%"></i></div>
+        <span class="state s-go">Unaided</span>
+      </div>
+      <div class="skill">
+        <div class="skill-name">Install a Python package<small>colab.research.google.com</small></div>
+        <div class="track"><i style="width:78%"></i></div>
+        <span class="state s-go">Nearly there</span>
+      </div>
+      <div class="skill">
+        <div class="skill-name">Attach a scholarship document<small>scholarships.gov.in</small></div>
+        <div class="track"><i style="width:46%"></i></div>
+        <span class="state s-wait">Still guided</span>
+      </div>
+      <div class="skill">
+        <div class="skill-name">File a grievance<small>scholarships.gov.in</small></div>
+        <div class="track"><i style="width:12%"></i></div>
+        <span class="state s-stop">Needs help</span>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="v" style="color:var(--go)">Green</div>
+        <div class="k">Model confidence and page evidence agree. Safe to follow.</div>
+      </div>
+      <div class="tile">
+        <div class="v" style="color:var(--wait)">Amber</div>
+        <div class="k">Best guess. Two candidates looked alike — check before clicking.</div>
+      </div>
+      <div class="tile">
+        <div class="v" style="color:var(--stop)">Red</div>
+        <div class="k">Not confident, or the step can't be undone. Disha stops and asks.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="sec-head">
+      <p class="eyebrow">Setup</p>
+      <h2>Install in one minute</h2>
+    </div>
+    <div class="install">
+      <div>
+        <div class="copybox">
+          <code id="chromeurl">chrome://extensions</code>
+          <button class="copy" id="copybtn" type="button">Copy</button>
+        </div>
+        <p class="note">
+          Browsers block web pages from opening <span class="mono">chrome://</span> addresses directly —
+          a security rule, not an oversight. Copy it and paste it into your address bar.
+        </p>
+      </div>
+      <ol class="install-steps">
+        <li>Paste the address above into a new tab and press Enter.</li>
+        <li>Turn on <strong>Developer mode</strong> (top-right toggle).</li>
+        <li>Click <strong>Load unpacked</strong> (top-left).</li>
+        <li>Select the <span class="mono">guide-dots</span> folder.</li>
+        <li>Click the 🧩 puzzle icon and <strong>pin</strong> Disha to your toolbar.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Why this is different</p>
+      <h2>Four things nothing else combines</h2>
+    </div>
+    <div class="diffs">
+      <div class="diff">
+        <h3>Confidence you can see</h3>
+        <p>Every dot carries a number the system can be held to, computed from the page itself — not a model marking its own homework.</p>
+      </div>
+      <div class="diff">
+        <h3>It guides; it never acts</h3>
+        <p>The human always clicks. That is what makes it safe on a portal handling money, identity or an exam form.</p>
+      </div>
+      <div class="diff">
+        <h3>Works where nobody scripted it</h3>
+        <p>Existing walkthrough tools need every step authored in advance. Disha reads whatever is on screen, so a redesign doesn't break it.</p>
+      </div>
+      <div class="diff">
+        <h3>Teaching, not a shortcut</h3>
+        <p>Active learning raised performance by 0.47 SD across 225 studies. Fading guidance is how that becomes software.</p>
+      </div>
+    </div>
+
+    <div class="honest">
+      <strong>What we don't claim.</strong> Microsoft Copilot Vision already highlights where to click,
+      and we did not invent AI screen understanding. What no shipped product combines is calibrated,
+      visible confidence, guidance that fades on demonstrated mastery, and task packs built for Indian
+      student and public-service portals.
+    </div>
+  </section>
+
+  <footer>
+    Disha · Smart India Hackathon 2026 · Student Innovation — Smart Education (PS 26207).
+    Evidence: MoSPI CAMS 2022–23 · NCAER 2026 · Freeman et al., PNAS 2014.
+  </footer>
+</div>
+
+<script>
+  // The hero demo is the product's thesis: the same task, repeated, guidance fading.
+  var dot = document.getElementById("dot");
+  var callout = document.getElementById("callout");
+  var target = document.getElementById("target");
+  var pill = document.getElementById("pill");
+  var attemptEl = document.getElementById("attempt");
+  var opacityEl = document.getElementById("opacity");
+
+  function placeMarker() {
+    var body = target.closest(".screen-body").getBoundingClientRect();
+    var r = target.getBoundingClientRect();
+    var x = r.right - body.left - 8;
+    var y = r.top - body.top + 8;
+    dot.style.left = x + "px";
+    dot.style.top = y + "px";
+    callout.style.left = (x + 14) + "px";
+    callout.style.top = y + "px";
+  }
+  placeMarker();
+  window.addEventListener("resize", placeMarker);
+
+  var frames = [
+    { n: 1, o: 1.00, label: true,  pill: "Found it",                     tone: "#14803C" },
+    { n: 2, o: 0.82, label: false, pill: "Found it",                     tone: "#14803C" },
+    { n: 3, o: 0.46, label: false, pill: "You've done this before",      tone: "#B45309" },
+    { n: 4, o: 0.00, label: false, pill: "Mastered — no help needed",    tone: "#141A26" }
+  ];
+  var i = 0;
+  function render() {
+    var f = frames[i];
+    dot.style.opacity = f.o;
+    callout.style.opacity = f.label ? 1 : 0;
+    pill.textContent = f.pill;
+    pill.style.background = f.tone;
+    attemptEl.textContent = f.n;
+    opacityEl.textContent = "opacity " + f.o.toFixed(2);
+    i = (i + 1) % frames.length;
+  }
+  render();
+  setInterval(render, 2200);
+
+  var btn = document.getElementById("copybtn");
+  btn.addEventListener("click", function () {
+    navigator.clipboard.writeText("chrome://extensions").then(function () {
+      btn.textContent = "Copied";
+      setTimeout(function () { btn.textContent = "Copy"; }, 1600);
+    }).catch(function () {
+      btn.textContent = "Select it";
+    });
+  });
+</script>

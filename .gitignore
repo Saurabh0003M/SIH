@@ -1,0 +1,14 @@
+# Cloned third-party repos - 272MB, each with its own .git.
+# Reference material only; never our code. Re-clonable at any time.
+borrowed/
+
+# Never commit secrets
+.env
+.env.*
+*.key
+
+# Junk
+node_modules/
+__pycache__/
+.DS_Store
+Thumbs.db
