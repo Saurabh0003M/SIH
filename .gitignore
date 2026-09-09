@@ -12,3 +12,11 @@ node_modules/
 __pycache__/
 .DS_Store
 Thumbs.db
+
+# Credentials pasted in for testing, and screenshots of them. On disk only -
+# git must never carry these, and two AgentRouter keys already reached history
+# once (purged 2026-09-09). Rotate anything that was in here.
+research/agent router api key/
+*api key*.txt
+*apikey*.txt
+config.local.js

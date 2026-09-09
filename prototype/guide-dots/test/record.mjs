@@ -55,8 +55,22 @@ await sleep(1500); // let fonts and layout settle before the first frame
 await cdp.send("Page.startScreencast", {
   format: "jpeg", quality: 90, maxWidth: 1920, maxHeight: 1080, everyNthFrame: 1
 });
-console.log(`recording ${seconds}s of ${url} ...`);
-await sleep(seconds * 1000);
+// A fixed duration either cuts the ending off or leaves dead air at the end,
+// and both ruin a loop. autoplay's scenes set window.__sceneDone once they are
+// back on the idle frame, so the recorder can stop exactly at the loop point.
+if (flags.includes("--until-done")) {
+  console.log(`recording ${url} until the scene reports done (max ${seconds}s) ...`);
+  const until = Date.now() + seconds * 1000;
+  for (;;) {
+    if (Date.now() > until) { console.log("  scene never reported done - stopping at the cap"); break; }
+    const r = await cdp.send("Runtime.evaluate", { expression: "!!window.__sceneDone", returnByValue: true });
+    if (r.result.value) break;
+    await sleep(200);
+  }
+} else {
+  console.log(`recording ${seconds}s of ${url} ...`);
+  await sleep(seconds * 1000);
+}
 await cdp.send("Page.stopScreencast");
 await sleep(300);
 cdp.close();

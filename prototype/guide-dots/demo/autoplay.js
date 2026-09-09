@@ -37,13 +37,13 @@
   // ---- talking to the real UI --------------------------------------------
   const shadow = () => document.getElementById("gd-chat-host").shadowRoot;
 
-  async function type(text) {
+  async function type(text, perChar = 42) {
     const input = shadow().getElementById("q");
     input.focus();
     input.value = "";
     for (const ch of text) {
       input.value += ch;
-      await wait(42);
+      await wait(perChar);
     }
     await wait(400);
     shadow().getElementById("go").click();
@@ -162,17 +162,17 @@
 
   // Click through the dot. The overlay is pointer-events:none, so this lands on
   // the page control underneath — exactly what we ask the user to do.
-  async function clickDot(dot) {
+  async function clickDot(dot, moveMs = 620) {
     const c = centreOf(dot);
-    await moveTo(c.x, c.y);      // the hand travels to the dot, in view
+    await moveTo(c.x, c.y, moveMs); // the hand travels to the dot, in view
     await wait(180);
     await pressRing();           // and the click is something you can SEE
     const target = document.elementFromPoint(c.x, c.y);
     if (target) target.click();
-    await wait(700);
+    await wait(Math.max(260, moveMs));
   }
 
-  async function followDot({ hover = false, hold = 1500 } = {}) {
+  async function followDot({ hover = false, hold = 1500, moveMs = 620 } = {}) {
     const dot = await waitFor(overlayDot);
     if (!dot) return false;
     await wait(hold);
@@ -181,7 +181,7 @@
       await wait(2400);
       document.dispatchEvent(new MouseEvent("mousemove", { clientX: 4, clientY: 4, bubbles: true }));
     }
-    await clickDot(dot);
+    await clickDot(dot, moveMs);
     return true;
   }
 
@@ -262,5 +262,143 @@
     hideCaption();
   }
 
-  addEventListener("load", () => setTimeout(run, 600));
+  // ---- scenes: one clip each -------------------------------------------
+  // A PowerPoint loop that jumps reads as a glitch, so every scene starts on
+  // the idle page and ends back on that same frame: overlay faded out, chat
+  // wound back to its opening line, pointer gone. First frame == last frame.
+
+  const shadowLog = () => shadow().getElementById("log");
+
+  async function resetToIdle({ mastery = false, quick = false } = {}) {
+    if (mastery) await chrome.storage.local.set({ gd_mastery: {} });
+    document.querySelector('nav a[data-go="home"]').click();
+    scrollTo({ top: 0, behavior: "instant" });
+    const log = shadowLog();
+    while (log.children.length > 1) log.removeChild(log.lastChild); // keep the greeting
+    shadow().getElementById("q").value = "";
+    const o = document.getElementById("gd-overlay");
+    if (o) {
+      o.style.transition = "none";
+      o.style.opacity = "1";
+    }
+    cursor.style.opacity = "0";
+    cur = { x: innerWidth * 0.5, y: innerHeight * 0.75 };
+    place();
+    hideCaption();
+    await wait(quick ? 380 : 700);
+  }
+
+  async function endScene() {
+    // End the RUN first. Otherwise going home is just another page change to a
+    // live guide: it re-grounds, says another line, and the clip ends with a
+    // taller chat panel than it started with — which is exactly the seam that
+    // makes a loop visibly jump.
+    shadow().getElementById("stop").click();
+    await wait(250);
+
+    const o = document.getElementById("gd-overlay");
+    hideCaption();
+    if (o) {
+      o.style.transition = "opacity 400ms ease-out";
+      o.style.opacity = "0";
+    }
+    cursor.style.opacity = "0";
+    await wait(400);
+
+    // The PAGE has to come home too. Fading only the overlay left the clip
+    // ending on the confirmation screen, so the loop jumped back to the
+    // dashboard — the exact glitch this rule exists to prevent.
+    document.querySelector('nav a[data-go="home"]').click();
+    scrollTo({ top: 0, behavior: "instant" });
+    const log = shadowLog();
+    while (log.children.length > 1) log.removeChild(log.lastChild);
+    shadow().getElementById("q").value = "";
+
+    await wait(300); // hold the idle frame, so the cut is invisible
+    window.__sceneDone = true;
+  }
+
+  const SCENES = {
+    // The four dots landing, across three screens.
+    async chain() {
+      await resetToIdle({ mastery: true });
+      await type("i want to take my money out", 25);
+      await followDot({ hold: 900 });
+      await followDot({ hold: 900 });
+      await followDot({ hold: 900 });
+      await followDot({ hold: 1100 });
+      await wait(900);
+    },
+
+    // Step 3 alone: the near-tie that goes red, and the card that explains it.
+    async "red-verify"() {
+      await resetToIdle({ mastery: true });
+      await type("i want to take my money out");
+      await followDot({ hold: 500 });
+      await followDot({ hold: 500 });
+      const dot = await waitFor(overlayDot);
+      if (dot) {
+        await wait(600);
+        await hoverDot(dot);
+        await wait(2200);
+      }
+    },
+
+    // The target is three screens down: it points, it does not grab the page.
+    async arrow() {
+      await resetToIdle({ mastery: true });
+      await type("something is wrong, i want to raise a complaint");
+      await waitFor(overlayArrow);
+      await wait(1800);
+      scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      await wait(2000);
+      await waitFor(overlayDot);
+      await wait(1400);
+    },
+
+    // The same task four times: the guidance gets quieter and then leaves.
+    async fade() {
+      await resetToIdle({ mastery: true });
+      // Each repetition is quicker than the last, which is the felt experience
+      // of getting good at something as well as a shorter clip.
+      const pace = [{ ch: 30, hold: 620, mv: 460 }, { ch: 12, hold: 220, mv: 280 },
+                    { ch: 8, hold: 170, mv: 210 }];
+      for (const p of pace) {
+        await type("i want to take my money out", p.ch);
+        await followDot({ hold: p.hold, moveMs: p.mv });
+        await followDot({ hold: p.hold, moveMs: p.mv });
+        await resetToIdle({ quick: true });
+      }
+      await type("i want to take my money out", 8);
+      await wait(1500); // mastered: nothing is drawn, and that IS the point
+    },
+
+    // Sharing paused at a sensitive field, which is the whole safety story.
+    async pause() {
+      await resetToIdle({ mastery: true });
+      const s = shadow();
+      s.getElementById("share").click();
+      await wait(1200);
+      s.getElementById("hold").click();
+      await wait(2200);
+      s.getElementById("hold").click();
+      await wait(1200);
+      s.getElementById("stop").click();
+      await wait(900);
+    }
+  };
+
+  async function play() {
+    const name = (location.search.match(/[?&]scene=([\w-]+)/) || [])[1];
+    if (!name) return run(); // no scene named: the whole story, as before
+    const scene = SCENES[name];
+    if (!scene) {
+      console.warn("[autoplay] no such scene:", name, "- have:", Object.keys(SCENES).join(", "));
+      return;
+    }
+    await scene();
+    await endScene();
+  }
+
+  addEventListener("load", () => setTimeout(play, 600));
 })();
