@@ -20,3 +20,8 @@ research/agent router api key/
 *api key*.txt
 *apikey*.txt
 config.local.js
+
+# scratch frames from the clip seam-check; they belong in the scratchpad
+SEAM*.png
+/A.png
+/B.png
