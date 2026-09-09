@@ -57,12 +57,30 @@
     // Off-screen: point the way and let them scroll. Scrolling the page for
     // them teaches nothing and steals control of a screen they are trying to
     // learn. scheduleRepaint() swaps the arrow for the dot as it comes into view.
+    // How far off-screen, in screenfuls. One arrowhead is "just past the edge";
+    // two is "this is a long way, keep going". A single arrow for a four-flick
+    // scroll teaches the person the arrow cannot be trusted.
+    const FAR = 1.25;
     if (r.bottom < 8) {
-      drawArrow("up", color, "Scroll up — your next step is above");
+      const far = -r.bottom > innerHeight * FAR;
+      drawArrow(
+        "up",
+        color,
+        far ? "Keep scrolling up — it is near the top of the page"
+            : "Scroll up — your next step is above",
+        { far }
+      );
       return;
     }
     if (r.top > innerHeight - 8) {
-      drawArrow("down", color, "Scroll down — your next step is below");
+      const far = r.top - innerHeight > innerHeight * FAR;
+      drawArrow(
+        "down",
+        color,
+        far ? "Keep scrolling down — it is near the bottom of the page"
+            : "Scroll down — your next step is below",
+        { far }
+      );
       return;
     }
 

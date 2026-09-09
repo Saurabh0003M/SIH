@@ -266,9 +266,14 @@ function drawDot(rect, color, label, opts) {
 // The target is off-screen. Point the way instead of yanking the page around —
 // the person stays in control of their own scrolling, which is the difference
 // between being guided and being driven.
-function drawArrow(direction, color, text) {
+// `far` draws a DOUBLE arrow. One arrowhead means "it is just off the edge,
+// nudge the page". Two means "it is a long way from here — keep going to the
+// end". Telling those apart matters: a single arrow that turns out to need four
+// flicks of the wheel teaches the person that the arrow cannot be trusted.
+function drawArrow(direction, color, text, opts) {
   const overlay = document.getElementById("gd-overlay");
   if (!overlay) return;
+  const { far = false } = opts || {};
   const down = direction === "down";
 
   const wrap = document.createElement("div");
@@ -297,7 +302,10 @@ function drawArrow(direction, color, text) {
   });
 
   const head = document.createElement("div");
-  head.textContent = down ? "↓" : "↑";
+  // Two stacked chevrons rather than the ⇊ / ⇈ glyphs: those are missing from
+  // several Windows UI fonts and fall back to a box, and a box in the middle of
+  // a demo is worse than no arrow at all.
+  head.textContent = down ? "⌄" : "⌃";
   Object.assign(head.style, {
     width: "42px",
     height: "42px",
@@ -306,8 +314,26 @@ function drawArrow(direction, color, text) {
     color: "#fff",
     font: "700 24px/42px system-ui, sans-serif",
     textAlign: "center",
-    boxShadow: "0 0 0 3px #fff, 0 2px 10px rgb(0 0 0 / 40%)"
+    boxShadow: "0 0 0 3px #fff, 0 2px 10px rgb(0 0 0 / 40%)",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    lineHeight: "1"
   });
+  head.textContent = "";
+  const chevrons = far ? 2 : 1;
+  for (let i = 0; i < chevrons; i++) {
+    const c = document.createElement("span");
+    c.textContent = down ? "⌄" : "⌃";
+    Object.assign(c.style, {
+      display: "block",
+      font: "700 20px/0.62 system-ui, sans-serif",
+      // The bare chevron glyph sits high in its box; nudge it back to centre.
+      transform: down ? "translateY(-3px)" : "translateY(3px)"
+    });
+    head.appendChild(c);
+  }
 
   wrap.appendChild(caption);
   wrap.appendChild(head);

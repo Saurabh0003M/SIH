@@ -65,7 +65,7 @@
   }
   function overlayArrow() {
     const o = document.getElementById("gd-overlay");
-    return o && [...o.querySelectorAll(".gd-dot")].find((d) => /Scroll/.test(d.textContent || ""));
+    return o && [...o.querySelectorAll(".gd-dot")].find((d) => /scroll/i.test(d.textContent || ""));
   }
 
   async function waitFor(fn, timeout = 9000) {
@@ -342,6 +342,43 @@
         await hoverDot(dot);
         await wait(2200);
       }
+    },
+
+    // Every navigation state in one take: two arrowheads for a long scroll,
+    // one for a short one, the dot when the target is finally on screen, and
+    // the same thing upwards. It points; it never scrolls the page for you.
+    async nav() {
+      await resetToIdle({ mastery: true });
+      await type("something is wrong, i want to raise a complaint", 25);
+
+      await waitFor(overlayArrow);
+      await wait(2200);                       // double arrow: a long way down
+      scrollTo({ top: document.body.scrollHeight * 0.42, behavior: "smooth" });
+      await wait(1900);                       // single arrow: nearly there
+      scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      await wait(1700);
+      await followDot({ hold: 1100 });        // the dot, and the human clicks it
+
+      // Now the other direction: the target is back up in the nav bar.
+      // End the first run before setting up the second, or the guide is still
+      // grounding on the page change and paints a dot mid-setup.
+      shadow().getElementById("stop").click();
+      await wait(400);
+      document.querySelector('nav a[data-go="home"]').click();
+      await wait(900);
+      scrollTo({ top: document.body.scrollHeight, behavior: "instant" });
+      await wait(900); // let the scroll settle before asking, or the target is
+                       // still on screen and no arrow is warranted
+      // NOT a nav link: the header is position:sticky, so "Wallet" is on screen
+      // at every scroll position and can never earn an up arrow. "Buy stocks"
+      // sits in the page body near the top, which is the honest upward case.
+      await type("i want to buy some shares", 25);
+      await waitFor(overlayArrow);
+      await wait(2200);                       // double arrow, pointing up
+      scrollTo({ top: 0, behavior: "smooth" });
+      await wait(1700);
+      await followDot({ hold: 1100 });
+      await wait(600);
     },
 
     // The target is three screens down: it points, it does not grab the page.
