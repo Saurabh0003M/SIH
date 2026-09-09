@@ -47,11 +47,23 @@ function gdRole(el) {
   return tag;
 }
 
+// Our own UI is on the page too, and the ask bar lives in a shadow root that the
+// walk below would happily descend into — leaving the guide free to point at its
+// own Stop button. Everything we injected is off-limits.
+const GD_OURS = ["gd-overlay", "gd-chat-host", "gd-styles"];
+
+function gdIsOurs(el) {
+  return GD_OURS.some((id) => {
+    const node = document.getElementById(id);
+    return node && (node === el || node.contains(el));
+  });
+}
+
 // Modern SPAs hide controls inside shadow roots, which querySelectorAll won't cross.
 function gdCollect(root, bag) {
   root.querySelectorAll(GD_SELECTOR).forEach((el) => bag.push(el));
   root.querySelectorAll("*").forEach((el) => {
-    if (el.shadowRoot) gdCollect(el.shadowRoot, bag);
+    if (el.shadowRoot && !gdIsOurs(el)) gdCollect(el.shadowRoot, bag);
   });
 }
 
@@ -69,6 +81,8 @@ function getInteractiveElements() {
 
   const kept = [];
   found.forEach((el) => {
+    if (gdIsOurs(el)) return;
+
     const r = el.getBoundingClientRect();
     if (r.width <= 0 || r.height <= 0) return;
 

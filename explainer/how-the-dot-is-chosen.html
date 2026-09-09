@@ -1,0 +1,604 @@
+<title>How the dot is chosen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  /* Two voices, and the page only has two things to say: what a person typed,
+     and what a machine made of it. Serif is the person. Mono is the machine. */
+  :root {
+    --ground:   #fbfbfa;
+    --panel:    #ffffff;
+    --panel-2:  #f4f5f7;
+    --ink:      #14181d;
+    --muted:    #656d78;
+    --faint:    #98a0aa;
+    --rule:     #e2e4e8;
+    --accent:   #1f5f8b;
+    --accent-w: rgba(31, 95, 139, .10);
+    --green:    #157f3d;
+    --amber:    #a8620b;
+    --red:      #bc3325;
+    --green-w:  rgba(21, 127, 61, .12);
+    --amber-w:  rgba(168, 98, 11, .12);
+    --red-w:    rgba(188, 51, 37, .12);
+    --shadow:   0 1px 2px rgb(20 24 29 / 5%), 0 8px 24px rgb(20 24 29 / 5%);
+
+    --serif: "Newsreader", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:   #0d1014;
+      --panel:    #14181e;
+      --panel-2:  #1b2027;
+      --ink:      #e9ecef;
+      --muted:    #99a1ac;
+      --faint:    #6b737e;
+      --rule:     #242b34;
+      --accent:   #74afdb;
+      --accent-w: rgba(116, 175, 219, .13);
+      --green:    #58c98a;
+      --amber:    #e2a33c;
+      --red:      #ef8177;
+      --green-w:  rgba(88, 201, 138, .14);
+      --amber-w:  rgba(226, 163, 60, .14);
+      --red-w:    rgba(239, 129, 119, .14);
+      --shadow:   0 1px 2px rgb(0 0 0 / 30%), 0 10px 30px rgb(0 0 0 / 28%);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:   #0d1014;
+    --panel:    #14181e;
+    --panel-2:  #1b2027;
+    --ink:      #e9ecef;
+    --muted:    #99a1ac;
+    --faint:    #6b737e;
+    --rule:     #242b34;
+    --accent:   #74afdb;
+    --accent-w: rgba(116, 175, 219, .13);
+    --green:    #58c98a;
+    --amber:    #e2a33c;
+    --red:      #ef8177;
+    --green-w:  rgba(88, 201, 138, .14);
+    --amber-w:  rgba(226, 163, 60, .14);
+    --red-w:    rgba(239, 129, 119, .14);
+    --shadow:   0 1px 2px rgb(0 0 0 / 30%), 0 10px 30px rgb(0 0 0 / 28%);
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 44px 24px 72px; }
+
+  /* ---- masthead ---- */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(32px, 5.2vw, 52px);
+    line-height: 1.08;
+    letter-spacing: -.018em;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    max-width: 62ch;
+    font-size: 18px;
+    line-height: 1.62;
+    color: var(--muted);
+    margin: 0;
+  }
+  .standfirst em { font-style: italic; color: var(--ink); }
+
+  /* ---- transport ---- */
+  .transport {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    margin: 32px 0 8px; padding-bottom: 18px; border-bottom: 1px solid var(--rule);
+  }
+  button {
+    font-family: var(--mono); font-size: 12.5px; font-weight: 500;
+    color: var(--ink); background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 7px;
+    padding: 8px 14px; cursor: pointer;
+    transition: border-color 140ms, background 140ms, color 140ms;
+  }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  #play { background: var(--ink); color: var(--ground); border-color: var(--ink); min-width: 108px; }
+  #play:hover { opacity: .88; }
+  .cases { display: flex; gap: 6px; margin-left: auto; }
+  .cases button[aria-pressed="true"] { background: var(--accent-w); border-color: var(--accent); color: var(--accent); }
+  .rail { display: flex; gap: 5px; align-items: center; }
+  .rail i {
+    width: 22px; height: 3px; border-radius: 2px; background: var(--rule);
+    transition: background 220ms;
+  }
+  .rail i.done { background: var(--accent); }
+
+  /* ---- stage ---- */
+  .stage {
+    display: grid; gap: 16px; margin-top: 24px;
+    grid-template-columns: repeat(12, 1fr);
+  }
+  .panel {
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 20px; box-shadow: var(--shadow); min-width: 0;
+    transition: opacity 320ms ease;
+  }
+  .panel.waiting { opacity: .32; }
+  .p-words   { grid-column: span 5; }
+  .p-page    { grid-column: span 7; }
+  .p-score   { grid-column: span 7; }
+  .p-verdict { grid-column: span 5; }
+  @media (max-width: 860px) { .panel { grid-column: 1 / -1 !important; } }
+
+  .p-head {
+    display: flex; align-items: baseline; gap: 10px;
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--faint);
+    margin-bottom: 16px;
+  }
+  .p-head b { color: var(--accent); font-weight: 600; }
+  .p-head .count { margin-left: auto; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+
+  /* ---- panel 1: the words ---- */
+  .typed {
+    font-family: var(--serif); font-size: 23px; line-height: 1.45;
+    letter-spacing: -.01em; margin: 0 0 6px;
+  }
+  .typed span { transition: color 300ms, opacity 300ms; }
+  .typed .drop { color: var(--faint); opacity: .5; }
+  .typed .keep { color: var(--ink); border-bottom: 2px solid var(--accent); }
+  .aside { font-family: var(--mono); font-size: 11.5px; color: var(--faint); margin: 0 0 18px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip {
+    font-family: var(--mono); font-size: 11.5px; padding: 3px 8px;
+    border-radius: 5px; background: var(--panel-2); color: var(--muted);
+    border: 1px solid transparent;
+    opacity: 0; transform: translateY(4px);
+    transition: opacity 260ms ease, transform 260ms ease;
+  }
+  .chip.on { opacity: 1; transform: none; }
+  .chip.seed { background: var(--accent-w); color: var(--accent); border-color: var(--accent); font-weight: 500; }
+
+  .arrowline {
+    display: flex; align-items: center; gap: 10px; margin: 16px 0 12px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--faint);
+  }
+  .arrowline::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+
+  /* ---- panel 2: the page ---- */
+  .elements {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 4px 10px; max-height: 258px; overflow-y: auto;
+  }
+  .el {
+    display: flex; align-items: baseline; gap: 7px; min-width: 0;
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+    padding: 2px 0; opacity: 0;
+    transition: opacity 200ms ease, color 260ms ease;
+  }
+  .el.on { opacity: 1; }
+  .el .role { color: var(--faint); font-size: 10px; flex: none; width: 46px; }
+  .el .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .el.hit { color: var(--ink); }
+  .el.hit .nm { font-weight: 600; }
+  .el.dim { color: var(--faint); opacity: .38; }
+
+  /* ---- panel 3: scoring ---- */
+  .rows { display: flex; flex-direction: column; gap: 12px; }
+  .row .top {
+    display: flex; align-items: baseline; gap: 8px;
+    font-family: var(--mono); font-size: 12.5px; margin-bottom: 5px;
+  }
+  .row .nm { color: var(--ink); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .why { color: var(--faint); font-size: 11px; }
+  .row .val { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .track { height: 7px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
+  .fill {
+    height: 100%; width: 0; border-radius: 4px; background: var(--accent);
+    transition: width 720ms cubic-bezier(.22,.8,.3,1);
+  }
+  .row.rest .fill { background: var(--rule); }
+  .row.rest .nm { color: var(--muted); font-weight: 400; }
+
+  .margin {
+    margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule);
+    display: flex; align-items: flex-start; gap: 14px;
+    opacity: 0; transition: opacity 400ms ease;
+  }
+  .margin.on { opacity: 1; }
+  .margin .fig {
+    font-family: var(--mono); font-size: 25px; font-weight: 600;
+    font-variant-numeric: tabular-nums; line-height: 1.1; flex: none;
+  }
+  .margin p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 44ch; }
+  .margin p b { color: var(--ink); font-weight: 500; }
+
+  /* ---- panel 4: verdict ---- */
+  .gauges { display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+  .gauge .lab {
+    display: flex; align-items: baseline; gap: 8px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .05em;
+    color: var(--muted); margin-bottom: 5px;
+  }
+  .gauge .lab span { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 500; }
+
+  .breakdown {
+    list-style: none; padding: 0; margin: 0 0 18px;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .breakdown li { display: flex; gap: 8px; }
+  .breakdown li b { flex: none; width: 40px; font-variant-numeric: tabular-nums; font-weight: 500; }
+  .breakdown li.zero { color: var(--faint); }
+  .breakdown li.zero b { color: var(--faint); }
+
+  .verdict {
+    border-radius: 10px; padding: 16px; border: 1px solid;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity 380ms ease, transform 380ms ease;
+  }
+  .verdict.on { opacity: 1; transform: none; }
+  .verdict .band {
+    display: flex; align-items: center; gap: 9px;
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    letter-spacing: .09em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .verdict .dot { width: 13px; height: 13px; border-radius: 50%; flex: none; }
+  .verdict .pct { margin-left: auto; font-size: 19px; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+  .verdict .said { margin: 0; font-size: 15px; line-height: 1.5; }
+  .verdict.amber { border-color: var(--amber); background: var(--amber-w); color: var(--amber); }
+  .verdict.amber .dot { background: var(--amber); }
+  .verdict.red   { border-color: var(--red);   background: var(--red-w);   color: var(--red); }
+  .verdict.red .dot { background: var(--red); }
+  .verdict .said { color: var(--ink); }
+
+  /* ---- closing note ---- */
+  .note {
+    margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--rule);
+    display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  .note h3 {
+    font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--faint); margin: 0 0 8px;
+  }
+  .note p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--muted); max-width: 46ch; }
+  .note p b { color: var(--ink); font-weight: 500; }
+  .note code {
+    font-family: var(--mono); font-size: 12.5px; color: var(--accent);
+    background: var(--accent-w); padding: 1px 5px; border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Disha &middot; grounding pipeline</div>
+    <h1>How the dot is chosen</h1>
+    <p class="standfirst">
+      Someone types <em>&ldquo;i want to take my money out&rdquo;</em> on a broking site. Four
+      screens later their money is on the way, and they never learned the word
+      <em>withdraw</em>. These are the real numbers from that run &mdash; including the step
+      where the guide says it isn&rsquo;t sure.
+    </p>
+  </header>
+
+  <div class="transport">
+    <button id="play" type="button">&#9654;&ensp;Replay</button>
+    <div class="rail" id="rail" aria-hidden="true"></div>
+    <div class="cases" role="group" aria-label="Which step to inspect">
+      <button type="button" data-case="a" aria-pressed="true">Step 1 &middot; the nav</button>
+      <button type="button" data-case="b" aria-pressed="false">Step 3 &middot; the field</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <!-- 1 ------------------------------------------------------------ -->
+    <section class="panel p-words">
+      <div class="p-head"><b>1</b> What the person said <span class="count" id="c-words"></span></div>
+      <p class="typed" id="typed"></p>
+      <p class="aside" id="dropped"></p>
+
+      <div class="arrowline">then, its vocabulary</div>
+      <div class="chips" id="expansion"></div>
+    </section>
+
+    <!-- 2 ------------------------------------------------------------ -->
+    <section class="panel p-page waiting" id="pan-page">
+      <div class="p-head"><b>2</b> What the screen offers <span class="count" id="c-page"></span></div>
+      <div class="elements" id="elements"></div>
+    </section>
+
+    <!-- 3 ------------------------------------------------------------ -->
+    <section class="panel p-score waiting" id="pan-score">
+      <div class="p-head"><b>3</b> Scored against those words <span class="count" id="c-score"></span></div>
+      <div class="rows" id="rows"></div>
+      <div class="margin" id="margin">
+        <div class="fig" id="marginFig"></div>
+        <p id="marginText"></p>
+      </div>
+    </section>
+
+    <!-- 4 ------------------------------------------------------------ -->
+    <section class="panel p-verdict waiting" id="pan-verdict">
+      <div class="p-head"><b>4</b> What it will claim <span class="count">two numbers</span></div>
+
+      <div class="gauges">
+        <div class="gauge">
+          <div class="lab">word match <span id="g1v"></span></div>
+          <div class="track"><div class="fill" id="g1"></div></div>
+        </div>
+        <div class="gauge">
+          <div class="lab">page grounding <span id="g2v"></span></div>
+          <div class="track"><div class="fill" id="g2"></div></div>
+        </div>
+      </div>
+
+      <ul class="breakdown" id="breakdown"></ul>
+
+      <div class="verdict" id="verdict">
+        <div class="band"><span class="dot"></span><span id="bandName"></span><span class="pct" id="bandPct"></span></div>
+        <p class="said" id="bandSaid"></p>
+      </div>
+    </section>
+  </div>
+
+  <div class="note">
+    <div>
+      <h3>Why the second one goes red</h3>
+      <p>
+        On the withdraw screen two controls score almost the same &mdash; the amount field at
+        <b>0.815</b> and the confirm button at <b>0.763</b>. A win by <b>0.052</b> is reported as a
+        win by 0.052. The guide still shows the dot; it just stops pretending.
+      </p>
+    </div>
+    <div>
+      <h3>The colour is not a self-report</h3>
+      <p>
+        Every model will tell you it is confident. So the band needs <b>two</b> numbers to agree:
+        what the words scored, and what the page itself supports &mdash; is the control named, unique,
+        and actually the topmost thing at that point? The percentage shown is the
+        <code>min()</code> of the two, never the average, so the number can never contradict the colour.
+      </p>
+    </div>
+    <div>
+      <h3>No model was running</h3>
+      <p>
+        Every figure here came from the offline matcher: a synonym table, no network, no API key.
+        That is why the best it will claim is amber &mdash; words alone never earn green. Point it at a
+        model and the same machinery runs with better inputs.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Measured, not invented. Both cases were read straight out of the running
+  // extension on the demo portal; the scores are what lib/local.js and
+  // lib/ground.js actually returned.
+  const CASES = {
+    a: {
+      typed: [
+        { w: "i", keep: false }, { w: "want", keep: false }, { w: "to", keep: false },
+        { w: "take", keep: true }, { w: "my", keep: false }, { w: "money", keep: true },
+        { w: "out", keep: true }
+      ],
+      dropped: "\u201ci\u201d, \u201cto\u201d, \u201cmy\u201d are too short or too common to carry meaning. \u201cwant\u201d is a stopword.",
+      expansion: ["take","money","out","withdraw","cash","paisa","paise","rupee","transfer","payout","redeem","send","wallet","balance","fund","amount","account","purse"],
+      screen: "home screen",
+      elements: [
+        ["link","Home"],["link","Markets"],["link","Portfolio"],["link","Wallet"],["link","Reports"],
+        ["link","Help"],["button","Your profile"],["button","Buy stocks"],["button","Sell stocks"],
+        ["button","Set an alert"],["button","Reset practice memory"],["link","About us"],["link","Careers"],
+        ["link","Press"],["link","Investor relations"],["link","Stocks"],["link","Mutual funds"],
+        ["link","Bonds"],["link","IPO"],["link","Contact us"],["link","Grievance redressal"],
+        ["link","Raise a complaint"],["link","Brokerage charges"],["link","Terms of use"],
+        ["link","Privacy policy"],["link","Risk disclosure"],["link","SEBI regulations"]
+      ],
+      hits: ["Wallet", "Mutual funds"],
+      rows: [
+        { nm: "Wallet", why: "link \u00b7 \u201cwallet\u201d is what \u201cmoney\u201d means here", val: 0.706 },
+        { nm: "Mutual funds", why: "link \u00b7 \u201cfunds\u201d lands in the same group", val: 0.473 },
+        { nm: "the other 25 controls", why: "no word in common", val: 0, rest: true }
+      ],
+      margin: "0.233",
+      marginText: "clear of the runner-up. A wide margin is allowed to raise the confidence; a narrow one pulls it down.",
+      words: 0.635,
+      ground: 0.70,
+      breakdown: [
+        ["+0.30", "it has an accessible name"],
+        ["+0.00", "shares no literal word with what was typed", true],
+        ["+0.15", "a role people act on (link)"],
+        ["+0.15", "only one control on screen has this name"],
+        ["+0.10", "actually the topmost thing at that point"]
+      ],
+      band: "amber", pct: "64%",
+      said: "\u201cBest guess \u2014 check before clicking.\u201d The dot lands on Wallet in the nav."
+    },
+    b: {
+      typed: [
+        { w: "i", keep: false }, { w: "want", keep: false }, { w: "to", keep: false },
+        { w: "take", keep: true }, { w: "my", keep: false }, { w: "money", keep: true },
+        { w: "out", keep: true }
+      ],
+      dropped: "Same sentence, two screens later. The words never change \u2014 the screen does.",
+      expansion: ["take","money","out","withdraw","cash","paisa","paise","rupee","transfer","payout","redeem","send","wallet","balance","fund","amount","account","purse"],
+      screen: "withdraw screen",
+      elements: [
+        ["textbox","Amount to withdraw (\u20b9)"],["button","Confirm and send money"],["link","Use a different bank"],
+        ["button","Go back"],["link","Home"],["link","Markets"],["link","Portfolio"],["link","Wallet"],
+        ["link","Reports"],["link","Help"],["button","Your profile"],["button","Reset practice memory"],
+        ["link","About us"],["link","Careers"],["link","Press"],["link","Investor relations"],["link","Stocks"],
+        ["link","Mutual funds"],["link","Bonds"],["link","IPO"],["link","Contact us"],
+        ["link","Grievance redressal"],["link","Raise a complaint"],["link","Brokerage charges"],
+        ["link","Terms of use"],["link","Privacy policy"],["link","Risk disclosure"],["link","SEBI regulations"]
+      ],
+      hits: ["Amount to withdraw (\u20b9)", "Confirm and send money", "Wallet", "Mutual funds"],
+      rows: [
+        { nm: "Amount to withdraw (\u20b9)", why: "textbox \u00b7 two words match, out of two", val: 0.815 },
+        { nm: "Confirm and send money", why: "button \u00b7 \u201cmoney\u201d and \u201csend\u201d both land", val: 0.763 },
+        { nm: "Wallet", why: "link \u00b7 already clicked, still scores", val: 0.706 },
+        { nm: "Mutual funds", why: "link \u00b7 \u201cfunds\u201d", val: 0.473, rest: true }
+      ],
+      margin: "0.052",
+      marginText: "clear of the runner-up. Two controls this close is not knowledge, and the confidence is cut to say so.",
+      words: 0.512,
+      ground: 0.70,
+      breakdown: [
+        ["+0.30", "it has an accessible name"],
+        ["+0.00", "shares no literal word with what was typed", true],
+        ["+0.15", "a role people act on (textbox)"],
+        ["+0.15", "only one control on screen has this name"],
+        ["+0.10", "actually the topmost thing at that point"]
+      ],
+      band: "red", pct: "51%",
+      said: "\u201cNot sure \u2014 verify this one.\u201d The dot still lands on the amount field, in red."
+    }
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const STEPS = 6;
+  let current = "a";
+  let timer = null;
+
+  function build(key) {
+    const c = CASES[key];
+
+    // panel 1
+    $("typed").innerHTML = c.typed
+      .map((t) => `<span class="${t.keep ? "keep" : "drop"}">${t.w}</span>`)
+      .join(" ");
+    $("dropped").textContent = c.dropped;
+    $("c-words").textContent = c.typed.filter((t) => t.keep).length + " kept \u2192 " + c.expansion.length;
+    $("expansion").innerHTML = c.expansion
+      .map((w, i) => `<span class="chip${i < 3 ? " seed" : ""}">${w}</span>`)
+      .join("");
+
+    // panel 2
+    $("c-page").textContent = c.elements.length + " on the " + c.screen;
+    $("elements").innerHTML = c.elements
+      .map(([role, nm]) => {
+        const hit = c.hits.includes(nm);
+        return `<div class="el${hit ? " is-hit" : ""}"><span class="role">${role}</span><span class="nm">${nm}</span></div>`;
+      })
+      .join("");
+
+    // panel 3
+    $("c-score").textContent = "0 \u2013 1";
+    $("rows").innerHTML = c.rows
+      .map(
+        (r) => `<div class="row${r.rest ? " rest" : ""}">
+            <div class="top"><span class="nm">${r.nm}</span><span class="why">${r.why}</span><span class="val">${r.val.toFixed(3)}</span></div>
+            <div class="track"><div class="fill" data-w="${Math.round(r.val * 100)}"></div></div>
+          </div>`
+      )
+      .join("");
+    $("marginFig").textContent = c.margin;
+    $("marginFig").style.color = c.band === "red" ? "var(--red)" : "var(--amber)";
+    $("marginText").innerHTML = "<b>ahead of the next best.</b> " + c.marginText;
+
+    // panel 4
+    $("g1v").textContent = c.words.toFixed(2);
+    $("g2v").textContent = c.ground.toFixed(2);
+    $("breakdown").innerHTML = c.breakdown
+      .map(([n, t, zero]) => `<li class="${zero ? "zero" : ""}"><b>${n}</b><span>${t}</span></li>`)
+      .join("");
+    $("verdict").className = "verdict " + c.band;
+    $("bandName").textContent = c.band === "red" ? "not sure" : "best guess";
+    $("bandPct").textContent = c.pct;
+    $("bandSaid").textContent = c.said;
+  }
+
+  // Each step only adds. Nothing already shown is taken away, so a viewer who
+  // looks up mid-sequence still sees the whole argument so far.
+  function setStep(n) {
+    const c = CASES[current];
+
+    document.querySelectorAll("#expansion .chip").forEach((el, i) => {
+      el.classList.toggle("on", n >= 1 || i < 3);
+      if (n < 1 && i >= 3) el.classList.remove("on");
+    });
+
+    $("pan-page").classList.toggle("waiting", n < 2);
+    document.querySelectorAll("#elements .el").forEach((el, i) => {
+      el.classList.toggle("on", n >= 2);
+      el.style.transitionDelay = n >= 2 ? Math.min(i * 14, 380) + "ms" : "0ms";
+      const hit = el.classList.contains("is-hit");
+      el.classList.toggle("hit", n >= 3 && hit);
+      el.classList.toggle("dim", n >= 3 && !hit);
+    });
+
+    $("pan-score").classList.toggle("waiting", n < 3);
+    document.querySelectorAll("#rows .fill").forEach((el) => {
+      el.style.width = n >= 3 ? el.dataset.w + "%" : "0%";
+    });
+    $("margin").classList.toggle("on", n >= 4);
+
+    $("pan-verdict").classList.toggle("waiting", n < 4);
+    $("g1").style.width = n >= 4 ? Math.round(c.words * 100) + "%" : "0%";
+    $("g2").style.width = n >= 4 ? Math.round(c.ground * 100) + "%" : "0%";
+    $("g1").style.background = n >= 4 ? (c.band === "red" ? "var(--red)" : "var(--amber)") : "";
+    $("verdict").classList.toggle("on", n >= 5);
+
+    $("rail").innerHTML = Array.from({ length: STEPS }, (_, i) =>
+      `<i class="${i <= n ? "done" : ""}"></i>`
+    ).join("");
+  }
+
+  const HOLD = [900, 1500, 1500, 1900, 1700, 0];
+
+  function play() {
+    clearTimeout(timer);
+    let n = 0;
+    setStep(0);
+    const tick = () => {
+      if (n >= STEPS - 1) return;
+      n += 1;
+      setStep(n);
+      timer = setTimeout(tick, HOLD[n]);
+    };
+    timer = setTimeout(tick, HOLD[0]);
+  }
+
+  function show(key, animate) {
+    current = key;
+    document.querySelectorAll(".cases button").forEach((b) =>
+      b.setAttribute("aria-pressed", String(b.dataset.case === key))
+    );
+    build(key);
+    if (animate) play();
+    else setStep(STEPS - 1);
+  }
+
+  $("play").addEventListener("click", () => play());
+  document.querySelectorAll(".cases button").forEach((b) =>
+    b.addEventListener("click", () => show(b.dataset.case, true))
+  );
+
+  // At rest the page is complete: every number readable without pressing anything.
+  // Replay is offered, not required.
+  show("a", false);
+</script>

@@ -4,14 +4,38 @@
     {
       "name": "platform",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8931", "--directory", "platform"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8931",
+        "--directory",
+        "platform"
+      ],
       "port": 8931
     },
     {
       "name": "disha-demo",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8777", "--directory", "prototype/guide-dots"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8777",
+        "--directory",
+        "prototype/guide-dots"
+      ],
       "port": 8777
+    },
+    {
+      "name": "explainer",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8778",
+        "--directory",
+        "explainer"
+      ],
+      "port": 8778
     }
   ]
 }
