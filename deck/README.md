@@ -41,10 +41,22 @@ filled deck (SIH 2025) and is the best example of how much a strong team packs o
 3. **Keep the Copilot Vision honesty line on slide 2.** Removing it is the fastest way to lose the
    novelty argument when a judge names the product first.
 4. **Read the checklist at the bottom of `slides.md`** before the deck leaves your hands.
-5. **Decide the links question.** Both winner decks put clickable Video / Website / Report / GitHub
-   links on their slides. We have nothing public to link — no git remote, demo on `localhost`,
-   explainer is a private artifact. Fix that before submitting, or carry the prototype open in a tab.
-   Never put a `localhost` URL on a submitted slide.
+5. **The links question — half of it is now answered.** Both winner decks put clickable Video /
+   Website / Report / GitHub links on their slides, and we finally have one that is real:
+
+   > **github.com/Saurabh0003M/SIH** — public, with a README that explains the whole repo to
+   > someone who has never seen it.
+
+   Put it on the title slide. Two are still missing, and both are cheap:
+
+   - **Video.** Record `demo-video-script.md` and upload it unlisted. This is the one judges
+     actually click.
+   - **Website.** `platform/` and `prototype/guide-dots/demo/` are static files with no build step,
+     so GitHub Pages will host the working prototype in about ten minutes. That turns "carry it open
+     in a tab" into a link anyone on the panel can open themselves.
+
+   The explainer is a private Claude artifact — publish it or don't cite it. And whatever else
+   changes, **never put a `localhost` URL on a submitted slide.**
 
 ## How the screenshots were made, if they need remaking
 

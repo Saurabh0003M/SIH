@@ -1,173 +1,222 @@
-# Disha — SIH 2026, PS 26207
+<h1>Disha <sub><sup>दिशा — "direction"</sup></sub></h1>
 
-**Team Code Blooded · Student Innovation → Smart Education**
+![SIH 2026](https://img.shields.io/badge/SIH_2026-PS_26207-0b6e4f?style=flat-square)
+![Team](https://img.shields.io/badge/team-Code_Blooded-1f2937?style=flat-square)
+![Build](https://img.shields.io/badge/build_step-none-2563eb?style=flat-square)
+![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-4285F4?style=flat-square)
+![Runs offline](https://img.shields.io/badge/works-offline-7c3aed?style=flat-square)
 
-Disha (दिशा, *"direction"*) puts a coloured dot on the **one** control you should click next, on any
-web page, for a goal you typed in plain words. The colour is a confidence number the system can be
-held to. It never clicks for you, and the more you succeed the more it gets out of the way — five
-clean repetitions and the dot is gone.
+### It points. You click. Then it stops pointing.
 
-> One-line positioning, verbatim (it survived the prior-art audit):
+Type what you want to do, in your own words, on any web page. Disha puts a coloured dot on the
+**one** control you should click next — and the colour is a confidence number it can be held to.
+It never clicks for you. And the more times you succeed, the fainter the dot gets, until it is gone.
+
+<p align="center">
+  <img src="deck/clips/01-chain.gif" alt="Four dots, three screens: Disha guiding one goal to completion" width="760">
+  <br>
+  <em>The real product, unedited — one goal typed in plain words, four steps, three screens.</em>
+</p>
+
+> **Positioning line, use it verbatim** — it survived the prior-art audit:
 > *A confidence-aware, human-in-the-loop visual navigation copilot for Indian public-service and
 > learning interfaces.*
 
-**Nothing here is a mock-up.** Every screenshot, clip and number in this repo came out of the running
-code. If you are about to say something on stage, check it against `deck/numbers.md` first.
+**Nothing in this repository is a mock-up.** Every screenshot, every clip, every number came out of
+the running code. Before you say something on stage, check it against [`deck/numbers.md`](deck/numbers.md).
+
+---
+
+## Where to go, by how much time you have
+
+| You have | Do this |
+|---|---|
+| **30 seconds** | Watch the clip above. That is the product. |
+| **2 minutes** | Double-click `run.bat`, type *"i want to take my money out"*, follow the dots to the red one. |
+| **10 minutes** | Read [HOW-TO-DEMO.md](HOW-TO-DEMO.md) — the stage runbook, including what to say. |
+| **You are presenting** | [HOW-TO-DEMO.md](HOW-TO-DEMO.md), then [judge-FAQ.md](judge-FAQ.md), then §5 below for what we may and may not claim. |
+| **You are building the PPT** | [`deck/slides.md`](deck/slides.md) → [`deck/numbers.md`](deck/numbers.md) → [`deck/clips/`](deck/clips). |
+| **You are changing the code** | §3 below, then open `prototype/guide-dots/`. |
 
 ---
 
 ## 1. Run it — one minute, no install
 
 **Double-click `run.bat`.** That is the whole answer. It frees the ports, serves the files, opens the
-portal and prints every URL. Press any key in that window to shut everything down.
+portal, and prints every URL. Press any key in that window to shut everything down.
 
 The only prerequisite is **Python on PATH** — and only to serve files over http, because a browser
 will not run the guide from a `file://` page. Disha itself is plain JavaScript: nothing to install,
-nothing to build, no `npm install`, no network call unless a model key is configured.
+nothing to compile, no `npm install`, and no network call at all unless a model key is configured.
 
 | URL | What it is |
 |---|---|
 | `localhost:8931/index.html` | **The portal** — the product page. Start a presentation here. |
 | `localhost:8777/demo/index.html` | **The live prototype.** Type a goal, follow the dots. |
-| `localhost:8931/practice.html` | The practice sandbox — a deliberately awkward government-shaped portal. |
-| `localhost:8778/how-the-dot-is-chosen.html` | The maths behind one decision, animated. |
+| `localhost:8931/practice.html` | The practice sandbox — a deliberately awkward, government-shaped portal. |
+| `localhost:8778/how-the-dot-is-chosen.html` | The maths behind a single decision, animated. |
 
-Hands-free for recording or a nervous stage: `localhost:8777/demo/index.html?auto=1`
-(single scenes: `&scene=chain` · `red-verify` · `nav` · `fade`).
-
-**The full stage runbook, including what to say, is [HOW-TO-DEMO.md](HOW-TO-DEMO.md).** Read that
-before you present. This file is for understanding and navigating the repo.
+**Nervous about typing on stage?** `localhost:8777/demo/index.html?auto=1` plays the whole story
+hands-free. One scene at a time: `&scene=chain` · `red-verify` · `nav` · `fade`.
 
 ---
 
-## 2. Repo map
+## 2. What is in here
 
-| Path | What it holds | Read it when |
+Six folders. Three of them matter to most people.
+
+| Path | What it holds | Open it when |
 |---|---|---|
-| [`prototype/guide-dots/`](prototype/guide-dots) | **The product.** MV3 Chrome extension + a demo harness that runs the same code on a plain page. | You are explaining or changing how it works |
-| [`platform/`](platform) | The portal, the architecture page and the practice sandbox (3 standalone HTML files). | You need the product page or an architecture visual |
-| [`deck/`](deck) | Everything needed to build the SIH idea PPT: final slide text, traced numbers, screenshots, looping clips, a draft pptx + pdf. | You are building the presentation |
-| [`explainer/`](explainer) | One animated page that walks through a single grounding decision on the real measured numbers. | A judge asks *"how does the confidence actually work?"* |
-| [`research/`](research) | Three deep-research reports, the SIH guidelines, the official template, past teams' decks. | You need a citation or the rules |
-| `borrowed/` | 12 cloned third-party repos, reference only. **Gitignored — not in a fresh clone.** | Never, for the pitch |
-| [`HOW-TO-DEMO.md`](HOW-TO-DEMO.md) | The stage runbook: what to open, what to say, what to do when it breaks. | Before presenting |
-| [`judge-FAQ.md`](judge-FAQ.md) | Q&A bank — the killer questions, rehearsed, one sentence each. | Before Q&A |
-| [`demo-video-script.md`](demo-video-script.md) | Shot-by-shot script for the 2-minute demo video. | You are recording |
-| [`PPT-content-draft.md`](PPT-content-draft.md) | Earlier content blocks (superseded by `deck/slides.md`). | For background only |
-| [`next-prompts-for-opus.md`](next-prompts-for-opus.md) | The AI-agent work queue: what's done, what's deferred, why. | You want to know what is left |
-| `run.bat` | The launcher. | Always |
+| **[`prototype/guide-dots/`](prototype/guide-dots)** | **The product.** An MV3 Chrome extension, plus a harness that runs the same code on a plain page with no install. | You are explaining or changing how it works |
+| **[`deck/`](deck)** | **The presentation kit.** Final slide text, every number traced to a source, ten screenshots, four looping clips, a draft pptx and pdf. | You are building the PPT |
+| **[`platform/`](platform)** | The portal, an architecture page, and the practice sandbox — three standalone HTML files. | You need the product page or an architecture visual |
+| [`explainer/`](explainer) | One animated page walking through a single grounding decision, on the real measured numbers. | A judge asks *"how does the confidence actually work?"* |
+| [`research/`](research) | Three deep-research reports, the SIH guidelines, the official template, past teams' decks. | You need a citation, or the rules |
+| `borrowed/` | Twelve cloned third-party repos, reference only. **Gitignored — not in a fresh clone.** | Never, for the pitch |
 
-The spreadsheet and PDF files at the root (`Problem_Statements_Evaluation_With_Summary - Final.xlsx`,
-the two SIH problem-statement catalogues, `India-Proud AI Vision …docx`) are from the
-problem-statement selection phase. Keep them; nothing depends on them.
+And the loose files at the root:
+
+| File | What it is |
+|---|---|
+| [HOW-TO-DEMO.md](HOW-TO-DEMO.md) | The stage runbook: what to open, what to say, what to do when it breaks. |
+| [judge-FAQ.md](judge-FAQ.md) | The Q&A bank. Killer questions, rehearsed, one sentence each. |
+| [demo-video-script.md](demo-video-script.md) | Shot-by-shot script for the two-minute demo video. |
+| [next-prompts-for-opus.md](next-prompts-for-opus.md) | The AI-agent work queue — what is done, what is deferred, and why. |
+| [PPT-content-draft.md](PPT-content-draft.md) | Earlier content blocks. Superseded by `deck/slides.md`; kept for background. |
+| `run.bat` | The launcher. |
+
+The spreadsheet and the two problem-statement catalogues at the root are from the selection phase.
+Keep them; nothing depends on them.
 
 ---
 
-## 3. The product — `prototype/guide-dots/`
+## 3. How it actually works
 
-Two ways to run the same code: install it as a Chrome extension, or open the demo harness in any
-browser. **The harness loads `lib/` and `content.js` unmodified** — it only shims the four `chrome.*`
-calls a content script needs. If it works in the harness, that is the shipping code working.
+<p align="center">
+  <img src="deck/assets/architecture.png" alt="Disha architecture: page, guide, and the boundary between them" width="820">
+</p>
 
-### The pipeline, one file at a time
+There are two ways to run the same code — install it as a Chrome extension, or open the demo
+harness in any browser. **The harness loads `lib/` and `content.js` unmodified**; it only shims the
+four `chrome.*` calls a content script expects. So if it works in the harness, that is the shipping
+code working, not a mock of it.
+
+The loop, in order:
+
+> **enumerate** what is on the page → **scrub** anything private out of the names → **ask** a model
+> (or match offline) → **score** the answer against the page itself → **draw** one dot →
+> **wait for the human to click** → repeat, a little more faintly each time.
 
 | File | Lines | Its job |
 |---|---|---|
 | `lib/tree.js` | 137 | Enumerate every visible interactive element and keep **live** DOM references. Each gets a numeric id. |
-| `background.js` | 336 | The only thing that talks to a model — content scripts can't make cross-origin calls. Providers: Gemini (free tier, default), Anthropic (BYOK), Ollama (local). Parses replies models actually send, fenced or chatty. |
-| `lib/local.js` | 148 | **Offline planner.** Matches your words to the page through a synonym table — no network, no key. Also the fallback when the model call fails. Capped below green on purpose. |
-| `lib/ground.js` | 120 | **The honesty layer.** Computes `groundingQuality` locally from page signals (is it named? does it share words with the goal? is it unique? is it actually on top?) and combines it with the model's own confidence using `min()` — so the number can never contradict the colour. |
-| `lib/dots.js` | 640 | Draws the marker and never intercepts a click. The dot **travels** from the previous step, morphs into a scroll arrow when the target is off screen, shakes on a wrong click. |
-| `lib/fade.js` | 62 | **The pedagogy layer.** Each clean repetition dims that step's guidance; a wrong click **restores** it. Fading is contingent, not on a timer — fixed monotonic fading can be worse than none. |
-| `lib/chat.js` | 159 | The on-page ask bar, in a shadow root. It is on the page and not in the popup because a Chrome popup closes the instant you click the page — and clicking the page is the entire interaction. |
-| `lib/screen.js` | 79 | Optional screen share for pages with no useful DOM (canvas, embedded PDF, cross-origin iframe), with a **track-level Pause** for OTP and PIN screens. |
-| `content.js` | 289 | The loop that holds it together: goal → candidates → decision → dot → wait for the human's click → repeat. Owns the 1.25-screen threshold that decides one arrowhead vs two. |
+| `lib/redact.js` | 72 | **The privacy boundary, in code.** A badly built portal will put a value into an element's accessible name, so an Aadhaar or account number can ride into the prompt. Names are masked to their *shape* — `Aadhaar «12-digit»` — before anything leaves the device. |
+| `background.js` | 336 | The only thing that talks to a model; content scripts cannot make cross-origin calls. Gemini (free tier, default), Anthropic (BYOK), Ollama (local). Parses the replies models actually send — fenced, chatty, or clean. |
+| `lib/local.js` | 148 | **The offline planner.** Matches your words to the page through a synonym table. No network, no key. Also the fallback when the model call fails, and capped below green on purpose. |
+| `lib/ground.js` | 120 | **The honesty layer.** Scores the page itself — is the control named? unique? actually on top? does it share words with the goal? — and combines that with the model's own confidence using `min()`, so the number can never contradict the colour. |
+| `lib/dots.js` | 640 | Draws the marker, and never intercepts a click. The dot **travels** from the previous step, morphs into a scroll arrow when the target is off screen, and shakes on a wrong click. |
+| `lib/fade.js` | 62 | **The pedagogy layer.** Every clean repetition dims that step; a wrong click **restores** it. Fading is earned, never on a timer — fixed monotonic fading can be worse than none at all. |
+| `lib/remember.js` | 138 | **Spaced practice.** A procedure you did once is not one you can do in three weeks, so a mastered step gets a review date instead of being marked done forever. FSRS-5, ported from `fsrs4anki` (MIT). |
+| `lib/chat.js` | 159 | The ask bar, on the page, in a shadow root. It is not in the extension popup because a popup closes the instant you click the page — and clicking the page is the entire interaction. |
+| `lib/screen.js` | 79 | Optional screen share for pages with no useful DOM — canvas, embedded PDF, cross-origin iframe — with a **track-level Pause** for OTP and PIN screens. |
+| `content.js` | 289 | The loop that holds it all together. Also owns the 1.25-screen threshold that decides one arrowhead versus two. |
 | `popup.js` / `popup.html` | 166 | Extension settings: provider, key, model. |
 
-### Around it
+**Around it:** `demo/` holds a fictional broker portal, the `chrome.*` shim, and `autoplay.js`, which
+drives the whole story hands-free — it types into the real ask bar, waits for the real dot, and
+clicks through `elementFromPoint`, exactly as a hand would. It never plants an answer, so *a take
+that looks right is right*. `test/` holds `realsite.mjs` (real enumeration against sites we do not
+control, no model, **no clicks**), `record.mjs` (screen-records straight out of Chrome over CDP),
+`cdp.mjs` (an entire DevTools Protocol client in one file, zero npm packages), and `parse.test.mjs`.
 
-- `demo/` — `index.html` (a fictional broker portal), `shim.js` (the `chrome.*` shim, `localStorage`-backed), `autoplay.js` (drives the whole story hands-free: types into the real ask bar, waits for the real dot, clicks through `elementFromPoint` — it never plants an answer, so a take that looks right *is* right).
-- `test/` — `realsite.mjs` runs the real enumeration + planner against sites we don't control, with no model and **no clicks**; `record.mjs` screen-records straight out of Chrome over CDP; `cdp.mjs` is a whole DevTools-Protocol client in one file with zero npm packages; `parse.test.mjs` exercises reply parsing.
-- `config.local.js` — local model defaults. **Gitignored. Never commit a key.**
-
-### Installing it as a real extension
-
-`chrome://extensions` → Developer mode → **Load unpacked** → pick `prototype/guide-dots`. Set a
-provider in the popup. Without a key it still runs, offline, through `lib/local.js`.
+**To install it for real:** `chrome://extensions` → Developer mode → **Load unpacked** →
+`prototype/guide-dots`. Set a provider in the popup. With no key at all it still runs, offline,
+through `lib/local.js`.
 
 ---
 
-## 4. Building the presentation — `deck/`
+## 4. Building the presentation
 
-Start at **[`deck/slides.md`](deck/slides.md)**: final text mapped box-by-box onto the six official
-slides, with the template's own headings reproduced so nothing gets renamed, and a
-*claims-we-must-NOT-make* checklist at the bottom.
+**Start at [`deck/slides.md`](deck/slides.md).** It is the final text, mapped box by box onto the six
+official slides, with the template's own headings reproduced so nothing gets accidentally renamed —
+and a *claims-we-must-NOT-make* checklist at the bottom.
 
 Then:
 
-- **[`deck/numbers.md`](deck/numbers.md)** — every statistic, traced to an exact source line in `research/`, plus a list of the numbers we do **not** have. If a number is not in this table, it does not go on a slide.
-- **[`deck/README.md`](deck/README.md)** — the official rules (max 6 slides incl. title · upload PDF only · use the provided template unchanged), where the real template actually is, and five things not to get wrong.
+- **[`deck/numbers.md`](deck/numbers.md)** — every statistic, traced to an exact source line in `research/`, plus an explicit list of the numbers we do **not** have. *If a number is not in this table, it does not go on a slide.*
+- **[`deck/README.md`](deck/README.md)** — the official rules (max six slides including the title · upload PDF only · use the provided template unchanged), where the real template actually is, and five things not to get wrong.
+- **[`deck/clips/`](deck/clips)** — four silent looping clips of the real product, 1080p30 H.264 with GIF fallbacks, each measured to loop seamlessly. Its README says which clip belongs on which slide.
 - **`deck/assets/`** — ten 1920×1080 PNGs, all captured from the running prototype.
-- **[`deck/clips/`](deck/clips)** — four silent looping clips of the real product (`01-chain`, `02-red-verify`, `03-navigation`, `04-fade`), 1080p30 H.264 with GIF fallbacks, each measured to loop seamlessly. Its README says which clip goes on which slide and how to set PowerPoint to autoplay-and-loop.
-- **`disha-idea-deck-draft.pptx` / `.pdf`** — a structural draft, not the submission.
 
-⚠️ The template in `research/` is the **2024** edition. Download the **2026** file from the SIH
-portal and paste this text into it — the section structure is unchanged, but the logo, year and
-footer must come from the 2026 file.
+> ⚠️ **The template in `research/` is the 2024 edition.** Download the **2026** file from the SIH
+> portal and paste this text into that one. The section structure is unchanged, but the logo, the
+> year and the footer have to come from the 2026 file.
 
 ---
 
-## 5. What you can say on stage, and what you can't
+## 5. What you can say on stage — and what you can't
 
-**The measured demo run** (fictional broker portal, offline matcher, goal *"i want to take my money
-out"*): four steps, three screens — amber **64%** → amber **57%** → **red 51%** → amber **75%**.
-Step 3 going red is the pitch, not a bug: `Confirm and send money` scored almost as well as the
-amount field (0.815 vs 0.763, a margin of 0.052), and a narrow win is reported as a narrow win.
+<p align="center">
+  <img src="deck/assets/demo-step3.png" alt="Step three: the dot goes red at 51% because two controls scored almost the same" width="820">
+  <br>
+  <em>Step three. Two controls scored almost the same, so it says so — in red, at 51%.</em>
+</p>
 
-**Sites nobody scripted** ([`deck/real-site-run.md`](deck/real-site-run.md)) — real enumeration, no
-model, no clicks:
+**The measured run** (fictional broker portal, offline matcher, goal *"i want to take my money
+out"*) is four steps across three screens:
 
-| Site | Controls found | Named | Dot would land on | Shown |
+<p align="center">
+  <b>amber 64%</b> &nbsp;→&nbsp; <b>amber 57%</b> &nbsp;→&nbsp; <b><code>red 51%</code></b> &nbsp;→&nbsp; <b>amber 75%</b>
+</p>
+
+Step three going red **is the pitch, not a bug.** `Confirm and send money` scored almost as well as
+the amount field — 0.815 against 0.763, a margin of 0.052 — and a narrow win gets reported as a
+narrow win.
+
+**On sites nobody scripted** ([`deck/real-site-run.md`](deck/real-site-run.md)) — real enumeration,
+no model, no clicks:
+
+| Site | Controls found | Named | The dot would land on | Shown |
 |---|---|---|---|---|
 | scholarships.gov.in | 28 | 86% | **"Apply now" — correct** | red 30% |
 | swayam.gov.in | 50 | 68% | a course tile — **wrong** | red 16% |
 | aicte-india.org | 119 | 93% | "Search" — **partial** | red 54% |
 
-That is the answer to *"is it hardcoded to your page?"*, as a measurement rather than a claim — and
+That is the answer to *"is it hardcoded to your page?"* — a measurement rather than a claim. And
 every miss was reported as a miss.
 
-**Do not claim:**
+### Three things we do not claim
 
-- **A green dot.** No model key is configured; the offline matcher is capped below green by design. We have never shown green, so we don't say we have.
-- **An accuracy rate.** Three sites on one day is a sample, not a benchmark — quote it in full.
-- **That we invented AI screen understanding.** Microsoft Copilot Vision already highlights where to click. Keep that honesty line on slide 2 — removing it is the fastest way to lose the novelty argument the moment a judge names the product first. What nothing shipped combines is *calibrated visible confidence* + *guidance that fades on demonstrated mastery* + *packs built for Indian student and public-service portals*.
+1. **A green dot.** No model key is configured, and the offline matcher is capped below green by design. We have never shown green, so we never say we have.
+2. **An accuracy rate.** Three sites on one day is a sample, not a benchmark. Quote it in full or not at all.
+3. **That we invented AI screen understanding.** Microsoft Copilot Vision already highlights where to click. **Keep that honesty line on slide 2** — removing it is the fastest way to lose the novelty argument the moment a judge names the product first. What nothing shipped combines is *calibrated, visible confidence* + *guidance that fades on demonstrated mastery* + *packs built for Indian student and public-service portals*.
 
-Full rehearsed answers: **[`judge-FAQ.md`](judge-FAQ.md)**.
+Rehearsed one-sentence answers to everything else: **[judge-FAQ.md](judge-FAQ.md)**.
 
 ---
 
 ## 6. Status
 
-**Built and verified in a browser:** the four-step chain across three screens · the honest red band ·
-the on-page ask bar · scroll arrows that distinguish "just past the edge" from "keep going" · the
+**Built, and verified in a browser.** The four-step chain across three screens · the honest red band ·
+the on-page ask bar · scroll arrows that distinguish *just past the edge* from *keep going* · the
 proximity hover card · scaffold fading with restore-on-error · the offline planner · screen share
 with a real Pause · travelling-dot motion · the live thinking-scan panel · hands-free autoplay ·
-four looping clips · the deck package · runs on three real portals.
+four looping clips · the deck package · and runs against three real government portals.
 
-**Not built — say so plainly if asked:** the green dot and the live-model bands, both waiting on a
-Gemini key · page Q&A · per-site knowledge packs · route preview ("what comes after the click") · a
-vision consumer · the `05-pause` clip (needs a hand recording; headless Chrome has no desktop to
-capture) and `06-green` (needs the key).
+**Not built — say so plainly if asked.** The green dot and the live-model bands, both waiting on a
+Gemini key · page Q&A · per-site knowledge packs · route preview (*"what comes after the click"*) ·
+a vision consumer · the `05-pause` clip, which needs a hand recording because headless Chrome has no
+desktop to capture · and `06-green`, which needs the key.
 
-Deferred until after the intercollege round, by decision rather than by accident — see
-[`next-prompts-for-opus.md`](next-prompts-for-opus.md).
+Everything else was deferred until after the intercollege round **by decision, not by accident** —
+see [next-prompts-for-opus.md](next-prompts-for-opus.md).
 
 ---
 
 ## 7. Working notes
 
-- **No build step and no dependencies.** Plain JavaScript, plain HTML. The `test/` scripts need Node 22+ and, for recording, Chrome on `--remote-debugging-port=9333` plus ffmpeg on PATH.
-- **`borrowed/` is gitignored** (~272 MB of third-party repos, each with its own `.git`). A fresh clone will not have it, and nothing in the product imports from it — it is reading material.
+- **No build step, no dependencies.** Plain JavaScript, plain HTML. The `test/` scripts want Node 22+, and recording also wants Chrome on `--remote-debugging-port=9333` plus ffmpeg on PATH.
+- **`borrowed/` is gitignored** — roughly 272 MB of third-party repos, each with its own `.git`. A fresh clone will not have it, and nothing in the product imports from it. It is reading material.
 - **Secrets never go in git.** `.env*`, `*.key`, `config.local.js` and `research/agent router api key/` are all ignored. Keys live on disk only — put yours in `config.local.js` or the extension popup, never in a tracked file. **This repository is public.**
-- **Ports** 8777 (prototype), 8931 (portal), 8778 (explainer) — also configured in `.claude/launch.json` for agent-driven runs.
-- If a page looks stale, hard-reload it (Ctrl+F5): the file servers set no cache headers.
+- **Ports** are 8777 (prototype), 8931 (portal), 8778 (explainer), also configured in `.claude/launch.json` for agent-driven runs.
+- If a page looks stale, hard-reload it with Ctrl+F5 — the file servers set no cache headers.
