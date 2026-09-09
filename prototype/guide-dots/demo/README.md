@@ -19,7 +19,7 @@ Type **"i want to take my money out"** and follow the dots:
 
 | Step | Dot lands on | Colour |
 |---|---|---|
-| 1 | `Wallet` in the nav | amber 60% |
+| 1 | `Wallet` in the nav | amber 64% |
 | 2 | `Withdraw` button | amber 57% |
 | 3 | `Amount to withdraw` field | **red 51%** |
 | 4 | `Confirm and send money` | amber 75% |
