@@ -17,8 +17,11 @@
       "js": [
         "lib/tree.js",
         "lib/dots.js",
+        "lib/local.js",
         "lib/ground.js",
         "lib/fade.js",
+        "lib/chat.js",
+        "lib/screen.js",
         "content.js"
       ]
     }

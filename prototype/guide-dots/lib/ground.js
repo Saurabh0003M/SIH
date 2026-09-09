@@ -50,43 +50,71 @@ function gdBand(modelConfidence, quality) {
   return "red";
 }
 
-// -> { targetId, confidence, band, reason }   targetId < 0 means "nothing to point at"
-async function pickTarget(elements, goal, history) {
+// -> { targetId, confidence, band, reason, next }
+//    targetId < 0 means "nothing to point at"
+async function pickTarget(elements, goal, history, clicked) {
   if (!elements.length) {
     return { targetId: -1, confidence: 0, band: "red", reason: "no interactive elements found" };
   }
 
+  const payload = elements.map((e) => ({ id: e.id, role: e.role, name: e.name, rect: e.rect }));
+
+  // The offline planner is either the chosen provider or the safety net. Either
+  // way its answer is capped at amber below — it never gets to claim green.
+  const { provider } = await chrome.storage.local.get("provider");
   let res;
-  try {
-    res = await chrome.runtime.sendMessage({
-      type: "GROUND",
-      goal,
-      history: history || [],
-      url: location.href,
-      elements: elements.map((e) => ({ id: e.id, role: e.role, name: e.name, rect: e.rect }))
-    });
-  } catch (e) {
-    return { targetId: -1, confidence: 0, band: "red", reason: "extension messaging failed" };
+  if (provider === "offline") {
+    res = gdLocalPick(payload, goal, clicked);
+  } else {
+    try {
+      res = await chrome.runtime.sendMessage({
+        type: "GROUND",
+        goal,
+        history: history || [],
+        url: location.href,
+        elements: payload
+      });
+    } catch (e) {
+      res = { error: "extension messaging failed" };
+    }
+    if (!res || res.error) {
+      // Degrade instead of dying. Tell the user we did, so the drop in
+      // certainty is visible and not silent.
+      const fallback = gdLocalPick(payload, goal, clicked);
+      fallback.reason = fallback.id < 0
+        ? `model unavailable, and ${fallback.reason}`
+        : `offline guess: ${fallback.reason}`;
+      res = fallback;
+    }
   }
 
-  if (!res || res.error) {
-    return { targetId: -1, confidence: 0, band: "red", reason: res?.error || "model call failed" };
-  }
-
-  // Treat the model's reply as untrusted input.
+  // Treat the reply as untrusted input whoever produced it.
   const id = Number.isInteger(res.id) ? res.id : -1;
   const chosen = elements.find((e) => e.id === id);
   if (!chosen) {
-    return { targetId: -1, confidence: 0, band: "red", reason: "no matching element on this screen" };
+    return {
+      targetId: -1,
+      confidence: 0,
+      band: "red",
+      reason: res.reason || "no matching element on this screen"
+    };
   }
 
   const modelConfidence = Math.max(0, Math.min(1, Number(res.confidence) || 0));
   const quality = gdGroundingQuality(chosen, goal, elements);
+  let band = gdBand(modelConfidence, quality);
+  if (res.offline && band === "green") band = "amber"; // words alone never earn green
 
   return {
     targetId: id,
-    confidence: (modelConfidence + quality) / 2, // what we SHOW
-    band: gdBand(modelConfidence, quality),      // what decides the colour
-    reason: res.reason || chosen.name
+    // Show the WEAKER of the two numbers, not their average. An average lets a
+    // confident model paper over a page we could barely read, and then the
+    // percentage contradicts the colour — "Not sure (61%)" is exactly the kind of
+    // mixed signal this product exists to stop giving people.
+    confidence: Math.min(modelConfidence, quality),
+    band,
+    reason: res.reason || chosen.name,
+    next: String(res.next || "").slice(0, 90),
+    offline: Boolean(res.offline)
   };
 }

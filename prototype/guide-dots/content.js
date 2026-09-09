@@ -8,10 +8,13 @@
   let lastFingerprint = "";
   let scaffold = null;
   let history = [];
+  let clicked = []; // fingerprints of steps already taken in this run
   let runToken = 0;
   let rafId = 0;
+  let mouse = { x: -9999, y: -9999 };
 
   function ensureOverlay() {
+    gdInjectStyles();
     let overlay = document.getElementById("gd-overlay");
     if (overlay) return overlay;
     overlay = document.createElement("div");
@@ -23,9 +26,11 @@
       width: "100vw",
       height: "100vh",
       pointerEvents: "none",
-      zIndex: "2147483647"
+      zIndex: "2147483646" // one below the ask bar, which must stay clickable
     });
-    document.documentElement.appendChild(overlay);
+    // body when it exists: a fixed-position child of <html> is legal but rare,
+    // and some renderers composite it against the unscrolled document.
+    (document.body || document.documentElement).appendChild(overlay);
     return overlay;
   }
 
@@ -38,21 +43,38 @@
     const node = gdGetElement(lastResult.targetId);
     if (!node) return;
 
-    // The answer is no use if it's off-screen. Bring it to them.
-    let r = node.getBoundingClientRect();
-    if (r.bottom < 0 || r.top > innerHeight) {
-      node.scrollIntoView({ block: "center", behavior: "smooth" });
-      setTimeout(paint, 420);
+    // A hidden or background tab reports a zero-height viewport, and every
+    // element then looks "below the fold". Painting a permanent scroll arrow at
+    // nobody is worse than painting nothing.
+    if (!innerHeight) return;
+
+    const r = node.getBoundingClientRect();
+    const color = GD_COLORS[lastResult.band];
+
+    // Off-screen: point the way and let them scroll. Scrolling the page for
+    // them teaches nothing and steals control of a screen they are trying to
+    // learn. scheduleRepaint() swaps the arrow for the dot as it comes into view.
+    if (r.bottom < 8) {
+      drawArrow("up", color, "Scroll up — your next step is above");
+      return;
+    }
+    if (r.top > innerHeight - 8) {
+      drawArrow("down", color, "Scroll down — your next step is below");
       return;
     }
 
     const percent = Math.round(lastResult.confidence * 100);
     drawDot(
       { x: r.left, y: r.top, w: r.width, h: r.height },
-      GD_COLORS[lastResult.band],
+      color,
       `${lastResult.reason} (${percent}%)`,
-      { opacity: scaffold ? scaffold.opacity : 1, showLabel: scaffold ? scaffold.showLabel : true }
+      {
+        opacity: scaffold ? scaffold.opacity : 1,
+        showLabel: scaffold ? scaffold.showLabel : true,
+        next: lastResult.next || ""
+      }
     );
+    gdUpdateHoverCard(mouse.x, mouse.y);
   }
 
   function scheduleRepaint() {
@@ -82,6 +104,11 @@
     });
   }
 
+  function say(text, kind) {
+    showBanner(text, kind);
+    gdChatSay(text, kind === "info" ? "bot" : kind);
+  }
+
   async function step() {
     const token = ++runToken;
     ensureOverlay();
@@ -91,7 +118,7 @@
     const elements = getInteractiveElements();
     showBanner(elements.length + " controls found - choosing...", "info");
 
-    const result = await pickTarget(elements, goal, history);
+    const result = await pickTarget(elements, goal, history, clicked);
     if (token !== runToken || paused) return; // a newer run superseded this one
 
     lastResult = result;
@@ -99,7 +126,7 @@
 
     if (result.targetId < 0) {
       // Never fail silently - the user must see why nothing appeared.
-      showBanner(result.reason, "red");
+      say(result.reason, "red");
       console.warn("[GuideDots]", result.reason);
       return;
     }
@@ -115,7 +142,11 @@
       amber: "Best guess - check before clicking",
       red: "Not sure - verify this one"
     };
-    showBanner(WORDS[result.band], result.band);
+    const pct = Math.round(result.confidence * 100);
+    say(`${WORDS[result.band]}: ${result.reason} (${pct}%)`, result.band);
+    if (scaffold.level === "mastered") {
+      say("You've done this step five times — try it without the dot.", "bot");
+    }
     paint();
   }
 
@@ -128,6 +159,7 @@
 
     if (hitTarget) {
       await gdRecordSuccess(lastFingerprint);
+      clicked.push(lastFingerprint);
       history.push(lastResult.reason || "previous step");
       if (history.length > 6) history.shift();
       await waitForQuiet();
@@ -144,41 +176,85 @@
     if (clickedAnotherControl) {
       await gdRecordFailure(lastFingerprint);
       scaffold = await gdScaffold(lastFingerprint); // support comes back
+      say("That wasn't it — bringing the guidance back.", "amber");
       await waitForQuiet();
       if (!paused) step();
     }
   }
 
+  function start(newGoal) {
+    goal = newGoal;
+    paused = false;
+    history = [];
+    clicked = [];
+    step();
+  }
+
+  function stop() {
+    paused = true;
+    runToken++;
+    lastResult = null;
+    history = [];
+    clicked = [];
+    clearDots();
+  }
+
+  // ---- the on-page ask bar -------------------------------------------------
+  ensureOverlay();
+  gdMountChat({
+    onAsk: (text) => start(text),
+    onStop: () => {
+      stop();
+      gdChatSay("Stopped.", "bot");
+    },
+    onShare: async () => {
+      if (gdShareGetState() !== "off") {
+        gdShareStop();
+        gdChatSay("Screen sharing stopped.", "bot");
+        return;
+      }
+      try {
+        gdChatSetShareState(await gdShareStart());
+        gdChatPrivacy("Sharing this screen. Hit Pause before typing any OTP or password.");
+        gdChatSay("Sharing on. I'll only look at the screen when the page itself isn't readable.", "bot");
+      } catch (e) {
+        // Refusing the browser prompt is a normal choice, not a failure.
+        gdChatSay("No screen access — I'll keep working from the page alone.", "bot");
+      }
+    },
+    onHold: () => {
+      const state = gdShareToggleHold();
+      gdChatSetShareState(state);
+      gdChatPrivacy(
+        state === "paused"
+          ? "PAUSED — nothing is being captured. Safe to type your OTP."
+          : "Sharing this screen again."
+      );
+    }
+  });
+
+  // ---- messages from the popup (kept: the popup still owns provider setup) --
   chrome.runtime.onMessage.addListener((msg) => {
     if (!msg || !msg.type) return;
     if (msg.type === "TESTDOT") {
       // Bisect helper: proves injection + overlay + drawing work, with no AI involved.
       ensureOverlay();
       clearDots();
-      drawDot({ x: 40, y: 40, w: 120, h: 40 }, "#22c55e", "TEST DOT - plumbing works");
+      drawDot({ x: 40, y: 40, w: 120, h: 40 }, "#22c55e", "TEST DOT - plumbing works", {
+        next: "nothing — this dot is a wiring check"
+      });
       return;
     }
-    if (msg.type === "START") {
-      goal = msg.goal || "";
-      paused = false;
-      history = [];
-      step();
-    }
-    if (msg.type === "PAUSE") {
-      paused = true; // safe point for the user to type an OTP or password
-    }
-    if (msg.type === "STOP") {
-      paused = true;
-      runToken++;
-      lastResult = null;
-      history = [];
-      clearDots();
-    }
+    if (msg.type === "START") start(msg.goal || "");
+    if (msg.type === "PAUSE") paused = true; // safe point to type an OTP or password
+    if (msg.type === "STOP") stop();
   });
 
   document.addEventListener("click", onClick, true); // capture, but never block the click
+  document.addEventListener("mousemove", (e) => {
+    mouse = { x: e.clientX, y: e.clientY };
+    gdUpdateHoverCard(mouse.x, mouse.y);
+  });
   window.addEventListener("scroll", scheduleRepaint, true);
   window.addEventListener("resize", scheduleRepaint);
-
-  ensureOverlay();
 })();

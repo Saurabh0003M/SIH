@@ -16,7 +16,8 @@ const GD_SYSTEM =
   "You help a human find the ONE element to click next to achieve their goal. " +
   "You are given a numbered list of elements visible on screen as id|role|name|x,y,w,h. " +
   'Reply with JSON only: {"id": <integer id from the list, or null>, ' +
-  '"confidence": <0..1>, "reason": "<=12 words"}. ' +
+  '"confidence": <0..1>, "reason": "<=12 words, why this element>", ' +
+  '"next": "<=12 words, what the user will see after clicking it"}. ' +
   "Use null if nothing on this screen matches. Never invent an id that is not listed. " +
   "confidence must reflect genuine certainty, not politeness.";
 
@@ -41,7 +42,8 @@ function gdParseReply(text) {
   return {
     id: o.id === null || o.id === undefined ? -1 : Number(o.id),
     confidence: Number(o.confidence),
-    reason: String(o.reason || "").slice(0, 80)
+    reason: String(o.reason || "").slice(0, 80),
+    next: String(o.next || "").slice(0, 90)
   };
 }
 

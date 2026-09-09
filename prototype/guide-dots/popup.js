@@ -3,7 +3,10 @@ const goalEl = $("goal"), apiKeyEl = $("apiKey"), statusEl = $("status");
 const keyState = $("keyState"), keyBox = $("keyBox"), providerEl = $("provider");
 const customBox = $("customBox"), baseUrlEl = $("baseUrl"), modelEl = $("modelName");
 
-const CONTENT_FILES = ["lib/tree.js", "lib/dots.js", "lib/ground.js", "lib/fade.js", "content.js"];
+const CONTENT_FILES = [
+  "lib/tree.js", "lib/dots.js", "lib/local.js", "lib/ground.js",
+  "lib/fade.js", "lib/chat.js", "lib/screen.js", "content.js"
+];
 
 let provider = "ollama";
 let savedKey = "";
@@ -13,8 +16,12 @@ function setStatus(text, isError) {
   statusEl.style.color = isError ? "#b91c1c" : "#166534";
 }
 
+function needsKeyFor(p) {
+  return p !== "ollama" && p !== "offline";
+}
+
 function render() {
-  const needsKey = provider !== "ollama";
+  const needsKey = needsKeyFor(provider);
   customBox.hidden = provider !== "custom";
   keyState.hidden = !needsKey || !savedKey;
   keyBox.hidden = !needsKey || Boolean(savedKey);
@@ -54,6 +61,7 @@ chrome.storage.local.get(
     render();
     goalEl.focus();
     const LABEL = {
+      offline: "no model - words only",
       ollama: "Local model",
       custom: "your gateway",
       gemini: "Gemini",
@@ -104,9 +112,11 @@ providerEl.addEventListener("change", () => {
   chrome.storage.local.set({ provider }, () => {
     render();
     setStatus(
-      provider === "ollama"
-        ? "Using your local model - no key, no internet needed."
-        : "Using " + provider + "."
+      provider === "offline"
+        ? "No model at all - matches your words against the page."
+        : provider === "ollama"
+          ? "Using your local model - no key, no internet needed."
+          : "Using " + provider + "."
     );
   });
 });
@@ -117,7 +127,7 @@ async function send(type) {
   const goal = goalEl.value.trim();
 
   if (type === "START" && !goal) return setStatus("Type a goal first.", true);
-  if (type === "START" && provider !== "ollama" && !savedKey)
+  if (type === "START" && needsKeyFor(provider) && !savedKey)
     return setStatus("Paste your API key first.", true);
   if (type === "START" && provider === "custom" && !baseUrlEl.value.trim())
     return setStatus("Enter the gateway base URL.", true);

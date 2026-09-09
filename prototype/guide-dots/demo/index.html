@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BharatInvest — demo portal for Disha</title>
+<style>
+  :root { --ink:#0f172a; --mut:#64748b; --line:#e2e8f0; --brand:#0d9488; --bg:#f8fafc; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--ink); background:var(--bg); }
+
+  /* the harness strip is NOT part of the fake site — it is the test rig */
+  .rig { background:#1e293b; color:#cbd5e1; font-size:12px; padding:7px 16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .rig b { color:#fff; }
+  .rig button { background:#334155; color:#e2e8f0; border:0; border-radius:5px; padding:4px 9px; cursor:pointer; font:inherit; }
+  .rig button:hover { background:#475569; }
+  .rig .spacer { margin-left:auto; }
+
+  header { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; }
+  .bar { max-width:1040px; margin:0 auto; display:flex; align-items:center; gap:22px; padding:12px 20px; }
+  .brand { font-weight:700; font-size:16px; color:var(--brand); letter-spacing:-.2px; }
+  nav { display:flex; gap:18px; }
+  nav a { color:var(--mut); text-decoration:none; font-size:13.5px; }
+  nav a:hover, nav a.on { color:var(--ink); }
+  .avatar { margin-left:auto; width:32px; height:32px; border-radius:50%; background:#0f766e; color:#fff;
+            border:0; cursor:pointer; font:600 13px/32px system-ui; }
+
+  main { max-width:1040px; margin:0 auto; padding:26px 20px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; letter-spacing:-.3px; }
+  .sub { color:var(--mut); margin:0 0 20px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:16px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  .btn { background:var(--brand); color:#fff; border:0; border-radius:8px; padding:9px 16px; cursor:pointer; font:inherit; }
+  .btn.ghost { background:#fff; color:var(--ink); border:1px solid var(--line); }
+  .big { font-size:30px; font-weight:700; letter-spacing:-.5px; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); }
+  th { color:var(--mut); font-weight:500; }
+  .up { color:#059669; } .down { color:#dc2626; }
+  label { display:block; font-size:13px; color:var(--mut); margin:14px 0 5px; }
+  input[type=text] { width:100%; max-width:300px; padding:9px 11px; border:1px solid var(--line); border-radius:8px; font:inherit; }
+  .bank { display:flex; align-items:center; gap:10px; margin-top:6px; }
+  footer { border-top:1px solid var(--line); background:#fff; margin-top:60px; }
+  .fcols { max-width:1040px; margin:0 auto; padding:32px 20px; display:grid; grid-template-columns:repeat(4,1fr); gap:26px; }
+  .fcols h4 { font-size:12px; text-transform:uppercase; letter-spacing:.6px; color:var(--mut); margin:0 0 10px; }
+  .fcols a { display:block; color:var(--ink); text-decoration:none; font-size:13px; padding:3px 0; }
+  .fcols a:hover { color:var(--brand); }
+  .legal { border-top:1px solid var(--line); padding:16px 20px; color:var(--mut); font-size:12px; text-align:center; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="rig">
+  <b>Disha test harness</b>
+  <span>real extension code, plain web page &mdash; no install</span>
+  <span class="spacer"></span>
+  <span id="rigMode">model: none (offline matching)</span>
+  <button id="rigReset" type="button">Reset practice memory</button>
+</div>
+
+<header>
+  <div class="bar">
+    <span class="brand">BharatInvest</span>
+    <nav>
+      <a href="#" data-go="home" class="on">Home</a>
+      <a href="#" data-go="home">Markets</a>
+      <a href="#" data-go="home">Portfolio</a>
+      <a href="#" data-go="wallet">Wallet</a>
+      <a href="#" data-go="home">Reports</a>
+      <a href="#" data-go="home">Help</a>
+    </nav>
+    <button class="avatar" aria-label="Your profile" data-go="wallet">RS</button>
+  </div>
+</header>
+
+<main>
+  <!-- ------------------------------------------------------------ HOME -->
+  <section data-screen="home">
+    <h1>Good afternoon, Ravi</h1>
+    <p class="sub">Markets close in 2h 14m.</p>
+
+    <div class="card">
+      <div style="color:var(--mut);font-size:13px">Portfolio value</div>
+      <div class="big">&#8377; 2,41,880</div>
+      <div class="up" style="font-size:13px">&#9650; 3,120 (1.31%) today</div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn" data-go="home">Buy stocks</button>
+        <button class="btn ghost" data-go="home">Sell stocks</button>
+        <button class="btn ghost" data-go="home">Set an alert</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead><tr><th>Holding</th><th>Qty</th><th>Avg</th><th>LTP</th><th>P&amp;L</th></tr></thead>
+        <tbody>
+          <tr><td>INFY</td><td>40</td><td>1,412</td><td>1,486</td><td class="up">+2,960</td></tr>
+          <tr><td>TATAMOTORS</td><td>65</td><td>892</td><td>861</td><td class="down">-2,015</td></tr>
+          <tr><td>HDFCBANK</td><td>22</td><td>1,610</td><td>1,702</td><td class="up">+2,024</td></tr>
+          <tr><td>ITC</td><td>150</td><td>402</td><td>436</td><td class="up">+5,100</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- WALLET -->
+  <section data-screen="wallet" hidden>
+    <h1>Wallet</h1>
+    <p class="sub">Cash lying with your broker, ready to invest or take back.</p>
+
+    <div class="card">
+      <div style="color:var(--mut);font-size:13px">Available balance</div>
+      <div class="big">&#8377; 18,430.50</div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn ghost" data-go="wallet">Add money</button>
+        <button class="btn" data-go="withdraw">Withdraw</button>
+        <button class="btn ghost" data-go="wallet">Statement</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4 style="margin:0 0 8px;font-size:13px">Recent activity</h4>
+      <table>
+        <tbody>
+          <tr><td>Payin via UPI</td><td>04 Sep</td><td class="up">+10,000</td></tr>
+          <tr><td>Brokerage &amp; taxes</td><td>03 Sep</td><td class="down">-118</td></tr>
+          <tr><td>Payout to bank</td><td>28 Aug</td><td class="down">-25,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- -------------------------------------------------------- WITHDRAW -->
+  <section data-screen="withdraw" hidden>
+    <h1>Withdraw</h1>
+    <p class="sub">Money reaches your bank in 24 working hours.</p>
+
+    <div class="card">
+      <label for="amt">Amount to withdraw (&#8377;)</label>
+      <input id="amt" type="text" placeholder="0" />
+
+      <label>Goes to</label>
+      <div class="bank">
+        <span>HDFC Bank &bull;&bull;&bull;&bull; 4821</span>
+        <a href="#" data-go="withdraw" style="font-size:13px">Use a different bank</a>
+      </div>
+
+      <div class="row" style="margin-top:20px">
+        <button class="btn" data-go="done">Confirm and send money</button>
+        <button class="btn ghost" data-go="wallet">Go back</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------ DONE -->
+  <section data-screen="done" hidden>
+    <h1>Request placed</h1>
+    <p class="sub">You'll get an SMS when the bank credits it.</p>
+    <div class="card">
+      <div class="big up">&#10003;</div>
+      <p>Withdrawal requested from your BharatInvest wallet.</p>
+      <button class="btn ghost" data-go="home">Back to home</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="fcols">
+    <div>
+      <h4>Company</h4>
+      <a href="#" data-go="home">About us</a>
+      <a href="#" data-go="home">Careers</a>
+      <a href="#" data-go="home">Press</a>
+      <a href="#" data-go="home">Investor relations</a>
+    </div>
+    <div>
+      <h4>Products</h4>
+      <a href="#" data-go="home">Stocks</a>
+      <a href="#" data-go="home">Mutual funds</a>
+      <a href="#" data-go="home">Bonds</a>
+      <a href="#" data-go="home">IPO</a>
+    </div>
+    <div>
+      <h4>Support</h4>
+      <a href="#" data-go="home">Contact us</a>
+      <a href="#" data-go="home">Grievance redressal</a>
+      <a href="#" data-go="home">Raise a complaint</a>
+      <a href="#" data-go="home">Brokerage charges</a>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <a href="#" data-go="home">Terms of use</a>
+      <a href="#" data-go="home">Privacy policy</a>
+      <a href="#" data-go="home">Risk disclosure</a>
+      <a href="#" data-go="home">SEBI regulations</a>
+    </div>
+  </div>
+  <div class="legal">
+    A fictional portal built only to test Disha. Not a real brokerage. No real money, accounts or advice.
+  </div>
+</footer>
+
+<script>
+  // A stand-in for a single-page app: screens swap without a navigation, which
+  // is exactly the case a naive "read the page once" guide gets wrong.
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("[data-go]");
+    if (!link) return;
+    e.preventDefault();
+    const want = link.dataset.go;
+    document.querySelectorAll("[data-screen]").forEach((s) => {
+      s.hidden = s.dataset.screen !== want;
+    });
+    document.querySelectorAll("nav a").forEach((a) => a.classList.remove("on"));
+    scrollTo({ top: 0, behavior: "instant" });
+  });
+
+  document.getElementById("rigReset").addEventListener("click", () => {
+    gdDemoConfig.reset();
+    location.reload();
+  });
+
+  addEventListener("DOMContentLoaded", () => {
+    const cfg = gdDemoConfig.get();
+    document.getElementById("rigMode").textContent =
+      cfg.provider === "gemini" && cfg.apiKey
+        ? "model: " + (cfg.model || "gemini-2.5-flash")
+        : "model: none (offline matching)";
+  });
+</script>
+
+<!-- The harness first, then the shipping extension code, unmodified. -->
+<script src="shim.js"></script>
+<script src="../lib/tree.js"></script>
+<script src="../lib/dots.js"></script>
+<script src="../lib/local.js"></script>
+<script src="../lib/ground.js"></script>
+<script src="../lib/fade.js"></script>
+<script src="../lib/chat.js"></script>
+<script src="../lib/screen.js"></script>
+<script src="../content.js"></script>
+</body>
+</html>
