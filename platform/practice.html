@@ -1,0 +1,327 @@
+<!-- A deliberately awkward portal, built to be practised on.
+     Nothing here is real: no submissions, no accounts, no government affiliation.
+     It exists so a learner can fail safely, and so a demo never depends on a
+     live government site or on the venue's Wi-Fi. -->
+<meta charset="utf-8">
+<title>Practice Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --paper:#EEF1F5; --surface:#FFFFFF; --ink:#1B2330; --ink-soft:#5A6478;
+    --line:#C9D0DC; --navy:#123368; --navy-2:#0D2450;
+    --sand:#FDF6E3; --link:#0B4FA8;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink);
+         font: 400 15px/1.55 "Barlow", Arial, sans-serif; }
+  a { color: var(--link); }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 18px; }
+
+  /* Nothing about this page should be mistakable for a real service. */
+  .sandbox {
+    background: #FFF3C4; color: #4A3708; border-bottom: 2px solid #E0B400;
+    font-size: 13px; padding: 9px 0;
+  }
+  .sandbox .wrap { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  .sandbox b { letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+  .sandbox a { color: #4A3708; }
+
+  .gov { background: var(--navy); color: #fff; }
+  .gov .wrap { display: flex; align-items: center; gap: 14px; padding: 14px 18px; }
+  .seal {
+    width: 42px; height: 42px; border: 2px solid #7FA0D8; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 700; font-size: 17px; color: #CBD9F2;
+  }
+  .gov h1 { font-size: 20px; margin: 0; font-weight: 700; letter-spacing: .01em; }
+  .gov p { margin: 2px 0 0; font-size: 12.5px; color: #B7C6E4; }
+
+  .menu { background: var(--navy-2); }
+  .menu ul { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
+  .menu a {
+    display: block; padding: 10px 13px; color: #DDE6F6; text-decoration: none;
+    font-size: 13.5px; border-right: 1px solid #24406E;
+  }
+  .menu a:hover { background: #1B417A; }
+
+  .crumbs { font-size: 12.5px; color: var(--ink-soft); padding: 10px 0; }
+
+  .cols { display: grid; grid-template-columns: 1fr; gap: 20px; padding-bottom: 30px; }
+  @media (min-width: 860px) { .cols { grid-template-columns: 250px 1fr; } }
+
+  .box { background: var(--surface); border: 1px solid var(--line); margin-bottom: 18px; }
+  .box h2 {
+    margin: 0; font-size: 14px; padding: 9px 12px; background: #E3E9F2;
+    border-bottom: 1px solid var(--line); text-transform: uppercase; letter-spacing: .05em;
+  }
+  .box .in { padding: 12px; }
+  .notices { list-style: none; margin: 0; padding: 0; font-size: 13.5px; }
+  .notices li { padding: 7px 0; border-bottom: 1px dashed var(--line); }
+  .notices li:last-child { border: 0; }
+  .new { background: #C22B2B; color: #fff; font-size: 10px; padding: 1px 4px;
+         border-radius: 2px; margin-left: 5px; vertical-align: 2px; }
+
+  .btn {
+    font: 600 14px/1 "Barlow", sans-serif; padding: 10px 15px; cursor: pointer;
+    border: 1px solid var(--navy); background: var(--navy); color: #fff; border-radius: 2px;
+  }
+  .btn.small { padding: 7px 11px; font-size: 13px; }
+  .btn.plain { background: #fff; color: var(--navy); }
+  .icon-btn {
+    border: 1px solid var(--line); background: #fff; width: 34px; height: 34px;
+    border-radius: 2px; cursor: pointer; font-size: 15px;
+  }
+  input[type=search] {
+    padding: 8px 10px; border: 1px solid var(--line); border-radius: 2px;
+    font: 400 14px "Barlow", sans-serif; width: 100%;
+  }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .schemes { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  .schemes th, .schemes td { border: 1px solid var(--line); padding: 9px 10px; text-align: left; }
+  .schemes th { background: #E3E9F2; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; }
+
+  .tasks { background: var(--sand); border: 1px solid #E8D9A8; padding: 14px 16px; margin: 18px 0; }
+  .tasks h2 { margin: 0 0 4px; font-size: 15px; }
+  .tasks .intro { margin: 0 0 10px; font-size: 13.5px; color: #6A5A22; }
+  .task { display: grid; gap: 3px; padding: 9px 0; border-top: 1px solid #E8D9A8; }
+  .task code {
+    font-family: "IBM Plex Mono", monospace; font-size: 13px; background: #fff;
+    border: 1px solid #E8D9A8; padding: 2px 6px; justify-self: start;
+  }
+  .task small { color: #6A5A22; }
+
+  .filler { color: var(--ink-soft); font-size: 13.5px; }
+  footer { background: var(--navy-2); color: #C2D0EA; padding: 22px 0; font-size: 13px; margin-top: 20px; }
+  footer a { color: #C2D0EA; }
+  footer .fcols { display: flex; gap: 34px; flex-wrap: wrap; }
+  footer ul { list-style: none; padding: 0; margin: 6px 0 0; }
+  footer li { padding: 3px 0; }
+  .disclaim { border-top: 1px solid #24406E; margin-top: 16px; padding-top: 12px; color: #8FA4CA; }
+</style>
+
+<div class="sandbox">
+  <div class="wrap">
+    <b>Practice sandbox</b>
+    <span>A training environment built for the Disha demo. Not a government website, and not
+    affiliated with any real scheme. Nothing you type is stored, sent or submitted anywhere.</span>
+    <a href="index.html">&larr; back to Disha</a>
+  </div>
+</div>
+
+<div class="gov">
+  <div class="wrap">
+    <div class="seal">VS</div>
+    <div>
+      <h1>Vidya Setu &mdash; Student Assistance Portal</h1>
+      <p>An invented portal, for practice only. It imitates the shape of a real one, never a real one.</p>
+    </div>
+  </div>
+</div>
+
+<nav class="menu">
+  <div class="wrap" style="padding:0">
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">About Us</a></li>
+      <li><a href="#">Schemes</a></li>
+      <li><a href="#">How to Apply</a></li>
+      <li><a href="#">Required Documents</a></li>
+      <li><a href="#">Institute Login</a></li>
+      <li><a href="#">Student Corner</a></li>
+      <li><a href="#">FAQs</a></li>
+      <li><a href="#">Downloads</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="wrap">
+  <p class="crumbs">Home &rsaquo; Student Corner &rsaquo; Financial Assistance</p>
+
+  <div class="tasks">
+    <h2>Three tasks to practise</h2>
+    <p class="intro">Open Disha, paste one of these as your goal, and press Start. Each behaves
+       differently on purpose.</p>
+    <div class="task">
+      <code>renew my scholarship for this year</code>
+      <small>One clear match, named exactly once on the page. The dot should be <strong>green</strong>.</small>
+    </div>
+    <div class="task">
+      <code>apply for a scholarship</code>
+      <small>Three buttons say &ldquo;Apply&rdquo;. An honest tool should go <strong>amber</strong> and
+             tell you to check &mdash; not pretend to be sure.</small>
+    </div>
+    <div class="task">
+      <code>complain that my application was rejected</code>
+      <small>The link sits at the very bottom, off screen. Disha should scroll it into view for you.</small>
+    </div>
+  </div>
+
+  <div class="cols">
+    <aside>
+      <div class="box">
+        <h2>Notices</h2>
+        <div class="in">
+          <ul class="notices">
+            <li><a href="#">Last date extended to 31 October<span class="new">NEW</span></a></li>
+            <li><a href="#">Institute nodal officer verification window open</a></li>
+            <li><a href="#">Corrigendum: income certificate format revised</a></li>
+            <li><a href="#">Helpdesk timings during the examination period</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="box">
+        <h2>Quick Search</h2>
+        <div class="in">
+          <div class="row">
+            <!-- Labelled only by its placeholder: common, and hostile to screen readers.
+                 Disha's name computation falls back to it, so the field stays findable. -->
+            <input type="search" placeholder="Application number">
+            <button class="btn small" type="button">Submit</button>
+          </div>
+          <p class="filler" style="margin:8px 0 0">
+            Enter the 14-digit number printed on your acknowledgement slip.
+          </p>
+        </div>
+      </div>
+
+      <div class="box">
+        <h2>Login</h2>
+        <div class="in">
+          <!-- Deliberately inside an open shadow root: modern portals hide controls this way and a
+               naive querySelectorAll never sees them. -->
+          <div id="login-host"></div>
+          <p class="filler" style="margin:8px 0 0">
+            Registered students only. Practice sandbox &mdash; anything entered is discarded.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <div class="box">
+        <h2>Financial Assistance for Students</h2>
+        <div class="in">
+          <p>
+            Assistance under this invented programme is offered to enrolled students whose family
+            income falls below the notified ceiling. Applications are verified first by the institute
+            nodal officer and then by the district office. Renewal is required at the start of every
+            academic year, and is not automatic.
+          </p>
+          <p class="filler">
+            Keep ready before beginning: enrolment number, bank account details in the
+            applicant&rsquo;s own name, an income certificate issued within the last twelve months,
+            and the institute verification code.
+          </p>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" type="button">Register New Student</button>
+            <button class="btn plain" type="button">Track Application Status</button>
+            <!-- Icon-only control, labelled solely by aria-label: exactly the case that defeats
+                 naive text scraping. -->
+            <button class="icon-btn" type="button" aria-label="Download the offline application form">&#11015;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="box">
+        <h2>Available Schemes</h2>
+        <div class="in" style="padding:0">
+          <table class="schemes">
+            <tr>
+              <th>Scheme</th><th>Eligibility</th><th>Closes</th><th>Action</th>
+            </tr>
+            <tr>
+              <td>Post-Matric Assistance</td>
+              <td>Class 11 and above</td>
+              <td>31 Oct</td>
+              <td><button class="btn small" type="button">Apply</button></td>
+            </tr>
+            <tr>
+              <td>Hostel Allowance</td>
+              <td>Students residing away from home</td>
+              <td>15 Nov</td>
+              <td><button class="btn small" type="button">Apply</button></td>
+            </tr>
+            <tr>
+              <td>Fee Reimbursement</td>
+              <td>Professional courses only</td>
+              <td>30 Nov</td>
+              <td><button class="btn small" type="button">Apply</button></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="box">
+        <h2>Continuing Students</h2>
+        <div class="in">
+          <p class="filler">
+            Students who received assistance in the previous academic year must confirm continued
+            enrolment before the closing date. This is a separate process from a fresh application
+            and cannot be completed by re-applying.
+          </p>
+          <button class="btn" type="button">Renew Scholarship</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="fcols">
+      <div>
+        <strong>Information</strong>
+        <ul>
+          <li><a href="#">Guidelines</a></li>
+          <li><a href="#">Notified income ceiling</a></li>
+          <li><a href="#">List of documents</a></li>
+        </ul>
+      </div>
+      <div>
+        <strong>Help</strong>
+        <ul>
+          <li><a href="#">Frequently asked questions</a></li>
+          <li><a href="#">Helpdesk numbers</a></li>
+          <li><a href="#">Grievance Redressal</a></li>
+        </ul>
+      </div>
+      <div>
+        <strong>Other</strong>
+        <ul>
+          <li><a href="#">Screen reader access</a></li>
+          <li><a href="#">Terms of use</a></li>
+          <li><a href="index.html">Back to Disha</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="disclaim">
+      Practice sandbox. Not a government website. No affiliation with any ministry, department or
+      scheme. No data is collected, stored or transmitted &mdash; every control here is inert.
+    </p>
+  </div>
+</footer>
+
+<script>
+  // A control the page's own querySelectorAll cannot reach, so the demo proves the scanner
+  // crosses shadow boundaries the way real single-page portals require.
+  var host = document.getElementById("login-host");
+  var root = host.attachShadow({ mode: "open" });
+  root.innerHTML =
+    "<style>" +
+      "button{font:600 14px 'Barlow',Arial,sans-serif;padding:9px 14px;width:100%;" +
+      "border:1px solid #123368;background:#123368;color:#fff;border-radius:2px;cursor:pointer}" +
+    "</style>" +
+    "<button type='button'>Student Login</button>";
+
+  // Inert by design: nothing here should ever feel as though it submitted something.
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest && e.target.closest("button, a[href='#']");
+    if (el) e.preventDefault();
+  });
+</script>

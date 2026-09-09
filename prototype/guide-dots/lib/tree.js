@@ -55,22 +55,22 @@ function gdCollect(root, bag) {
   });
 }
 
+// A page big enough to blow the prompt budget gets ranked and trimmed rather than
+// clipped by geometry. A hard viewport cutoff silently drops the very control the
+// user asked for - footer links like "Grievance Redressal" sit three screens down
+// on almost every real portal.
+const GD_MAX_CANDIDATES = 150;
+
 function getInteractiveElements() {
   gdElements = [];
-  const out = [];
   const seen = new Set();
   const found = [];
   gdCollect(document, found);
 
+  const kept = [];
   found.forEach((el) => {
     const r = el.getBoundingClientRect();
     if (r.width <= 0 || r.height <= 0) return;
-    // Keep what's on screen OR just beyond it. Filtering to the exact viewport
-    // discarded ~89% of a real government portal and made off-screen targets
-    // invisible to the model, which then correctly reported "nothing matches".
-    const margin = innerHeight * 2;
-    if (r.bottom < -margin || r.top > innerHeight + margin) return;
-    if (r.right < 0 || r.left > innerWidth) return;
 
     const s = getComputedStyle(el);
     if (s.display === "none" || s.visibility === "hidden" || s.opacity === "0") return;
@@ -84,22 +84,37 @@ function getInteractiveElements() {
     if (seen.has(key)) return;
     seen.add(key);
 
-    const id = gdElements.length;
-    gdElements.push(el);
-    out.push({
-      id,
-      role,
-      name,
-      rect: {
-        x: Math.round(r.left),
-        y: Math.round(r.top),
-        w: Math.round(r.width),
-        h: Math.round(r.height)
-      }
-    });
+    // Distance from the middle of the screen, used only if we have to cut.
+    const vh = Math.max(innerHeight, 800);
+    const distance = Math.abs(r.top + r.height / 2 - vh / 2);
+    kept.push({ el, r, role, name, distance });
   });
 
-  return out;
+  // Too many to send? Keep the nearest, then restore document order so the model
+  // still reads the page top-to-bottom.
+  let shortlist = kept;
+  if (kept.length > GD_MAX_CANDIDATES) {
+    const nearest = new Set(
+      [...kept].sort((a, b) => a.distance - b.distance).slice(0, GD_MAX_CANDIDATES)
+    );
+    shortlist = kept.filter((c) => nearest.has(c));
+  }
+
+  return shortlist.map((c) => {
+    const id = gdElements.length;
+    gdElements.push(c.el);
+    return {
+      id,
+      role: c.role,
+      name: c.name,
+      rect: {
+        x: Math.round(c.r.left),
+        y: Math.round(c.r.top),
+        w: Math.round(c.r.width),
+        h: Math.round(c.r.height)
+      }
+    };
+  });
 }
 
 function gdGetElement(id) {
