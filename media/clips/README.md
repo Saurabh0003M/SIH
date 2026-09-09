@@ -1,4 +1,4 @@
-# deck/clips — silent looping video of the real product
+# media/clips — silent looping video of the real product
 
 Recorded 9 Sept 2026 off the running prototype. **Nothing here is a mock-up or a screen
 re-enactment**: each clip is the shipping `lib/` code driving a real page, typed into through the
@@ -79,7 +79,7 @@ is on screen at every scroll position and can never earn an up arrow. `03-naviga
 ## Re-recording any of them
 
 ```bash
-node prototype/guide-dots/test/record.mjs "http://localhost:8777/demo/index.html?auto=1&scene=chain" deck/clips/01-chain.mp4 60 --until-done --gif
+node prototype/guide-dots/test/record.mjs "http://localhost:8777/demo/index.html?auto=1&scene=chain" media/clips/01-chain.mp4 60 --until-done --gif
 ```
 
 Scenes: `chain` · `red-verify` · `nav` · `arrow` · `fade` · `pause`. Needs the `disha-demo` server on 8777,

@@ -3,17 +3,21 @@
 Built 9 Sept 2026, then rewritten the same day against the **actual official template**.
 Nothing here is a mock-up: every screenshot came out of the running prototype.
 
+**This folder is the writing.** The pictures and clips that go on the slides are in
+[`../media/`](../media) — start at [`media/README.md`](../media/README.md), which says which clip
+belongs on which slide.
+
 | File | What it is | Who uses it |
 |---|---|---|
 | `slides.md` | **Start here.** Final text mapped onto the six official slides, box by box, with the template's own headings and sub-pointers reproduced so nothing gets renamed. | Whoever builds the PPT |
 | `disha-idea-deck-draft.pptx` | A 6-slide draft that mirrors the template's structure — team oval, fixed ALL-CAPS title, the box layout, the blue footer bar. | Whoever builds the PPT |
 | `disha-idea-deck-draft.pdf` | The same deck exported to PDF, because **PDF is the only format the portal accepts**. | Check what a judge will actually see |
 | `numbers.md` | Every statistic on the deck, its exact source line in `research/`, and the caveat that must travel with it. | Whoever writes footnotes, and whoever answers a judge |
-| `assets/` | Ten 1920×1080 PNGs. | Both |
+| **`../media/`** | **Moved out of this folder.** All eleven screenshots and all four looping clips now live in [`media/`](../media), because they are used by the README, the video and the portal as well as by the deck. | Both |
 
 ## Where the template actually is
 
-`research/past winning teams/805306823-SIH-Winner-PPT.pdf` — **that file is misnamed.** It is not a
+`reference/past winning teams/805306823-SIH-Winner-PPT.pdf` — **that file is misnamed.** It is not a
 winner's deck. Pages 1, 4, 5 and 6 are the **blank official template**, pages 2–3 were filled in by a
 team called CODESTRIX, and page 7 is the official instructions page. `Lanezy PPT main.pdf` is a real
 filled deck (SIH 2025) and is the best example of how much a strong team packs onto these slides.
@@ -31,7 +35,7 @@ filled deck (SIH 2025) and is the best example of how much a strong team packs o
 
 ## Five things not to get wrong
 
-1. **The template in this repo is the 2024 edition.** Rule 5 says use *the provided* template, so
+1. **The template is the 2024 edition, and it now lives in `reference/`** — which is gitignored, so a fresh clone will not have it; see [`reference/README.md`](../reference/README.md) to get it back. Rule 5 says use *the provided* template, so
    download the **2026** file from the SIH portal and paste this text into it. The section structure
    is unchanged between 2024 and 2025, so nothing in `slides.md` needs rewriting — but the logo, the
    year and the footer must come from the 2026 file. The draft's logo box is deliberately empty for

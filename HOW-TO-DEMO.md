@@ -44,7 +44,7 @@ One scene at a time, for a slide or a rehearsal:
 ?auto=1&scene=fade         the same task until the dot is gone
 ```
 
-Pre-recorded loops of all four are in `deck/clips/` for the PowerPoint.
+Pre-recorded loops of all four are in `media/clips/` for the PowerPoint.
 
 ## Things a judge will press on — answer in one sentence
 

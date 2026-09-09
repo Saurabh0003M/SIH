@@ -46,7 +46,7 @@ How to work:
 
 ## P1 — Deck package for teammates
 
-**Done 2026-09-09 (commits 254b897, 52d9f34) and accepted after review. Teammates own the PPT from here. The official template file is `research/SIH2025-IDEA-Presentation-Format.pptx`; slide 2 must use its own three pointers, not the CODESTRIX labels — that note is for the teammates, not for an agent.**
+**Done 2026-09-09 (commits 254b897, 52d9f34) and accepted after review. Teammates own the PPT from here. The official template file is `reference/SIH2025-IDEA-Presentation-Format.pptx`; slide 2 must use its own three pointers, not the CODESTRIX labels — that note is for the teammates, not for an agent.**
 
 ---
 
@@ -63,7 +63,7 @@ Steps:
 3. Fix whatever the live model exposes (JSON parsing, model name discovery, rate limits: back off and retry once, then fall back to offline with a visible message).
 4. Real website: load unpacked from prototype/guide-dots in Chrome (use the Claude in Chrome tools if the in-app browser cannot load extensions; otherwise write exact click-by-click steps for Saurabh and stop there). Run two read-only tasks that submit nothing: on https://scholarships.gov.in "how do I apply for a scholarship" and on a college website of Saurabh's choice "i want to apply for admission". Screenshot every dot. Note every misfire honestly.
 5. Autoplay: extend demo/autoplay.js so that when a live provider is configured the caption says "live model" instead of "no model"; keep the offline path unchanged.
-6. Record: build the recording rig described in P2.5 now (Playwright record_video or CDP screencast, 1280x720 at deviceScaleFactor 1.5 → 1920x1080) and capture the ?auto=1 run with the live model, plus one clip of each real-site dot. Save under deck/clips/raw/. P2.5 turns these into the looping clips.
+6. Record: build the recording rig described in P2.5 now (Playwright record_video or CDP screencast, 1280x720 at deviceScaleFactor 1.5 → 1920x1080) and capture the ?auto=1 run with the live model, plus one clip of each real-site dot. Save under media/clips/raw/. P2.5 turns these into the looping clips.
 
 Deliver: the bands table (offline vs live), screenshots in F:\SIH\deck\assets\live\, the recordings, and a short list of what misfired on the real sites and why.
 ~~~~
@@ -97,7 +97,7 @@ Verify in the harness with ?auto=1: the four-step run must show one dot travelli
 ~~~~
 Goal: a set of short, silent, seamlessly looping video clips of the REAL product, one per slide, that teammates drop into the PPT with "Loop until Stopped + Start Automatically". No screenshots, no mock-ups, no narration. Each clip must be readable when the slide is projected: dot, colour and percentage visible at 1920x1080.
 
-Format: MP4 H.264, 1920x1080, 30 fps, 6–10 s, under 8 MB each, no audio track. Also export a GIF under 10 MB for each as a fallback (PowerPoint on some machines refuses MP4 embedding). Name them deck/clips/NN-name.mp4 and .gif.
+Format: MP4 H.264, 1920x1080, 30 fps, 6–10 s, under 8 MB each, no audio track. Also export a GIF under 10 MB for each as a fallback (PowerPoint on some machines refuses MP4 embedding). Name them media/clips/NN-name.mp4 and .gif.
 
 Loop rule: the first and last frames must match. Start every clip on the idle page (no dot, ask bar empty), end by fading the overlay out over 400 ms back to that same idle frame, hold 300 ms, cut. A loop that jumps reads as a glitch on a projector.
 
@@ -114,7 +114,7 @@ Clips, in priority order:
 
 After P3 re-record 01 with the route strip visible and add 08-question (a question gets an answer plus a "Show me" chip). After P4 add 09-vision (the "from pixels" badge dot on the canvas button).
 
-Deliver: deck/clips/ with every mp4 and gif, a deck/clips/README.md that maps clip → slide (01 and 02 on slide 2, 07 on slide 3, 02 or 06 on slide 4, 04 on slide 5) and gives teammates the two PowerPoint clicks (Insert → Video → This Device; Playback → Start Automatically + Loop until Stopped + Hide While Not Playing off). Verify every file loops cleanly by playing it twice in the in-app browser or VLC and watching the seam. Report durations and sizes in a table.
+Deliver: media/clips/ with every mp4 and gif, a media/clips/README.md that maps clip → slide (01 and 02 on slide 2, 07 on slide 3, 02 or 06 on slide 4, 04 on slide 5) and gives teammates the two PowerPoint clicks (Insert → Video → This Device; Playback → Start Automatically + Loop until Stopped + Hide While Not Playing off). Verify every file loops cleanly by playing it twice in the in-app browser or VLC and watching the seam. Report durations and sizes in a table.
 ~~~~
 
 ---
@@ -250,9 +250,10 @@ Do not paste secrets. Verify the final brief is under 60k characters and print i
 ~~~~
 Goal: the intercollege round is presented live from a PPTX, and the SIH portal takes a PDF. Build both from the official template so teammates only review and restyle.
 
-1. Start from F:\SIHesearch\SIH2025-IDEA-Presentation-Format.pptx. Keep every logo, footer, oval and pointer. Delete slide 7 in the output only.
+1. Start from F:\SIH
+esearch\SIH2025-IDEA-Presentation-Format.pptx. Keep every logo, footer, oval and pointer. Delete slide 7 in the output only.
 2. Fill the six slides from deck/slides.md. Slide 2 uses the template's own three pointers: "Detailed explanation of the proposed solution" ← Box 1, "How it addresses the problem" ← Box 2, "Innovation and uniqueness of the solution" ← Box 3. Slide 4 has no Technical/Financial/Market/Operational sub-labels in this template; drop them, keep the bullets. Slide 1: only the six fields. Two wording fixes: "Runs on any portal" → "Not pre-scripted for any portal — it reads whatever is on screen"; slide 4's measured-run paragraph → two bullets.
-3. Embed the clips from deck/clips/ as videos with PowerPoint COM (New-Object -ComObject PowerPoint.Application): slide 2 = 01-chain, slide 3 = the architecture PNG plus 02-red-verify small, slide 4 = 02-red-verify (or 06-green when it exists), slide 5 = 04-fade. For each video shape set AnimationSettings.PlaySettings.PlayOnEntry = True, LoopUntilStopped = True, HideWhileNotPlaying = False, and set a poster frame from the clip's first frame. Add 03-arrow on slide 2 only if the layout has room; otherwise leave it out.
+3. Embed the clips from media/clips/ as videos with PowerPoint COM (New-Object -ComObject PowerPoint.Application): slide 2 = 01-chain, slide 3 = the architecture PNG plus 02-red-verify small, slide 4 = 02-red-verify (or 06-green when it exists), slide 5 = 04-fade. For each video shape set AnimationSettings.PlaySettings.PlayOnEntry = True, LoopUntilStopped = True, HideWhileNotPlaying = False, and set a poster frame from the clip's first frame. Add 03-arrow on slide 2 only if the layout has room; otherwise leave it out.
 4. Save deck/disha-intercollege.pptx. Export deck/disha-intercollege.pdf via SaveCopyAs(path, 32); the PDF shows poster frames, which is what the portal will accept.
 5. Open the PPTX through COM in slideshow mode for 20 s and confirm the videos start on entry and loop. Render the PDF pages and confirm nothing overflows a box; shrink font before cutting text.
 6. Update deck/README.md: which file is for the room, which for the portal, and the one hand step left for teammates (confirm the team name registered on the portal; fill Team ID after the intercollege round). Commit.

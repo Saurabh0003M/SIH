@@ -1,6 +1,15 @@
-# Cloned third-party repos - 272MB, each with its own .git.
-# Reference material only; never our code. Re-clonable at any time.
+# Cloned third-party repos - 272MB, each with its own .git. Deleted in P6 once
+# every one of them had either code tracing to it or a recorded reason it was
+# rejected; see ATTRIBUTION.md. The rule it established stays.
 borrowed/
+
+# Material we did not write and can download again: the SIH problem-statement
+# catalogues, the guidelines, the official template, other teams' decks, and the
+# selection-phase working files. ~23MB, none of it our work, all of it re-gettable
+# from the SIH portal. Kept on disk because we still read it - out of git because
+# a teammate cloning this repo needs our product, not our source material.
+reference/*
+!reference/README.md
 
 # Never commit secrets
 .env

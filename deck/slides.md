@@ -1,7 +1,7 @@
 # Disha — FINAL slide text, mapped onto the official SIH idea-PPT template
 
 **Rewritten 9 Sept 2026 against the actual template**, which is in this repo at
-`research/past winning teams/805306823-SIH-Winner-PPT.pdf` — that file is misnamed. It is not a
+`reference/past winning teams/805306823-SIH-Winner-PPT.pdf` — that file is misnamed. It is not a
 winner's deck: pages 1, 4, 5 and 6 are the **blank official template**, pages 2 and 3 were filled in
 by a team called CODESTRIX, and page 7 is the official instructions page.
 

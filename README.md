@@ -13,7 +13,7 @@ Type what you want to do, in your own words, on any web page. Disha puts a colou
 It never clicks for you. And the more times you succeed, the fainter the dot gets, until it is gone.
 
 <p align="center">
-  <img src="deck/clips/01-chain.gif" alt="Four dots, three screens: Disha guiding one goal to completion" width="760">
+  <img src="media/clips/01-chain.gif" alt="Four dots, three screens: Disha guiding one goal to completion" width="760">
   <br>
   <em>The real product, unedited — one goal typed in plain words, four steps, three screens.</em>
 </p>
@@ -35,7 +35,7 @@ the running code. Before you say something on stage, check it against [`deck/num
 | **2 minutes** | Double-click `run.bat`, type *"i want to take my money out"*, follow the dots to the red one. |
 | **10 minutes** | Read [HOW-TO-DEMO.md](HOW-TO-DEMO.md) — the stage runbook, including what to say. |
 | **You are presenting** | [HOW-TO-DEMO.md](HOW-TO-DEMO.md), then [judge-FAQ.md](judge-FAQ.md), then §5 below for what we may and may not claim. |
-| **You are building the PPT** | [`deck/slides.md`](deck/slides.md) → [`deck/numbers.md`](deck/numbers.md) → [`deck/clips/`](deck/clips). |
+| **You are building the PPT** | [`deck/slides.md`](deck/slides.md) → [`deck/numbers.md`](deck/numbers.md) → [`media/clips/`](media/clips). |
 | **You are changing the code** | §3 below, then open `prototype/guide-dots/`. |
 
 ---
@@ -63,37 +63,40 @@ hands-free. One scene at a time: `&scene=chain` · `red-verify` · `nav` · `fad
 
 ## 2. What is in here
 
-Six folders. Three of them matter to most people.
+Six folders, and each one answers a different question.
 
 | Path | What it holds | Open it when |
 |---|---|---|
 | **[`prototype/guide-dots/`](prototype/guide-dots)** | **The product.** An MV3 Chrome extension, plus a harness that runs the same code on a plain page with no install. | You are explaining or changing how it works |
-| **[`deck/`](deck)** | **The presentation kit.** Final slide text, every number traced to a source, ten screenshots, four looping clips, a draft pptx and pdf. | You are building the PPT |
-| **[`platform/`](platform)** | The portal, an architecture page, and the practice sandbox — three standalone HTML files. | You need the product page or an architecture visual |
+| **[`media/`](media)** | **Every clip and screenshot**, in one place — four looping videos and eleven stills, all from the running prototype. | You need a picture or a video of Disha working |
+| **[`deck/`](deck)** | **The presentation kit** — the writing. Final slide text, every number traced to its source, and the draft pptx and pdf. | You are building the PPT |
+| [`platform/`](platform) | The portal, an architecture page, and the practice sandbox — three standalone HTML files. | You need the product page or an architecture visual |
 | [`explainer/`](explainer) | One animated page walking through a single grounding decision, on the real measured numbers. | A judge asks *"how does the confidence actually work?"* |
-| [`research/`](research) | Three deep-research reports, the SIH guidelines, the official template, past teams' decks. | You need a citation, or the rules |
-| `borrowed/` | Twelve cloned third-party repos, reference only. **Gitignored — not in a fresh clone.** | Never, for the pitch |
+| [`research/`](research) | **Our** three deep-research reports. Every number on the deck traces to a line in one of them. | You need a citation |
+| [`reference/`](reference) | Material we did **not** write — the SIH catalogues, the guidelines, the official template, other teams' decks. **Gitignored: your clone will find it empty, and that is correct.** | You need the rules or the template — [its README](reference/README.md) says where to download each one again |
 
-And the loose files at the root:
+And the loose files at the root, all of them ours:
 
 | File | What it is |
 |---|---|
 | [HOW-TO-DEMO.md](HOW-TO-DEMO.md) | The stage runbook: what to open, what to say, what to do when it breaks. |
 | [judge-FAQ.md](judge-FAQ.md) | The Q&A bank. Killer questions, rehearsed, one sentence each. |
 | [demo-video-script.md](demo-video-script.md) | Shot-by-shot script for the two-minute demo video. |
+| [ATTRIBUTION.md](ATTRIBUTION.md) | What we borrowed, from where, under which licence — and what we deliberately did not read. |
 | [next-prompts-for-opus.md](next-prompts-for-opus.md) | The AI-agent work queue — what is done, what is deferred, and why. |
 | [PPT-content-draft.md](PPT-content-draft.md) | Earlier content blocks. Superseded by `deck/slides.md`; kept for background. |
 | `run.bat` | The launcher. |
 
-The spreadsheet and the two problem-statement catalogues at the root are from the selection phase.
-Keep them; nothing depends on them.
+> **The dividing line, if you are ever unsure where something goes:** if we made it, it belongs in
+> git. If we downloaded it and could download it again, it belongs in `reference/` and out of git.
+> That rule already removed 272 MB of cloned repos and roughly 23 MB of PDFs from the tree.
 
 ---
 
 ## 3. How it actually works
 
 <p align="center">
-  <img src="deck/assets/architecture.png" alt="Disha architecture: page, guide, and the boundary between them" width="820">
+  <img src="media/screenshots/architecture.png" alt="Disha architecture: page, guide, and the boundary between them" width="820">
 </p>
 
 There are two ways to run the same code — install it as a Chrome extension, or open the demo
@@ -145,8 +148,8 @@ Then:
 
 - **[`deck/numbers.md`](deck/numbers.md)** — every statistic, traced to an exact source line in `research/`, plus an explicit list of the numbers we do **not** have. *If a number is not in this table, it does not go on a slide.*
 - **[`deck/README.md`](deck/README.md)** — the official rules (max six slides including the title · upload PDF only · use the provided template unchanged), where the real template actually is, and five things not to get wrong.
-- **[`deck/clips/`](deck/clips)** — four silent looping clips of the real product, 1080p30 H.264 with GIF fallbacks, each measured to loop seamlessly. Its README says which clip belongs on which slide.
-- **`deck/assets/`** — ten 1920×1080 PNGs, all captured from the running prototype.
+- **[`media/clips/`](media/clips)** — four silent looping clips of the real product, 1080p30 H.264 with GIF fallbacks, each measured to loop seamlessly. Its README says which clip belongs on which slide.
+- **[`media/screenshots/`](media/screenshots)** — eleven 1920×1080 PNGs, all captured from the running prototype. [`media/README.md`](media/README.md) says what each one shows.
 
 > ⚠️ **The template in `research/` is the 2024 edition.** Download the **2026** file from the SIH
 > portal and paste this text into that one. The section structure is unchanged, but the logo, the
@@ -157,7 +160,7 @@ Then:
 ## 5. What you can say on stage — and what you can't
 
 <p align="center">
-  <img src="deck/assets/demo-step3.png" alt="Step three: the dot goes red at 51% because two controls scored almost the same" width="820">
+  <img src="media/screenshots/demo-step3.png" alt="Step three: the dot goes red at 51% because two controls scored almost the same" width="820">
   <br>
   <em>Step three. Two controls scored almost the same, so it says so — in red, at 51%.</em>
 </p>
@@ -216,7 +219,8 @@ see [next-prompts-for-opus.md](next-prompts-for-opus.md).
 ## 7. Working notes
 
 - **No build step, no dependencies.** Plain JavaScript, plain HTML. The `test/` scripts want Node 22+, and recording also wants Chrome on `--remote-debugging-port=9333` plus ffmpeg on PATH.
-- **`borrowed/` is gitignored** — roughly 272 MB of third-party repos, each with its own `.git`. A fresh clone will not have it, and nothing in the product imports from it. It is reading material.
+- **`borrowed/` is gone.** It held 272 MB of third-party repos; each has now either contributed code we credit or a recorded reason we rejected it, so the folder was deleted. See [ATTRIBUTION.md](ATTRIBUTION.md).
+- **`reference/` is gitignored** and your clone will find it empty. That is correct — it holds only material we downloaded and can download again. [`reference/README.md`](reference/README.md) is tracked and lists every file with its source.
 - **Secrets never go in git.** `.env*`, `*.key`, `config.local.js` and `research/agent router api key/` are all ignored. Keys live on disk only — put yours in `config.local.js` or the extension popup, never in a tracked file. **This repository is public.**
 - **Ports** are 8777 (prototype), 8931 (portal), 8778 (explainer), also configured in `.claude/launch.json` for agent-driven runs.
 - If a page looks stale, hard-reload it with Ctrl+F5 — the file servers set no cache headers.
