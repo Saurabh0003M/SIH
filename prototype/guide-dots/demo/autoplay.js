@@ -104,6 +104,17 @@
 
   const goHome = () => document.querySelector('nav a[data-go="home"]').click();
 
+  // The caption must describe the run that is actually happening. A recording
+  // made with a live key that still says "no model is running" is a lie on
+  // tape, and it is the kind that survives into a demo video.
+  async function groundingCaption() {
+    const { provider, apiKey } = await chrome.storage.local.get(["provider", "apiKey"]);
+    const live = provider && provider !== "offline" && apiKey;
+    return live
+      ? `A live model (${provider}) picked this, and the page evidence had to agree before the dot appeared.`
+      : "No model is running. It matched his words against the page itself — offline.";
+  }
+
   // ---- the story ---------------------------------------------------------
   async function run() {
     // Start from a learner who has never done this. Otherwise the third scene —
@@ -118,7 +129,7 @@
 
     await type("i want to take my money out");
 
-    await caption("No model is running. It matched his words against the page itself — offline.", 4000);
+    await caption(await groundingCaption(), 4000);
     await followDot({ hold: 900 });
 
     await caption("Second step. It read the new screen, not a script.", 3200);

@@ -28,7 +28,7 @@ function render() {
 }
 
 // Bump this when config.local.js changes and should override saved settings.
-const GD_CONFIG_VERSION = 3;
+const GD_CONFIG_VERSION = 4;
 
 chrome.storage.local.get(
   ["apiKey", "provider", "baseUrl", "model", "configVersion"],
@@ -36,10 +36,14 @@ chrome.storage.local.get(
     const c = (typeof GD_CONFIG !== "undefined" && GD_CONFIG) || {};
     // One-time adoption: a stale saved provider would otherwise beat the
     // baked-in defaults forever, which is exactly what sent a key to Anthropic.
-    const adopt = Boolean(c.apiKey) && d.configVersion !== GD_CONFIG_VERSION;
+    // Gate on the PROVIDER, not the key. Gating on the key meant a config that
+    // switched provider but left the key blank was ignored, so a saved
+    // "ollama" from an earlier version silently outlived the change - the
+    // extension then tried a local model that may not even be running.
+    const adopt = Boolean(c.provider || c.apiKey) && d.configVersion !== GD_CONFIG_VERSION;
 
-    savedKey = adopt ? c.apiKey : d.apiKey || "";
-    provider = adopt ? c.provider : d.provider || "ollama";
+    savedKey = adopt ? c.apiKey || "" : d.apiKey || "";
+    provider = adopt ? c.provider || "offline" : d.provider || "ollama";
     const baseUrl = adopt ? c.baseUrl : d.baseUrl || "";
     const modelList = adopt ? c.models : d.model || "";
 

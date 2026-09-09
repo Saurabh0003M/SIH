@@ -36,9 +36,35 @@ function gdPrompt({ goal, url, elements, history }) {
 }
 
 function gdParseReply(text) {
-  const match = String(text).match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("model did not return JSON");
-  const o = JSON.parse(match[0]);
+  let s = String(text == null ? "" : text).trim();
+  if (!s) throw new Error("model returned an empty reply");
+
+  // Models fence their JSON far more often than the docs suggest.
+  s = s.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+
+  // A greedy /\{[\s\S]*\}/ spans two objects when the model chats before or
+  // after the JSON, and then JSON.parse dies on the join. Walk the braces
+  // instead and take the first complete object, ignoring braces inside strings.
+  const start = s.indexOf("{");
+  if (start < 0) throw new Error("model did not return JSON: " + s.slice(0, 80));
+  let depth = 0, inStr = false, esc = false, end = -1;
+  for (let i = start; i < s.length; i++) {
+    const c = s[i];
+    if (esc) { esc = false; continue; }
+    if (c === "\\") { esc = true; continue; }
+    if (c === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === "{") depth++;
+    else if (c === "}" && --depth === 0) { end = i; break; }
+  }
+  if (end < 0) throw new Error("model returned truncated JSON: " + s.slice(0, 80));
+
+  let o;
+  try {
+    o = JSON.parse(s.slice(start, end + 1));
+  } catch (e) {
+    throw new Error("model returned malformed JSON: " + s.slice(start, start + 80));
+  }
   return {
     id: o.id === null || o.id === undefined ? -1 : Number(o.id),
     confidence: Number(o.confidence),
@@ -49,8 +75,30 @@ function gdParseReply(text) {
 
 async function gdFetchJson(url, options) {
   const r = await fetch(url, options);
-  if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 120)}`);
+  if (!r.ok) {
+    const err = new Error(`${r.status} ${(await r.text()).slice(0, 120)}`);
+    err.status = r.status; // so the retry logic can tell "slow down" from "wrong key"
+    throw err;
+  }
   return r.json();
+}
+
+// The Gemini free tier rate-limits hard, and gateways return 503 while a model
+// cold-starts. Both are worth exactly one polite retry; a 401 or 400 is not,
+// because retrying a wrong key just wastes the user's time twice.
+const GD_RETRY_STATUS = new Set([408, 429, 500, 502, 503, 504]);
+
+async function gdWithRetry(label, fn) {
+  try {
+    return await fn();
+  } catch (e) {
+    if (!GD_RETRY_STATUS.has(e.status)) throw e;
+    // Honour Retry-After when we can infer it; otherwise a flat, short pause.
+    const waitMs = e.status === 429 ? 2500 : 1200;
+    console.log(`[GuideDots] ${label} returned ${e.status} - retrying once in ${waitMs}ms`);
+    await new Promise((r) => setTimeout(r, waitMs));
+    return fn();
+  }
 }
 
 // Pick a model this API key can actually use, and remember it.
@@ -127,7 +175,8 @@ async function callLLM(payload) {
   const prompt = gdPrompt(payload);
 
   if (provider === "ollama") {
-    const data = await gdFetchJson("http://localhost:11434/api/generate", {
+    const data = await gdWithRetry("ollama", () =>
+      gdFetchJson("http://localhost:11434/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -137,7 +186,8 @@ async function callLLM(payload) {
         format: "json", // small models drift without this
         options: { temperature: 0 }
       })
-    });
+      })
+    );
     return gdParseReply(data.response);
   }
 
@@ -161,7 +211,7 @@ async function callLLM(payload) {
 
     const attempt = (model) => {
       const started = Date.now();
-      return gdFetchJson(base + "/chat/completions", {
+      return gdWithRetry(model, () => gdFetchJson(base + "/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -178,7 +228,7 @@ async function callLLM(payload) {
             { role: "user", content: prompt }
           ]
         })
-      })
+      }))
         .then((d) => {
           const parsed = gdParseReply(d.choices[0].message.content);
           const ms = Date.now() - started;
@@ -207,22 +257,49 @@ async function callLLM(payload) {
   if (provider === "gemini") {
     // Model names change and get retired, so ask the key what it can actually use.
     const geminiModel = cfg.model || (await gdResolveGeminiModel(cfg.apiKey));
-    const data = await gdFetchJson(
-      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${cfg.apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: `${GD_SYSTEM}\n\n${prompt}` }] }],
-          generationConfig: { temperature: 0, maxOutputTokens: 200 }
-        })
-      }
+    const data = await gdWithRetry("gemini", () =>
+      gdFetchJson(
+        `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${cfg.apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `${GD_SYSTEM}\n\n${prompt}` }] }],
+            // 200 was too tight: on the 2.5 models reasoning tokens are billed
+            // against this budget, so the reply can finish as MAX_TOKENS with no
+            // text part at all - which used to surface as a TypeError.
+            generationConfig: {
+              temperature: 0,
+              maxOutputTokens: 2048,
+              responseMimeType: "application/json"
+            }
+          })
+        }
+      )
     );
-    return gdParseReply(data.candidates[0].content.parts[0].text);
+
+    // Every hop here has failed in the wild: blocked prompts return no
+    // candidate, safety stops return a candidate with no parts.
+    const cand = data.candidates && data.candidates[0];
+    if (!cand) {
+      const blocked = data.promptFeedback && data.promptFeedback.blockReason;
+      throw new Error(blocked ? `prompt blocked (${blocked})` : "no candidate returned");
+    }
+    const parts = (cand.content && cand.content.parts) || [];
+    const text = parts.map((pt) => pt.text || "").join("").trim();
+    if (!text) {
+      throw new Error(
+        cand.finishReason === "MAX_TOKENS"
+          ? "reply hit the token cap before any text - raise maxOutputTokens"
+          : `empty reply (finishReason ${cand.finishReason || "unknown"})`
+      );
+    }
+    return gdParseReply(text);
   }
 
   // anthropic
-  const data = await gdFetchJson("https://api.anthropic.com/v1/messages", {
+  const data = await gdWithRetry("anthropic", () =>
+    gdFetchJson("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -238,8 +315,11 @@ async function callLLM(payload) {
       system: GD_SYSTEM,
       messages: [{ role: "user", content: prompt }]
     })
-  });
-  return gdParseReply(data.content[0].text);
+    })
+  );
+  const block = (data.content || []).find((b) => b.type === "text");
+  if (!block) throw new Error(`no text block (stop_reason ${data.stop_reason || "unknown"})`);
+  return gdParseReply(block.text);
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {

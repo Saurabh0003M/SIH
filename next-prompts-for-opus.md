@@ -1,19 +1,22 @@
 # Disha — next prompts for Opus 5 (prepared by claude-fable, 2026-09-09)
 
 Paste **P0 first in every new Opus session**, then one numbered prompt at a time.
-Order is by what unblocks people: teammates need P1 today; everything else is prototype and demo.
+Order is by product value: P2 and P2.5 first, then the features, each followed by re-recording the clip it changes.
 
 | # | Prompt | Why now | Rough time |
 |---|---|---|---|
 | P0 | Session preamble | Stops the "no, no, no" loop; sets the decisions as decided | paste with every prompt |
-| P1 | Deck package for teammates | Teammates are waiting; they need final text + visuals, not a draft | 60–90 min |
+| P1 | Deck package | **DONE 2026-09-09 and accepted.** Teammates own the PPT from here; no agent time goes to slides. | — |
 | P2 | Live model → green dot → real website | Nothing green has ever been shown; judges look for a real site | 45–60 min |
-| P3 | Ask-Gemini parity + site knowledge packs + route preview | This is your "how does it know what comes after the click" answer | 2–3 h |
-| P4 | Screen share → vision fallback | Frames are captured today but nothing consumes them | 1.5–2 h |
-| P5 | Motion clip: tree traversal animation + Higgsfield storyboard | The demo clip you asked for | 1.5 h + render time |
+| P2.5 | Short looping clips for the PPT | Saurabh's call: the deck carries silent loops of the product, not screenshots | 1.5–2 h |
+| P3 | Ask-Gemini parity + site knowledge packs + route preview | The "how does it know what comes after the click" answer; re-record two clips after | 2–3 h |
+| P4 | Screen share → vision fallback | Frames are captured today but nothing consumes them; re-record one clip after | 1.5–2 h |
+| P5 | Tree-traversal animation (+ optional Higgsfield) | The clip that shows what the presenter cannot show live | 1.5 h |
 | P6 | Unified portal: combine the borrowed repos, keep the best mechanism | Your portal idea, done as a comparison judges can read | 2–3 h |
 | P7 | The GPT Astra mega-brief | Hands the hardest thinking to Astra with full context | 45 min |
 | P8 | Checkpoint + handover | Keeps the brain true, packages for judges | 20 min |
+
+**Standing rule from Saurabh (2026-09-09): no agent tokens on the PPT.** Dedicated teammates build it from `deck/`. Agents work on the product and on short video clips that run in a loop inside the PPT.
 
 Two facts Opus must know before P2 (verified today from the command line, not from the browser):
 
@@ -31,7 +34,7 @@ Decisions Saurabh has already made. Do not reopen them, do not argue them, do no
 1. The product is Disha: an on-page assistant (like Chrome's "Ask Gemini") whose extra is on-screen annotation — dots on the element to click, up/down arrows for scrolling, a comment card that opens when the pointer comes near the dot and says what happens after the click. The human clicks; the system never clicks.
 2. Screen share exists as a toggle pair (Share/Stop, Pause/Resume) so the user can pause during OTP, password or personal fields. It stays.
 3. There is also a web portal that combines the fragmented open-source learning and guidance solutions into one place, keeping the best mechanism where two repos overlap. Disha is the core inside that portal and the thing presented at the end.
-4. Speed matters more than polish. Teammates are waiting on the PPT.
+4. Speed matters more than polish. The PPT belongs to dedicated teammates; agents spend nothing on slides. Agent work is the product and short silent clips of it that loop inside the PPT (see P2.5).
 
 How to work:
 - If you see a real problem, say it in ONE sentence, then build the requested thing anyway under a stated assumption. Never stop to ask permission for reversible work.
@@ -42,32 +45,9 @@ How to work:
 
 ---
 
-## P1 — Deck package for teammates (do this first)
+## P1 — Deck package for teammates
 
-~~~~
-Goal: hand the teammates everything they need to build the SIH idea PPT today, so they never wait on me again.
-
-Inputs: F:\SIH\PPT-content-draft.md (every number already cited), F:\SIH\research\*.md, platform/architecture.html (the process-flow diagram), the demo harness, explainer/how-the-dot-is-chosen.html, judge-FAQ.md.
-
-Deliver a folder F:\SIH\deck\ containing:
-
-1. slides.md — FINAL text mapped onto the official SIH idea-PPT template, which has exactly these slides: (1) Title: PS ID 26207, PS title, theme Smart Education, team ID, team name; (2) Idea Title + Proposed Solution: detailed explanation, how it addresses the problem, innovation and uniqueness; (3) Technical Approach: technologies, methodology and process flow; (4) Feasibility and Viability: analysis, challenges and risks, strategies to overcome; (5) Impact and Benefits: potential impact on the target audience, social/economic/educational benefits; (6) Research and References. Do NOT add slides or restructure the template. Per slide: a headline of at most 10 words, at most 45 words of body, bullet text ready to paste, and a line "visual: <asset filename>". Keep the honesty line about Microsoft Copilot Vision Highlights on slide 2. Keep the "claims we must NOT make" list at the bottom of slides.md as a checklist for the teammates.
-
-2. assets/ — PNG exports at 1920x1080, light theme, no browser chrome:
-   - architecture.png from platform/architecture.html (open it with the `platform` launch config and screenshot the SVG region).
-   - demo-step1.png … demo-step4.png: the four dots from the harness run "i want to take my money out" (amber Wallet, amber Withdraw, red Amount 51%, amber Confirm). Percentage must be legible.
-   - demo-arrow.png: the scroll-down arrow for "i want to raise a complaint".
-   - demo-hovercard.png: the proximity card open next to a dot.
-   - explainer-red-case.png: the explainer page showing the 0.815 vs 0.763 margin → 51% red.
-   - practice-portal.png: the Vidya Setu practice portal home.
-   Use the in-app browser tools (preview_start + computer screenshot), crop with Python/Pillow if needed.
-
-3. numbers.md — one table: every statistic used on any slide, its exact source line in research/, and the one-sentence caveat from PPT-content-draft.md. Teammates paste footnotes from here.
-
-4. disha-idea-deck-draft.pptx — a plain 6-slide draft using the anthropic-skills:pptx skill with the same text and the assets placed, so teammates start from something rather than nothing. Plain white slides, no design effort; they will restyle it onto the official template.
-
-Verify: open the pptx (convert to PDF or render thumbnails) and check every image is present and no slide overflows. Then list the files with sizes.
-~~~~
+**Done 2026-09-09 (commits 254b897, 52d9f34) and accepted after review. Teammates own the PPT from here. The official template file is `research/SIH2025-IDEA-Presentation-Format.pptx`; slide 2 must use its own three pointers, not the CODESTRIX labels — that note is for the teammates, not for an agent.**
 
 ---
 
@@ -84,9 +64,36 @@ Steps:
 3. Fix whatever the live model exposes (JSON parsing, model name discovery, rate limits: back off and retry once, then fall back to offline with a visible message).
 4. Real website: load unpacked from prototype/guide-dots in Chrome (use the Claude in Chrome tools if the in-app browser cannot load extensions; otherwise write exact click-by-click steps for Saurabh and stop there). Run two read-only tasks that submit nothing: on https://scholarships.gov.in "how do I apply for a scholarship" and on a college website of Saurabh's choice "i want to apply for admission". Screenshot every dot. Note every misfire honestly.
 5. Autoplay: extend demo/autoplay.js so that when a live provider is configured the caption says "live model" instead of "no model"; keep the offline path unchanged.
-6. Record: with the harness tab focused, capture the ?auto=1 run at 1080p (use the OS recorder; write down exactly what you did). Save to F:\SIH\deck\video\autoplay-live.mp4 and the real-site clips beside it.
+6. Record: build the recording rig described in P2.5 now (Playwright record_video or CDP screencast, 1280x720 at deviceScaleFactor 1.5 → 1920x1080) and capture the ?auto=1 run with the live model, plus one clip of each real-site dot. Save under deck/clips/raw/. P2.5 turns these into the looping clips.
 
 Deliver: the bands table (offline vs live), screenshots in F:\SIH\deck\assets\live\, the recordings, and a short list of what misfired on the real sites and why.
+~~~~
+
+---
+
+## P2.5 — Short looping clips for the PPT
+
+~~~~
+Goal: a set of short, silent, seamlessly looping video clips of the REAL product, one per slide, that teammates drop into the PPT with "Loop until Stopped + Start Automatically". No screenshots, no mock-ups, no narration. Each clip must be readable when the slide is projected: dot, colour and percentage visible at 1920x1080.
+
+Format: MP4 H.264, 1920x1080, 30 fps, 6–10 s, under 8 MB each, no audio track. Also export a GIF under 10 MB for each as a fallback (PowerPoint on some machines refuses MP4 embedding). Name them deck/clips/NN-name.mp4 and .gif.
+
+Loop rule: the first and last frames must match. Start every clip on the idle page (no dot, ask bar empty), end by fading the overlay out over 400 ms back to that same idle frame, hold 300 ms, cut. A loop that jumps reads as a glitch on a projector.
+
+Recording method: extend demo/autoplay.js with ?scene=<name> so ONE scene runs, then the page resets itself to idle (clear dots, clear the chat log, reset mastery when the scene needs it). Record with Playwright's video recording (record_video_dir, viewport 1280x720 with deviceScaleFactor 1.5 — the same rig that made the deck PNGs) or CDP Page.startScreencast → frames → ffmpeg. Check whether ffmpeg is on PATH; if not, pip install imageio-ffmpeg and use its bundled binary. Trim to the loop points with ffmpeg, never by hand. Speed up only the WAITS (the waitForQuiet pauses), never the dot's own animation; a dot that lands too fast to read is worthless.
+
+Clips, in priority order:
+01-chain        The four dots landing for "i want to take my money out". Type fast (25 ms per char), let each dot hold 1.5 s. Target 10 s.
+02-red-verify   Step 3 alone: the red dot on the amount field, the pointer drifts near it, the hover card opens and shows "After you click …", holds 2 s. Target 7 s.
+03-arrow        "i want to raise a complaint": the scroll-down arrow bobbing, a smooth programmatic scroll (window.scrollTo with behavior smooth), the arrow swaps to the dot as the footer link enters view. Target 7 s.
+04-fade         Same task run four times fast with mastery reset first: full dot with label → quieter dot, no label → whisper → gone, with the panel line "try it without the dot". Speed the repeats up; hold the final empty state 1.5 s. Target 10 s.
+05-pause        Share screen on, an OTP field focused, Pause clicked, the panel text flips to "PAUSED — nothing is being captured", Resume. Playwright needs --use-fake-ui-for-media-stream and --auto-select-desktop-capture-source="BharatInvest" to grant the picker without a hand; if that fails, record this one by hand and say so. Target 7 s.
+06-green        Only after P2: one step going GREEN with the live model, percentage visible. Target 6 s. If no step goes green, do not fake it; ship 01–05 and say so.
+07-tree         The tree-traversal animation from P5 (explainer/tree-traversal.html), 30 s, loops on its own. Record after P5.
+
+After P3 re-record 01 with the route strip visible and add 08-question (a question gets an answer plus a "Show me" chip). After P4 add 09-vision (the "from pixels" badge dot on the canvas button).
+
+Deliver: deck/clips/ with every mp4 and gif, a deck/clips/README.md that maps clip → slide (01 and 02 on slide 2, 07 on slide 3, 02 or 06 on slide 4, 04 on slide 5) and gives teammates the two PowerPoint clicks (Insert → Video → This Device; Playback → Start Automatically + Loop until Stopped + Hide While Not Playing off). Verify every file loops cleanly by playing it twice in the in-app browser or VLC and watching the seam. Report durations and sizes in a table.
 ~~~~
 
 ---
