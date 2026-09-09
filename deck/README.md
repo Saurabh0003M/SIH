@@ -1,75 +1,119 @@
-# deck/ — everything needed to build the SIH idea PPT
+# deck/ — the SIH idea PPT
 
-Built 9 Sept 2026, then rewritten the same day against the **actual official template**.
-Nothing here is a mock-up: every screenshot came out of the running prototype.
+Built on the **official template** (`reference/SIH2025-IDEA-Presentation-Format.pptx`), which is kept
+whole: its logo, its blue footer bar, its team-name oval, its fixed slide titles, and every one of its
+prescribed pointers, word for word. The only structural change is that **slide 7, the instructions
+page, is not in the output** — the instructions themselves tell you to delete it.
 
-**This folder is the writing.** The pictures and clips that go on the slides are in
-[`../media/`](../media) — start at [`media/README.md`](../media/README.md), which says which clip
-belongs on which slide.
+Nothing on these slides is a mock-up. Every picture and every frame of every clip came out of the
+running prototype.
 
-| File | What it is | Who uses it |
+## The two files that matter
+
+| File | Use it for | Why |
 |---|---|---|
-| `slides.md` | **Start here.** Final text mapped onto the six official slides, box by box, with the template's own headings and sub-pointers reproduced so nothing gets renamed. | Whoever builds the PPT |
-| `disha-idea-deck-draft.pptx` | A 6-slide draft that mirrors the template's structure — team oval, fixed ALL-CAPS title, the box layout, the blue footer bar. | Whoever builds the PPT |
-| `disha-idea-deck-draft.pdf` | The same deck exported to PDF, because **PDF is the only format the portal accepts**. | Check what a judge will actually see |
-| `numbers.md` | Every statistic on the deck, its exact source line in `research/`, and the caveat that must travel with it. | Whoever writes footnotes, and whoever answers a judge |
-| **`../media/`** | **Moved out of this folder.** All eleven screenshots and all four looping clips now live in [`media/`](../media), because they are used by the README, the video and the portal as well as by the deck. | Both |
+| **`disha-intercollege.pptx`** | **the room** — the live intercollege presentation | Four clips embedded, each starting by itself on slide entry and looping until you move on. 8.5 MB, everything embedded, no network needed. |
+| **`disha-intercollege.pdf`** | **the portal** — the SIH submission upload | **PDF is the only format the portal accepts.** Each video appears as its poster frame, so a judge reading the PDF still sees the dot, the arrow and the verdict. 1.1 MB. |
 
-## Where the template actually is
+Open the PPTX in Presenter view and just walk forward. You do not click to start a video, and you do
+not need to stop one — leaving the slide stops it.
 
-`reference/past winning teams/805306823-SIH-Winner-PPT.pdf` — **that file is misnamed.** It is not a
-winner's deck. Pages 1, 4, 5 and 6 are the **blank official template**, pages 2–3 were filled in by a
-team called CODESTRIX, and page 7 is the official instructions page. `Lanezy PPT main.pdf` is a real
-filled deck (SIH 2025) and is the best example of how much a strong team packs onto these slides.
-`SIH GRAND FINALE 2024.pdf` is a college press release, not a deck.
+### The one hand step left for you
 
-## The rules that came off the instructions page
+1. **Confirm the team name registered on the SIH portal really is `Code Blooded`**, and that it matches
+   the oval on slides 2–6 and the field on slide 1.
+2. **Fill in `Team ID-` on slide 1** once the intercollege round is cleared. It is deliberately blank —
+   the ID does not exist yet.
+3. **The template says `SMART INDIA HACKATHON 2025`** because that is what the provided file says. When
+   SIH publishes the 2026 template, either paste this content into it or change that one heading. The
+   section structure has been identical across 2024 and 2025, so nothing in `slides.md` would need
+   rewriting.
 
-1. **Maximum six slides, including the title slide.**
-2. Avoid paragraphs — points, diagrams, infographics, pictures.
-3. Keep it precise and easy to understand.
-4. The idea should be unique and novel.
-5. **Use only the provided template, without changing the idea-details pointers.**
-6. **Save as PDF and upload that.** No PPT, no Word.
-7. Delete the instructions slide before uploading.
+## What is on each slide
+
+| # | Template title | Clip | Stills |
+|---|---|---|---|
+| 1 | `TITLE PAGE` | — | the template's own art |
+| 2 | *ours:* "Disha — it points, you click, and then it fades" | `01-chain` | — |
+| 3 | `TECHNICAL APPROACH` | `03-navigation` | `architecture.png` |
+| 4 | `FEASIBILITY AND VIABILITY` | `02-red-verify` | `explainer-red-case.png` |
+| 5 | `IMPACT AND BENEFITS` | `04-fade` | `practice-portal.png` |
+| 6 | `RESEARCH AND REFERENCES` | — | — |
+
+All four clips are used, once each. `05-pause` and `06-green` are not here because they do not exist:
+screen capture cannot be recorded in headless Chrome, and the green dot needs a live model key. Neither
+will be faked.
+
+## What was verified, and how
+
+Run `deck/build/probe_play.ps1` to repeat it. It opens the deck in a real slideshow, walks to each
+video slide, and reads the media player's position twice:
+
+```
+slide 2 VIDEO-01-chain      len=14067ms  TriggerType=2 (with previous)
+slide 2: t=2.5s pos=3283ms  ->  t=5.5s pos=6432ms      started with no click
+slide 2 loop: t=16s pos=1947ms                          past a 14.07 s clip - it wrapped
+```
+
+`TriggerType=2` is the part that took two attempts. Setting
+`AnimationSettings.PlaySettings.PlayOnEntry` alone leaves the play effect as `nodeType="clickEffect"`
+inside a click group, so the clip sits still until the presenter presses space. The fix is to move the
+effect's trigger to `msoAnimTriggerWithPrevious`, which is what "on slide entry" actually means in the
+timing tree.
+
+All six PDF pages were rendered and checked: no text overflows a box, and nothing is clipped by the
+footer bar.
+
+## Rebuilding it
+
+Two passes, because python-pptx cannot embed video and PowerPoint COM cannot lay out a slide comfortably.
+
+```bash
+python deck/build/build_deck.py
+```
+
+Text, cards and stills, straight from the template; each video's place is held by a rectangle named
+`VIDEOSLOT::<clip>`.
+
+```bash
+powershell -NoProfile -ExecutionPolicy Bypass -File deck/build/insert_videos.ps1
+```
+
+Swaps each placeholder for a real embedded media object, sets play/loop/no-hide, fixes the trigger,
+attaches the poster frame, saves the PPTX and exports the PDF via `SaveCopyAs(path, 32)`.
+
+Poster frames live in `media/posters/` and were cut with ffmpeg from a **chosen** frame, not frame 0 —
+every clip opens on the idle page with no dot on it, so first-frame posters would have made the PDF
+four pictures of nothing happening.
+
+```bash
+ffmpeg -ss 13   -i media/clips/01-chain.mp4      -vframes 1 media/posters/01-chain.png
+ffmpeg -ss 8.5  -i media/clips/02-red-verify.mp4 -vframes 1 media/posters/02-red-verify.png
+ffmpeg -ss 5    -i media/clips/03-navigation.mp4 -vframes 1 media/posters/03-navigation.png
+ffmpeg -ss 14   -i media/clips/04-fade.mp4       -vframes 1 media/posters/04-fade.png
+```
+
+LibreOffice and `pdftoppm` are not installed on this machine, so the usual render path fails.
+PowerPoint COM works and is more faithful anyway; PDF pages were rendered with PyMuPDF.
+
+## The rest of the folder
+
+| File | What it is |
+|---|---|
+| `slides.md` | The writing — final text mapped box by box onto the six official slides, with the template's own headings reproduced so nothing gets renamed. Edit here first, then rebuild. |
+| `numbers.md` | Every statistic on the deck, its exact source line in `research/`, and the caveat that must travel with it. |
+| `real-site-run.md` | Read-only grounding runs on three live public portals, including the two Disha got wrong and reported red. |
+| `build/` | The two build scripts and the playback probe. |
+| `superseded/` | The earlier hand-built draft. **Do not submit it.** Kept only for comparison. |
+| `../media/` | Every picture and clip, with `media/README.md` explaining which is which. |
 
 ## Five things not to get wrong
 
-1. **The template is the 2024 edition, and it now lives in `reference/`** — which is gitignored, so a fresh clone will not have it; see [`reference/README.md`](../reference/README.md) to get it back. Rule 5 says use *the provided* template, so
-   download the **2026** file from the SIH portal and paste this text into it. The section structure
-   is unchanged between 2024 and 2025, so nothing in `slides.md` needs rewriting — but the logo, the
-   year and the footer must come from the 2026 file. The draft's logo box is deliberately empty for
-   this reason.
-2. **Team ID stays blank** until the intercollege round is cleared. Team name is **Code Blooded**,
-   and it goes in the oval at the top-left of slides 2–6 as well as on slide 1.
+1. **Upload the PDF, not the PPTX.** The portal takes nothing else.
+2. **Team ID stays blank** until the intercollege round is cleared. Team name is **Code Blooded**.
 3. **Keep the Copilot Vision honesty line on slide 2.** Removing it is the fastest way to lose the
-   novelty argument when a judge names the product first.
-4. **Read the checklist at the bottom of `slides.md`** before the deck leaves your hands.
-5. **The links question — half of it is now answered.** Both winner decks put clickable Video /
-   Website / Report / GitHub links on their slides, and we finally have one that is real:
-
-   > **github.com/Saurabh0003M/SIH** — public, with a README that explains the whole repo to
-   > someone who has never seen it.
-
-   Put it on the title slide. Two are still missing, and both are cheap:
-
-   - **Video.** Record `demo-video-script.md` and upload it unlisted. This is the one judges
-     actually click.
-   - **Website.** `platform/` and `prototype/guide-dots/demo/` are static files with no build step,
-     so GitHub Pages will host the working prototype in about ten minutes. That turns "carry it open
-     in a tab" into a link anyone on the panel can open themselves.
-
-   The explainer is a private Claude artifact — publish it or don't cite it. And whatever else
-   changes, **never put a `localhost` URL on a submitted slide.**
-
-## How the screenshots were made, if they need remaking
-
-The demo server runs from `.claude/launch.json` (`disha-demo` on 8777, `platform` on 8931,
-`explainer` on 8778). The captures were driven through the Chrome DevTools Protocol at a CSS viewport
-of 1280×720 with `deviceScaleFactor: 1.5`, which yields a true 1920×1080 PNG in which the confidence
-percentage is still readable on a projected slide. The script typed into the real ask bar and clicked
-through `elementFromPoint` — the same thing a hand does — so a take that looks right is right.
-
-LibreOffice and `pdftoppm` are not installed on this machine, so the pptx skill's usual render path
-fails. **PowerPoint COM works** (`New-Object -ComObject PowerPoint.Application`, then
-`Slide.Export(...)` and `SaveCopyAs(path, 32)` for PDF) and is more faithful anyway.
+   novelty argument when a judge names that product first.
+4. **Read the claims checklist at the bottom of `slides.md`** before this leaves your hands. Every
+   forbidden claim on that list is one a judge can fact-check in a minute.
+5. **Never put a `localhost` URL on a submitted slide.** The one link on the deck —
+   `github.com/Saurabh0003M/SIH` — is public and real.
