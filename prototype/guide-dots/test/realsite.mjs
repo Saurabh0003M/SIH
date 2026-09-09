@@ -21,7 +21,7 @@ const read = (f) => readFileSync(new URL("../" + f, here), "utf8");
 
 // The same files the extension ships, in the order the harness loads them.
 // shim.js supplies the four chrome.* calls a content script needs.
-const BUNDLE = ["demo/shim.js", "lib/tree.js", "lib/local.js", "lib/fade.js",
+const BUNDLE = ["demo/shim.js", "lib/redact.js", "lib/remember.js", "lib/tree.js", "lib/local.js", "lib/fade.js",
                 "lib/dots.js", "lib/ground.js"].map(read).join("\n;\n");
 
 const DEFAULTS = [

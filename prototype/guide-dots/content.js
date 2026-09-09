@@ -173,6 +173,10 @@
     say(`${WORDS[result.band]}: ${result.reason} (${pct}%)`, result.band);
     if (scaffold.level === "mastered") {
       say("You've done this step five times — try it without the dot.", "bot");
+      // Mastered is not "done forever". Schedule the return visit.
+      gdReviewRecord(gdRecipeKey(goal, location.host), "easy").then((e) =>
+        say(`I'll bring this back for practice — ${gdReviewLabel(e)}.`, "bot")
+      );
     }
     paint();
   }
@@ -205,6 +209,9 @@
       scaffold = await gdScaffold(lastFingerprint); // support comes back
       say("That wasn't it — bringing the guidance back.", "amber");
       gdShakeDot(); // make the correction visible, not only readable
+      // A wrong turn shortens the review interval, exactly as a lapse does in
+      // spaced repetition — the schedule follows the evidence, not a timer.
+      gdReviewRecord(gdRecipeKey(goal, location.host), "again");
       await waitForQuiet();
       if (!paused) step();
     }

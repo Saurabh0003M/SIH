@@ -1,23 +1,21 @@
 # Disha — next prompts for Opus 5 (prepared by claude-fable, 2026-09-09)
 
 Paste **P0 first in every new Opus session**, then one numbered prompt at a time.
-Order is by product value: P2 and P2.5 first, then the features, each followed by re-recording the clip it changes.
+Current order: P6 → P9 → P8. Everything else is deferred until after the intercollege round.
 
-| # | Prompt | Why now | Rough time |
-|---|---|---|---|
-| P0 | Session preamble | Stops the "no, no, no" loop; sets the decisions as decided | paste with every prompt |
-| P1 | Deck package | **DONE 2026-09-09 and accepted.** Teammates own the PPT from here; no agent time goes to slides. | — |
-| P2 | Live model → green dot → real website | Nothing green has ever been shown; judges look for a real site | 45–60 min |
-| P2.4 | Motion polish: dots animate instead of popping | Saurabh watched the recording: dots appear suddenly; clips must read as motion | 60–90 min |
-| P2.5 | Short looping clips for the PPT | Saurabh's call: the deck carries silent loops of the product, not screenshots | 1.5–2 h |
-| P3 | Ask-Gemini parity + site knowledge packs + route preview | The "how does it know what comes after the click" answer; re-record two clips after | 2–3 h |
-| P4 | Screen share → vision fallback | Frames are captured today but nothing consumes them; re-record one clip after | 1.5–2 h |
-| P5 | Tree-traversal animation (+ optional Higgsfield) | The clip that shows what the presenter cannot show live | 1.5 h |
-| P6 | Unified portal: combine the borrowed repos, keep the best mechanism | Your portal idea, done as a comparison judges can read | 2–3 h |
-| P7 | The GPT Astra mega-brief | Hands the hardest thinking to Astra with full context | 45 min |
-| P8 | Checkpoint + handover | Keeps the brain true, packages for judges | 20 min |
+**Direction change, 2026-09-09 evening (Saurabh):** the prototype is good enough for the intercollege round. Stop the feature sequence. Two things remain: (1) make the borrowed repos pay for themselves, then delete `borrowed/`; (2) the deck, with the looping clips inside it. P3, P4, P5, P7 are DEFERRED until after the intercollege round — their text stays below for later.
 
-**Standing rule from Saurabh (2026-09-09): no agent tokens on the PPT.** Dedicated teammates build it from `deck/`. Agents work on the product and on short video clips that run in a loop inside the PPT.
+| # | Prompt | Status |
+|---|---|---|
+| P0 | Session preamble | paste with every prompt |
+| P1 | Deck package | done |
+| P2 | Live model → green dot | 4/6 done; green still waits on a Gemini key |
+| P2.4 | Motion polish | done |
+| P2.5 | Looping clips | 4/7 done; 05 is a hand recording by Saurabh, 06 needs the key, 07 dropped with P5 |
+| **P6** | **Borrowed repos: take what is worth taking, attribute, delete the folder** | **NEXT, 2–3 h** |
+| **P9** | **Final deck inside the official template, clips looping, PDF for the portal** | **then, 1.5–2 h** |
+| **P8** | **Checkpoint + judges' zip + unpacked-install steps** | **last, 30 min** |
+| P3 P4 P5 P7 | Features, vision, tree animation, Astra brief | deferred |
 
 Two facts Opus must know before P2 (verified today from the command line, not from the browser):
 
@@ -193,20 +191,26 @@ Deliver: the mp4 from A, the shot list from B with file names, and a two-line no
 
 ---
 
-## P6 — The unified portal: combine the borrowed repos, keep the best mechanism
+## P6 — Borrowed repos: take what is worth taking, attribute it, delete the folder
 
 ~~~~
-Goal: turn platform/ into the portal Saurabh described — the fragmented open-source solutions combined in one place, with Disha as the core — built as a comparison judges can read rather than as a pile of iframes.
+Goal: the thirteen repos under F:\SIHorrowed\ (gitignored, 272 MB) were cloned as reference. Before the folder is deleted, every one of them must have paid for itself: either a piece of our code traces to it, or a documented decision not to use it. Then the folder goes.
 
-Thirteen repos are already cloned under F:\SIH\borrowed\ (gitignored, reference only): GUI-Actor, OmniParser, VisualTagger, ai-page-assist, browser-use, chrome-element-inspector, element-highlighter, fsrs4anki, intro.js, meeting-minutes, open-notebook, shepherd. The research report research/Fast-Learning Tools, Reusable Repositories, and Pedagogy.md has their licences.
+Work through them in this order. Ideas may be taken from any repo; CODE may be copied only from MIT/BSD repos, and never from ai-page-assist (no licence) or from intro.js/shepherd (AGPL).
 
-Build:
-1. platform/modules.html — one card per capability the portal offers, grouped: Guide (Disha, the core), Practice (the sandbox portals), Remember (spaced revisiting of procedures), See (vision grounding fallback), Tour (authored walkthroughs for portals that ship a pack), Capture (lecture and session notes). For each capability list the repos that do it, and a "mechanism compared, kept X because Y" block: e.g. intro.js vs shepherd (both AGPL — kept the step-anchoring mechanism only as a design reference, wrote our own), GUI-Actor vs OmniParser (kept GUI-Actor: MIT, gives a verifier probability we can map to a band), element-highlighter vs VisualTagger vs chrome-element-inspector (kept the live-rect + mutation-observer lifecycle, dropped absolute document coordinates), browser-use vs ai-page-assist (kept the numbered-element prompt format; dropped autopilot clicking by design). Each block states the licence and whether the code is integrated, adapted, or referenced. Never claim integration that is not in the tree.
-2. One real integration, not just a comparison: Remember. Port the FSRS scheduling function from fsrs4anki (MIT) into prototype/guide-dots/lib/remember.js so each mastered recipe (from fade.js mastery counts) gets a next-review date, and the popup shows "due for practice: Withdraw money (BharatInvest)". This is the spaced-retrieval claim on the impact slide (g = 0.74) made real in code. Keep it under 150 lines.
-3. platform/index.html: add the Modules nav entry; the landing keeps Disha as the hero.
-4. A licence table in platform/modules.html footer: repo, licence, how we use it. Flag AGPL repos as design-reference only.
+1. fsrs4anki (MIT) → prototype/guide-dots/lib/remember.js. Port the FSRS scheduling function (stability, difficulty, next interval) so every recipe the learner has mastered in fade.js gets a next-review date, and the popup shows "Due for practice: <task> on <site>". Under 150 lines. This makes the spaced-retrieval line on the impact slide true in code.
+2. ai-page-assist → lib/redact.js, IDEA ONLY, our own code. Its desensitize module strips sensitive values before anything reaches a model. Re-implement: before elements leave tree.js, mask anything in an accessible name that looks like an Aadhaar number (12 digits), a phone number, an OTP, a PAN, an email, or an account number. Log a count of masked items to the console. This makes the privacy-boundary box on the architecture diagram true in code.
+3. browser-use (MIT) → tree.js. Its clickable-element detection also treats elements with cursor:pointer and elements with click handlers registered via frameworks as candidates. Add the cursor:pointer heuristic to GD_SELECTOR filtering (computed style, not attribute), capped so the candidate count on the demo home page does not exceed 40. Report the before/after count.
+4. GUI-Actor (MIT), OmniParser (CC-BY, AGPL detector): reference for the vision fallback. Nothing ported now. Record in ATTRIBUTION.md what the verifier probability → colour band mapping would look like, two sentences.
+5. element-highlighter, VisualTagger, chrome-element-inspector: the live-rect + MutationObserver marker lifecycle is already ours. Record "idea taken, no code" for each.
+6. intro.js, shepherd (AGPL): step anchoring and tooltip collision handling. Record "reviewed, not taken: AGPL, and we point with arrows instead of scrolling for the user".
+7. meeting-minutes (MIT), open-notebook (MIT): were candidates for a Capture module in the portal. Record "reviewed, out of scope for the intercollege build".
 
-Verify with the `platform` launch config: every card renders, every link resolves, dark mode holds, no horizontal scroll at 375 px. Screenshot modules.html at 1920x1080 into F:\SIH\deck\assets\portal-modules.png for the PPT.
+Then:
+8. Write F:\SIH\ATTRIBUTION.md: one row per repo — URL, licence, commit hash from its .git, what was taken (code / idea / nothing) and the file it landed in. Include the exact git clone command for each so the folder can be rebuilt in one paste.
+9. platform/modules.html: the same table rendered for judges, grouped by capability (Guide, Practice, Remember, Privacy, See), each with a one-line "kept X because Y". Add the Modules link to the landing nav. Verify in the browser at 375 px and in dark mode.
+10. Verify the harness still runs the four-step chain with zero console errors after steps 1–3, and that the redactor masks a fake 12-digit number placed in a demo control label.
+11. Commit. Then delete F:\SIHorrowed\ (it is gitignored and fully re-clonable from ATTRIBUTION.md). Print the freed size.
 ~~~~
 
 ---
@@ -237,6 +241,21 @@ Structure the brief exactly like this:
 5. OUTPUT FORMAT: Markdown, one H2 per task, tables where a table fits, no preamble.
 
 Do not paste secrets. Verify the final brief is under 60k characters and print its size.
+~~~~
+
+---
+
+## P9 — Final deck inside the official template, clips looping, PDF for the portal
+
+~~~~
+Goal: the intercollege round is presented live from a PPTX, and the SIH portal takes a PDF. Build both from the official template so teammates only review and restyle.
+
+1. Start from F:\SIHesearch\SIH2025-IDEA-Presentation-Format.pptx. Keep every logo, footer, oval and pointer. Delete slide 7 in the output only.
+2. Fill the six slides from deck/slides.md. Slide 2 uses the template's own three pointers: "Detailed explanation of the proposed solution" ← Box 1, "How it addresses the problem" ← Box 2, "Innovation and uniqueness of the solution" ← Box 3. Slide 4 has no Technical/Financial/Market/Operational sub-labels in this template; drop them, keep the bullets. Slide 1: only the six fields. Two wording fixes: "Runs on any portal" → "Not pre-scripted for any portal — it reads whatever is on screen"; slide 4's measured-run paragraph → two bullets.
+3. Embed the clips from deck/clips/ as videos with PowerPoint COM (New-Object -ComObject PowerPoint.Application): slide 2 = 01-chain, slide 3 = the architecture PNG plus 02-red-verify small, slide 4 = 02-red-verify (or 06-green when it exists), slide 5 = 04-fade. For each video shape set AnimationSettings.PlaySettings.PlayOnEntry = True, LoopUntilStopped = True, HideWhileNotPlaying = False, and set a poster frame from the clip's first frame. Add 03-arrow on slide 2 only if the layout has room; otherwise leave it out.
+4. Save deck/disha-intercollege.pptx. Export deck/disha-intercollege.pdf via SaveCopyAs(path, 32); the PDF shows poster frames, which is what the portal will accept.
+5. Open the PPTX through COM in slideshow mode for 20 s and confirm the videos start on entry and loop. Render the PDF pages and confirm nothing overflows a box; shrink font before cutting text.
+6. Update deck/README.md: which file is for the room, which for the portal, and the one hand step left for teammates (confirm the team name registered on the portal; fill Team ID after the intercollege round). Commit.
 ~~~~
 
 ---

@@ -1,0 +1,275 @@
+<meta charset="utf-8">
+<title>Disha — what we built on</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --paper:#F2F4F7; --surface:#FFFFFF; --surface-2:#E8EBF1; --ink:#141A26;
+    --ink-soft:#55607A; --line:#D6DBE5; --accent:#2F4BD8; --accent-ink:#FFFFFF;
+    --go:#14803C; --wait:#B45309; --stop:#C22B2B;
+    --go-bg:#E4F3EA; --wait-bg:#FBF0DD; --stop-bg:#FAE7E7;
+    --shadow:0 1px 2px rgb(20 26 38 / 6%), 0 10px 30px rgb(20 26 38 / 7%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:#0D1220; --surface:#151C2C; --surface-2:#1E273A; --ink:#EAEEF6;
+      --ink-soft:#98A3BA; --line:#2A3448; --accent:#7E92FF; --accent-ink:#0D1220;
+      --go:#4ADE80; --wait:#FBBF24; --stop:#F87171;
+      --go-bg:#14301F; --wait-bg:#33260B; --stop-bg:#351717;
+      --shadow:0 1px 2px rgb(0 0 0 / 40%), 0 10px 30px rgb(0 0 0 / 35%);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#0D1220; --surface:#151C2C; --surface-2:#1E273A; --ink:#EAEEF6;
+    --ink-soft:#98A3BA; --line:#2A3448; --accent:#7E92FF; --accent-ink:#0D1220;
+    --go:#4ADE80; --wait:#FBBF24; --stop:#F87171;
+    --go-bg:#14301F; --wait-bg:#33260B; --stop-bg:#351717;
+    --shadow:0 1px 2px rgb(0 0 0 / 40%), 0 10px 30px rgb(0 0 0 / 35%);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink);
+         font:400 16px/1.6 "Barlow", ui-sans-serif, system-ui, sans-serif;
+         -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 24px; }
+  h1,h2,h3 { margin:0; text-wrap:balance; }
+  .mono { font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums; }
+  .eyebrow { font:600 12px/1 "Barlow",sans-serif; letter-spacing:.16em;
+             text-transform:uppercase; color:var(--ink-soft); }
+
+  .topbar { background:var(--ink); color:var(--paper); border-bottom:4px solid var(--accent); }
+  .topbar .wrap { display:flex; align-items:center; gap:16px; padding-block:14px; }
+  .mark { font:700 26px/1 "Barlow Condensed",sans-serif; letter-spacing:.12em; text-transform:uppercase; }
+  .mark span { color:var(--accent); }
+  .topbar .meaning { font-size:13px; color:#9AA6C0; margin-left:auto; }
+  .nav { display:flex; gap:4px; flex-wrap:wrap; }
+  /* The bar is painted with var(--ink), which INVERTS between themes — so the
+     links must be var(--paper), not a hardcoded light grey. Hardcoding it left
+     light-grey text on a light bar in dark mode, which is unreadable. */
+  .nav a { color:var(--paper); opacity:.72; text-decoration:none; font-size:14px;
+           padding:6px 10px; border-radius:3px; }
+  .nav a:hover { background:rgb(128 128 128 / 22%); opacity:1; }
+  .nav a[aria-current] { opacity:1; box-shadow:inset 0 -2px 0 var(--accent); }
+  .topbar .meaning { color:var(--paper); opacity:.6; }
+  @media (max-width:700px) { .topbar .meaning { display:none; } }
+
+  .head { padding:44px 0 26px; }
+  .head h1 { font:600 34px/1.08 "Barlow Condensed",sans-serif; text-transform:uppercase; letter-spacing:.02em; }
+  .head p { color:var(--ink-soft); max-width:62ch; margin:10px 0 0; }
+
+  .cap { margin:34px 0 0; }
+  .cap > h2 { font:600 13px/1 "Barlow",sans-serif; letter-spacing:.16em;
+              text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:10px;
+          padding:18px 20px; margin-bottom:12px; box-shadow:var(--shadow); }
+  .card h3 { font-size:18px; font-weight:600; }
+  .card .why { color:var(--ink-soft); margin:6px 0 12px; }
+  .kept { background:var(--go-bg); border-left:3px solid var(--go); padding:10px 12px;
+          border-radius:0 6px 6px 0; font-size:14.5px; }
+  .kept.none { background:var(--surface-2); border-left-color:var(--ink-soft); }
+  .lands { margin-top:10px; font-size:13.5px; color:var(--ink-soft); }
+  .lands code { background:var(--surface-2); padding:1px 6px; border-radius:4px;
+                font-family:"IBM Plex Mono",monospace; font-size:12.5px; }
+
+  .tag { display:inline-block; font:500 11px/1 "IBM Plex Mono",monospace; padding:4px 7px;
+         border-radius:4px; letter-spacing:.04em; vertical-align:middle; margin-left:8px; }
+  .t-code { background:var(--go-bg); color:var(--go); }
+  .t-idea { background:var(--wait-bg); color:var(--wait); }
+  .t-no   { background:var(--stop-bg); color:var(--stop); }
+
+  .scroller { overflow-x:auto; -webkit-overflow-scrolling:touch; margin-top:12px; }
+  table { border-collapse:collapse; width:100%; min-width:660px; font-size:14px; }
+  th,td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--ink-soft); font-weight:600; font-size:12.5px;
+       text-transform:uppercase; letter-spacing:.08em; }
+  td a { color:var(--accent); }
+  .num { font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; }
+
+  footer { margin:46px 0 60px; padding-top:20px; border-top:1px solid var(--line);
+           color:var(--ink-soft); font-size:14px; }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
+</style>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="mark">DIS<span>HA</span></div>
+    <nav class="nav">
+      <a href="index.html">Overview</a>
+      <a href="practice.html">Practice portal</a>
+      <a href="architecture.html">How it works</a>
+      <a href="modules.html" aria-current="page">Modules</a>
+    </nav>
+    <div class="meaning">दिशा &nbsp;·&nbsp; direction</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="head">
+    <p class="eyebrow">What we built on</p>
+    <h1>Twelve repositories, and what each one paid for</h1>
+    <p>
+      We read twelve open-source projects while building Disha. Every one of them either has a piece
+      of our code tracing back to it, or a recorded reason we did not use it. <strong>Code was copied
+      only from MIT-licensed projects</strong> — never from a project with no licence file, and never
+      from an AGPL or GPL one. Ideas were taken more freely, and are labelled as ideas.
+    </p>
+  </div>
+
+  <!-- ---------------------------------------------------------- REMEMBER -->
+  <section class="cap">
+    <h2>Remember</h2>
+    <div class="card">
+      <h3>Spaced practice<span class="tag t-code">code taken</span></h3>
+      <p class="why">
+        A procedure you did once is not a procedure you can do in three weeks. Anything the learner
+        masters gets a return date instead of being marked done forever.
+      </p>
+      <div class="kept">
+        <strong>Kept fsrs4anki (MIT)</strong> because it is the algorithm behind the strongest
+        evidence we cite — spaced retrieval, g&nbsp;=&nbsp;0.74 — and porting it turns a claim on a
+        slide into behaviour in the product.
+      </div>
+      <p class="lands">
+        Lands in <code>lib/remember.js</code>. Measured, reviewing on each due date:
+        <span class="num">2 → 11 → 46 → 163 → 365 days</span>; one wrong click collapses it back to
+        <span class="num">7</span>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ----------------------------------------------------------- PRIVACY -->
+  <section class="cap">
+    <h2>Privacy</h2>
+    <div class="card">
+      <h3>Masking values before they leave the device<span class="tag t-idea">idea only</span></h3>
+      <p class="why">
+        Our architecture diagram promises that only control <em>names</em> leave the device. A badly
+        built portal puts the value into the name — so a field can carry an Aadhaar number into the
+        prompt. Now it cannot.
+      </p>
+      <div class="kept">
+        <strong>Idea from ai-page-assist, no code.</strong> That project has <em>no licence file</em>,
+        so nothing was copied; we re-implemented the idea ourselves. Aadhaar, PAN, email, mobile,
+        bank account, card and OTP are masked in place.
+      </div>
+      <p class="lands">
+        Lands in <code>lib/redact.js</code>. The mask keeps the shape —
+        <code>Aadhaar «aadhaar» linked</code> — because the model still has to tell an Aadhaar field
+        from a phone field; it just never sees the digits.
+      </p>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------- GUIDE -->
+  <section class="cap">
+    <h2>Guide — the core</h2>
+    <div class="card">
+      <h3>Finding controls that are not really controls<span class="tag t-idea">idea only</span></h3>
+      <p class="why">
+        Many real controls are plain <code>&lt;div&gt;</code>s that announce themselves only through
+        <code>cursor:pointer</code>. We were blind to every one.
+      </p>
+      <div class="kept">
+        <strong>Kept the heuristic from browser-use (MIT); wrote our own implementation</strong> —
+        computed style, skipping wrappers that already contain a real control, capped at 40 additions.
+        <strong>We deliberately did not take its autopilot clicking.</strong>
+      </div>
+      <p class="lands">
+        Lands in <code>lib/tree.js</code>. Controls found, before → after:
+        our demo <span class="num">27 → 27</span> ·
+        scholarships.gov.in <span class="num">28 → 31</span> ·
+        swayam.gov.in <span class="num">50 → 70</span> ·
+        aicte-india.org <span class="num">119 → 120</span>.
+        Zero on our own mock, because it is built from real buttons — the heuristic earns its keep on
+        the sites our users actually face.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Drawing the marker<span class="tag t-idea">idea only</span></h3>
+      <p class="why">A marker has to follow an element that moves, resizes and disappears.</p>
+      <div class="kept none">
+        <strong>Reviewed element-highlighter (MIT), VisualTagger (no licence) and
+        chrome-element-inspector (GPL).</strong> The live-rect + MutationObserver lifecycle was
+        already ours, so nothing was taken. We dropped absolute document coordinates, which break the
+        moment a page scrolls.
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------------- SEE -->
+  <section class="cap">
+    <h2>See — the fallback we have not built</h2>
+    <div class="card">
+      <h3>Vision grounding<span class="tag t-no">nothing taken yet</span></h3>
+      <p class="why">
+        When a control has no accessible name at all, reading the page cannot help and only pixels
+        remain. This is on the roadmap, not in this build, and we say so on the slide.
+      </p>
+      <div class="kept none">
+        <strong>Chose GUI-Actor (MIT) over OmniParser</strong> — OmniParser's icon detector is AGPL,
+        and GUI-Actor returns a verifier score per region, which maps onto the model half of our
+        two-number rule without changing the colour bands at all. A pixel-sourced dot would be
+        <strong>capped at amber</strong> and badged "from pixels", the same discipline that caps the
+        offline matcher today.
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- REJECTED -->
+  <section class="cap">
+    <h2>Tour — reviewed and rejected</h2>
+    <div class="card">
+      <h3>Authored walkthroughs<span class="tag t-no">not taken</span></h3>
+      <div class="kept none">
+        <strong>intro.js and shepherd are both AGPL</strong>, so their code was never an option. Two
+        reasons beyond the licence: every step must be authored in advance for one specific product,
+        and both scroll the page for the user. <strong>We point with an arrow and let the person
+        scroll</strong> — being driven teaches nothing.
+      </div>
+    </div>
+    <div class="card">
+      <h3>Capture<span class="tag t-no">out of scope</span></h3>
+      <div class="kept none">
+        <strong>meeting-minutes and open-notebook (both MIT)</strong> were candidates for a
+        note-taking module in the portal. Out of scope for the intercollege build; recorded so the
+        decision is not re-made from scratch later.
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------- TABLE -->
+  <section class="cap">
+    <h2>The whole list</h2>
+    <div class="scroller">
+      <table>
+        <thead>
+          <tr><th>Project</th><th>Licence</th><th>Commit</th><th>Taken</th><th>Where</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><a href="https://github.com/open-spaced-repetition/fsrs4anki">fsrs4anki</a></td><td>MIT</td><td class="num">ff7c85c</td><td>Code</td><td><code>lib/remember.js</code></td></tr>
+          <tr><td><a href="https://github.com/browser-use/browser-use">browser-use</a></td><td>MIT</td><td class="num">2b1f9d3</td><td>Idea</td><td><code>lib/tree.js</code></td></tr>
+          <tr><td><a href="https://github.com/bbuugg/ai-page-assist">ai-page-assist</a></td><td>none</td><td class="num">6db3a96</td><td>Idea only</td><td><code>lib/redact.js</code></td></tr>
+          <tr><td><a href="https://github.com/microsoft/GUI-Actor">GUI-Actor</a></td><td>MIT</td><td class="num">d98d1bb</td><td>Nothing yet</td><td>roadmap</td></tr>
+          <tr><td><a href="https://github.com/microsoft/OmniParser">OmniParser</a></td><td>CC-BY / AGPL detector</td><td class="num">3540212</td><td>Nothing</td><td>—</td></tr>
+          <tr><td><a href="https://github.com/matatk/element-highlighter">element-highlighter</a></td><td>MIT</td><td class="num">a709b49</td><td>Idea, no code</td><td><code>lib/dots.js</code></td></tr>
+          <tr><td><a href="https://github.com/calmstate/VisualTagger">VisualTagger</a></td><td>none</td><td class="num">3a59c5b</td><td>Idea, no code</td><td>—</td></tr>
+          <tr><td><a href="https://github.com/gblikas/chrome-element-inspector">chrome-element-inspector</a></td><td>GPL</td><td class="num">05feb15</td><td>Idea, no code</td><td>—</td></tr>
+          <tr><td><a href="https://github.com/usablica/intro.js">intro.js</a></td><td>AGPL</td><td class="num">e5517e6</td><td>Not taken</td><td>—</td></tr>
+          <tr><td><a href="https://github.com/shipshapecode/shepherd">shepherd</a></td><td>AGPL-3.0</td><td class="num">22a8a46</td><td>Not taken</td><td>—</td></tr>
+          <tr><td><a href="https://github.com/Zackriya-Solutions/meeting-minutes">meeting-minutes</a></td><td>MIT</td><td class="num">0281737</td><td>Out of scope</td><td>—</td></tr>
+          <tr><td><a href="https://github.com/lfnovo/open-notebook">open-notebook</a></td><td>MIT</td><td class="num">2d2df8a</td><td>Out of scope</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    The clones themselves are not in this repository — they were 272&nbsp;MB of reference material and
+    have been deleted. <code>ATTRIBUTION.md</code> in the repository root carries the same table plus
+    the exact <code>git clone</code> commands, so the folder can be rebuilt in one paste.
+  </footer>
+</div>

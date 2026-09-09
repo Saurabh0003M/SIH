@@ -4,6 +4,9 @@ const keyState = $("keyState"), keyBox = $("keyBox"), providerEl = $("provider")
 const customBox = $("customBox"), baseUrlEl = $("baseUrl"), modelEl = $("modelName");
 
 const CONTENT_FILES = [
+  // redact.js and remember.js must precede tree.js: gdAccessibleName calls the
+  // redactor on every name, so injecting tree.js alone throws on a real page.
+  "lib/redact.js", "lib/remember.js",
   "lib/tree.js", "lib/dots.js", "lib/local.js", "lib/ground.js",
   "lib/fade.js", "lib/chat.js", "lib/screen.js", "content.js"
 ];
@@ -164,3 +167,40 @@ $("start").addEventListener("click", () => send("START"));
 $("pause").addEventListener("click", () => send("PAUSE"));
 $("stop").addEventListener("click", () => send("STOP"));
 $("testdot").addEventListener("click", () => send("TESTDOT"));
+
+
+// ---- spaced practice ------------------------------------------------------
+// A procedure done once is not a procedure retained. Anything the learner has
+// mastered comes back here with a review date from lib/remember.js (FSRS).
+async function renderDue() {
+  const box = $("due");
+  if (!box || typeof gdReviewDue !== "function") return;
+  let items = [];
+  try {
+    items = await gdReviewDue(3);
+  } catch (e) {
+    return; // the popup must open even if storage is unavailable
+  }
+  if (!items.length) {
+    box.textContent = "";
+    return;
+  }
+  box.innerHTML =
+    '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb;' +
+    'font-size:11px;color:#6b7280">Due for practice</div>' +
+    items
+      .map((it) => {
+        const [site, task] = it.key.split("::");
+        const label = gdReviewLabel(it);
+        const overdue = it.due <= Date.now();
+        return (
+          '<div style="font-size:12px;margin-top:4px;color:#111">' +
+          task.replace(/[<>&]/g, "") +
+          ' <span style="color:#6b7280">on ' + site.replace(/[<>&]/g, "") + '</span>' +
+          ' <span style="color:' + (overdue ? "#b91c1c" : "#6b7280") + '">- ' + label + "</span></div>"
+        );
+      })
+      .join("");
+}
+
+renderDue();

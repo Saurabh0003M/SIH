@@ -29,7 +29,10 @@ function gdAccessibleName(el) {
     el.getAttribute("title") ||
     el.getAttribute("placeholder") ||
     "";
-  return raw.trim().replace(/\s+/g, " ").slice(0, 80);
+  // The LAST thing that touches a name before it can leave the device. A badly
+  // built portal puts the value into the label, so this is where an Aadhaar or
+  // an OTP would otherwise walk into the prompt. See lib/redact.js.
+  return gdRedact(raw.trim().replace(/\s+/g, " ").slice(0, 80));
 }
 
 function gdRole(el) {
@@ -73,11 +76,42 @@ function gdCollect(root, bag) {
 // on almost every real portal.
 const GD_MAX_CANDIDATES = 150;
 
+// Idea from browser-use (MIT): a great many real controls are plain <div>s that
+// only announce themselves through cursor:pointer. Government portals and older
+// SPAs are full of them, and we were blind to every one.
+//
+// Computed style, not the attribute — an inline `style="cursor:pointer"` is the
+// rare case; the common one is a class. Capped hard, because on a page where
+// the author set cursor:pointer on a wrapper this would otherwise swallow the
+// whole document.
+const GD_POINTER_CAP = 40;
+
+function gdPointerCandidates(bag) {
+  const extra = [];
+  const all = document.body ? document.body.querySelectorAll("div,span,li,td,p,img") : [];
+  for (const el of all) {
+    if (extra.length >= GD_POINTER_CAP) break;
+    if (bag.includes(el)) continue;
+    if (getComputedStyle(el).cursor !== "pointer") continue;
+    // A pointer-cursor wrapper around other pointer-cursor children is chrome,
+    // not a control. Keep the innermost one only.
+    if (el.querySelector("a,button,[role=button],[onclick]")) continue;
+    const text = (el.textContent || "").trim();
+    if (!text || text.length > 80) continue;
+    extra.push(el);
+  }
+  return extra;
+}
+
 function getInteractiveElements() {
   gdElements = [];
   const seen = new Set();
   const found = [];
   gdCollect(document, found);
+  const redactedBefore = gdRedactTotal();
+  const selectorCount = found.length;
+  gdPointerCandidates(found).forEach((el) => found.push(el));
+  const pointerAdded = found.length - selectorCount;
 
   const kept = [];
   found.forEach((el) => {
@@ -113,6 +147,13 @@ function getInteractiveElements() {
     );
     shortlist = kept.filter((c) => nearest.has(c));
   }
+
+  if (pointerAdded) {
+    console.log(
+      `[GuideDots] ${selectorCount} controls from selectors, +${pointerAdded} found by cursor:pointer`
+    );
+  }
+  gdRedactReport(redactedBefore);
 
   return shortlist.map((c) => {
     const id = gdElements.length;
