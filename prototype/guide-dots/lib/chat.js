@@ -86,6 +86,12 @@ function gdChatSay(text, kind) {
   div.className = "msg " + (kind || "bot");
   div.textContent = text;
   log.appendChild(div);
+  // Each line arrives rather than appearing, so a reader tracking the panel can
+  // see that something new was said.
+  if (!(typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+    div.animate([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }],
+      { duration: 180, easing: "ease-out" });
+  }
   log.scrollTop = log.scrollHeight;
   // A step-by-step guide can run long. Keep the last dozen turns so the panel
   // never grows past its own scroll area.

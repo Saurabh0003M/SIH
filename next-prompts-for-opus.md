@@ -8,6 +8,7 @@ Order is by product value: P2 and P2.5 first, then the features, each followed b
 | P0 | Session preamble | Stops the "no, no, no" loop; sets the decisions as decided | paste with every prompt |
 | P1 | Deck package | **DONE 2026-09-09 and accepted.** Teammates own the PPT from here; no agent time goes to slides. | — |
 | P2 | Live model → green dot → real website | Nothing green has ever been shown; judges look for a real site | 45–60 min |
+| P2.4 | Motion polish: dots animate instead of popping | Saurabh watched the recording: dots appear suddenly; clips must read as motion | 60–90 min |
 | P2.5 | Short looping clips for the PPT | Saurabh's call: the deck carries silent loops of the product, not screenshots | 1.5–2 h |
 | P3 | Ask-Gemini parity + site knowledge packs + route preview | The "how does it know what comes after the click" answer; re-record two clips after | 2–3 h |
 | P4 | Screen share → vision fallback | Frames are captured today but nothing consumes them; re-record one clip after | 1.5–2 h |
@@ -67,6 +68,28 @@ Steps:
 6. Record: build the recording rig described in P2.5 now (Playwright record_video or CDP screencast, 1280x720 at deviceScaleFactor 1.5 → 1920x1080) and capture the ?auto=1 run with the live model, plus one clip of each real-site dot. Save under deck/clips/raw/. P2.5 turns these into the looping clips.
 
 Deliver: the bands table (offline vs live), screenshots in F:\SIH\deck\assets\live\, the recordings, and a short list of what misfired on the real sites and why.
+~~~~
+
+---
+
+## P2.4 — Motion polish: the dot must move, not pop (before recording any clip)
+
+~~~~
+Goal: Saurabh watched the recorded run. The dots appear suddenly and the eye has nothing to follow. Every visual state change in the overlay must be animated before P2.5 records a single clip. Cosmetic only: grounding and the click loop start exactly when they do today; animation never delays them.
+
+Rules: no library. CSS keyframes plus element.animate() (Web Animations API) only, inside lib/dots.js and the injected gd-styles, so host-page CSS cannot break it. Overlay stays pointer-events:none. Honour prefers-reduced-motion: every duration becomes 0. Keep the addition under ~150 lines.
+
+Animate these, with these timings:
+1. Dot travel. When a new target is chosen and a previous dot exists, do not clear-and-redraw. Move ONE dot from the old element's centre to the new one over 450 ms ease-in-out along a straight path, leaving a thin 40%-opacity trail line that fades over 600 ms. The band colour cross-fades during the trip (amber → red as a 300 ms colour transition, not a swap). First dot of a run: scale in from 0 with a small overshoot (0 → 1.15 → 1.0, 260 ms).
+2. Landing. The pulse ring starts only after the dot lands. Set data-landed="1" on the dot at animation end; demo/autoplay.js must wait for data-landed before reading the dot's centre or clicking, or it will click mid-flight.
+3. Label chip. Slides out from behind the dot 120 ms after landing (translateX 8px → 0, opacity 0 → 1, 180 ms).
+4. Hover card. Scales from 0.92 and fades in over 160 ms from the dot's side; reverses on leave.
+5. Arrow ↔ dot swap. When an off-screen target scrolls into view, the arrow shrinks toward the element's position while the dot grows there (both 300 ms); the reverse when it scrolls out.
+6. Fade levels. Opacity changes between full → partial → faded are 400 ms transitions, never instant. At mastered, the dot shrinks to 0 with one final ring burst (500 ms) and the label "try it without the dot" appears in the panel.
+7. Banner and chat messages. Each new message slides up 6px and fades in over 180 ms; the top banner text cross-fades on change.
+8. Wrong click. On "That wasn't it" the current dot shakes horizontally ±4px for 300 ms before travelling back to the restored target, so the correction is visible.
+
+Verify in the harness with ?auto=1: the four-step run must show one dot travelling home → Wallet → Withdraw → Amount → Confirm with the colour shifting, zero console errors, and autoplay still clicking the right controls. Then run the same page with prefers-reduced-motion emulated and confirm nothing moves and everything still appears. Report before/after in two sentences, and commit.
 ~~~~
 
 ---

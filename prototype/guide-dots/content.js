@@ -39,7 +39,10 @@
   function paint() {
     if (paused || !lastResult || lastResult.targetId < 0) return;
     clearDots();
-    if (scaffold && scaffold.hide) return; // mastered: the learner does it unaided
+    if (scaffold && scaffold.hide) {
+      gdFarewell(); // mastered: the guidance leaves with a ring, not a blink
+      return; // the learner does it unaided
+    }
     const node = gdGetElement(lastResult.targetId);
     if (!node) return;
 
@@ -71,7 +74,9 @@
       {
         opacity: scaffold ? scaffold.opacity : 1,
         showLabel: scaffold ? scaffold.showLabel : true,
-        next: lastResult.next || ""
+        next: lastResult.next || "",
+        // Lets the motion layer tell "new step" from "same step, page scrolled".
+        key: lastResult.targetId
       }
     );
     gdUpdateHoverCard(mouse.x, mouse.y);
@@ -117,6 +122,9 @@
     showBanner("Reading this page...", "info");
     const elements = getInteractiveElements();
     showBanner(elements.length + " controls found - choosing...", "info");
+    // Show the working, not just the answer: the candidates and their real
+    // on-device scores, while the choice is still being made.
+    gdThinkScan(elements, goal);
 
     const result = await pickTarget(elements, goal, history, clicked);
     if (token !== runToken || paused) return; // a newer run superseded this one
@@ -143,6 +151,7 @@
       red: "Not sure - verify this one"
     };
     const pct = Math.round(result.confidence * 100);
+    gdThinkVerdict(result, chosen.name, !result.offline);
     say(`${WORDS[result.band]}: ${result.reason} (${pct}%)`, result.band);
     if (scaffold.level === "mastered") {
       say("You've done this step five times — try it without the dot.", "bot");
@@ -177,6 +186,7 @@
       await gdRecordFailure(lastFingerprint);
       scaffold = await gdScaffold(lastFingerprint); // support comes back
       say("That wasn't it — bringing the guidance back.", "amber");
+      gdShakeDot(); // make the correction visible, not only readable
       await waitForQuiet();
       if (!paused) step();
     }
@@ -197,6 +207,7 @@
     history = [];
     clicked = [];
     clearDots();
+    gdThinkClear();
   }
 
   // ---- the on-page ask bar -------------------------------------------------

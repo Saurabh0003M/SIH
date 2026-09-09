@@ -17,7 +17,9 @@
   // ---- the caption strip -------------------------------------------------
   const cap = document.createElement("div");
   cap.style.cssText = [
-    "position:fixed", "left:24px", "bottom:24px", "max-width:min(560px,46vw)",
+    // Sits ABOVE the grounding panel, which owns the bottom-left corner. The
+    // demo caption is the thing that should move, not the product's own UI.
+    "position:fixed", "left:24px", "bottom:200px", "max-width:min(560px,46vw)",
     "padding:14px 18px", "border-radius:12px", "background:rgba(15,23,42,.94)",
     "color:#fff", "font:500 17px/1.45 system-ui,sans-serif", "z-index:2147483647",
     "box-shadow:0 8px 30px rgb(0 0 0 / 35%)", "opacity:0", "transition:opacity 300ms",
@@ -49,9 +51,17 @@
 
   // The dot is the only proof the guide answered. Poll for the real element
   // rather than sleeping a hopeful two seconds.
+  // data-landed is set when the travel animation finishes. Without that check
+  // the driver reads a rect the dot is still flying through and clicks the
+  // wrong control — a bug a human demonstrator would never have.
   function overlayDot() {
     const o = document.getElementById("gd-overlay");
-    return o && [...o.querySelectorAll(".gd-dot")].find((d) => d.style.width === "18px");
+    return (
+      o &&
+      [...o.querySelectorAll(".gd-dot")].find(
+        (d) => d.style.width === "18px" && d.dataset.landed === "1"
+      )
+    );
   }
   function overlayArrow() {
     const o = document.getElementById("gd-overlay");
@@ -73,17 +83,90 @@
     return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   }
 
+  // ---- the visible hand --------------------------------------------------
+  // A screen recording has no cursor in it. Without one, a viewer sees dots
+  // appear and pages change with nothing connecting them, and the single most
+  // important claim of this product — THE HUMAN CLICKS, the system never does —
+  // is invisible. This pointer is the demo driver made visible; it moves to the
+  // real dot and the click still goes through elementFromPoint underneath it.
+  const cursor = document.createElement("div");
+  cursor.id = "gd-demo-cursor";
+  cursor.style.cssText = [
+    "position:fixed", "left:0", "top:0", "width:22px", "height:22px",
+    "margin:-2px 0 0 -2px", "z-index:2147483647", "pointer-events:none",
+    "opacity:0", "transition:opacity 300ms",
+    "background:no-repeat center/contain url('data:image/svg+xml;utf8," +
+      encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">' +
+        '<path d="M5 2l14 11-6 .6 3.2 6.4-2.6 1.3-3.2-6.4L5 19z" ' +
+        'fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>'
+      ) + "')"
+  ].join(";");
+  document.documentElement.appendChild(cursor);
+
+  // The click ring: a short pulse under the pointer at the moment of the click.
+  const ring = document.createElement("div");
+  ring.style.cssText = [
+    "position:fixed", "width:34px", "height:34px", "margin:-17px 0 0 -17px",
+    "border-radius:50%", "border:2px solid #111", "z-index:2147483646",
+    "pointer-events:none", "opacity:0"
+  ].join(";");
+  document.documentElement.appendChild(ring);
+
+  let cur = { x: innerWidth * 0.5, y: innerHeight * 0.75 };
+  const place = () => {
+    cursor.style.transform = `translate(${cur.x}px, ${cur.y}px)`;
+    ring.style.transform = `translate(${cur.x}px, ${cur.y}px)`;
+  };
+  place();
+
+  // Ease the pointer over, and fire a real mousemove at every step so the
+  // proximity hover card reacts to it exactly as it would to a hand.
+  async function moveTo(x, y, ms = 620) {
+    cursor.style.opacity = "1";
+    const from = { ...cur };
+    const started = performance.now();
+    return new Promise((done) => {
+      const tick = (now) => {
+        const t = Math.min(1, (now - started) / (ms * SLOW));
+        const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // ease-in-out
+        cur = { x: from.x + (x - from.x) * e, y: from.y + (y - from.y) * e };
+        place();
+        document.dispatchEvent(
+          new MouseEvent("mousemove", { clientX: cur.x, clientY: cur.y, bubbles: true })
+        );
+        t < 1 ? requestAnimationFrame(tick) : done();
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  async function pressRing() {
+    ring.style.opacity = "1";
+    ring.animate(
+      [{ transform: ring.style.transform + " scale(.4)", opacity: 0.9 },
+       { transform: ring.style.transform + " scale(1)", opacity: 0 }],
+      { duration: 420, easing: "ease-out" }
+    );
+    await wait(160);
+    ring.style.opacity = "0";
+  }
+
   // Hover the dot the way a hand would: a mousemove at its centre.
+  // Drift to just beside the dot — inside the proximity radius, not on top of
+  // it — so the card opens while the target stays visible.
   async function hoverDot(dot) {
     const c = centreOf(dot);
-    document.dispatchEvent(new MouseEvent("mousemove", { clientX: c.x, clientY: c.y, bubbles: true }));
-    await wait(60);
+    await moveTo(c.x - 34, c.y + 26, 520);
   }
 
   // Click through the dot. The overlay is pointer-events:none, so this lands on
   // the page control underneath — exactly what we ask the user to do.
   async function clickDot(dot) {
     const c = centreOf(dot);
+    await moveTo(c.x, c.y);      // the hand travels to the dot, in view
+    await wait(180);
+    await pressRing();           // and the click is something you can SEE
     const target = document.elementFromPoint(c.x, c.y);
     if (target) target.click();
     await wait(700);
