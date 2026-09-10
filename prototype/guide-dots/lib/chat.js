@@ -10,12 +10,14 @@
 let gdChatRoot = null; // the shadow root
 
 const GD_CHAT_CSS = `
-  :host { all: initial; }
+  :host { all: initial; --s: 1; }   /* --s: the panel's own zoom, set on resize */
   .panel {
     position: fixed; right: 18px; bottom: 18px; width: 330px;
     background: #fff; color: #111827; border-radius: 14px;
     box-shadow: 0 10px 40px rgb(0 0 0 / 28%); overflow: hidden;
-    font: 13px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    /* Everything below is in em, so dragging the panel bigger makes the WORDS
+       bigger - which is the point of dragging it bigger. */
+    font: calc(13px * var(--s))/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
     display: flex; flex-direction: column; max-height: 70vh;
   }
   .head {
@@ -24,11 +26,11 @@ const GD_CHAT_CSS = `
     /* the whole bar is the drag handle, so it must not select as text */
     cursor: move; user-select: none; touch-action: none;
   }
-  .head b { font-size: 13px; font-weight: 600; letter-spacing: .2px; }
-  .head .sub { font-size: 11px; opacity: .65; margin-left: auto; }
+  .head b { font-size: 1em; font-weight: 600; letter-spacing: .2px; }
+  .head .sub { font-size: .82em; opacity: .65; margin-left: auto; }
   .close {
     background: none; border: 0; color: #fff; opacity: .6;
-    font-size: 16px; cursor: pointer; padding: 0 4px; line-height: 1;
+    font-size: 1.2em; cursor: pointer; padding: 0 4px; line-height: 1;
     border-radius: 4px;
   }
   .close:hover { opacity: 1; background: rgb(255 255 255 / 16%); }
@@ -59,7 +61,20 @@ const GD_CHAT_CSS = `
                       #9ca3af 72% 79%, transparent 79%);
     border-bottom-right-radius: 12px;
   }
-  .panel.min .grip { display: none; }
+  /* One corner was not enough: a right edge for width alone, a bottom edge for
+     height alone, and the corner for both. */
+  .grip-e {
+    position: absolute; top: 34px; right: 0; width: 7px; bottom: 18px;
+    cursor: ew-resize; touch-action: none;
+  }
+  .grip-s {
+    position: absolute; left: 14px; right: 18px; bottom: 0; height: 7px;
+    cursor: ns-resize; touch-action: none;
+  }
+  .grip-e:hover, .grip-s:hover { background: rgb(37 99 235 / 18%); }
+  .panel.min .grip,
+  .panel.min .grip-e,
+  .panel.min .grip-s { display: none; }
   .log { padding: 10px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; }
   .msg { padding: 7px 10px; border-radius: 10px; max-width: 88%; word-wrap: break-word; }
   .me   { background: #111827; color: #fff; align-self: flex-end; border-bottom-right-radius: 3px; }
@@ -80,12 +95,12 @@ const GD_CHAT_CSS = `
   .tools { display: flex; gap: 6px; padding: 0 12px 10px; }
   .tools button {
     flex: 1; border: 1px solid #d1d5db; background: #fff; border-radius: 8px;
-    padding: 6px 4px; cursor: pointer; font: 11px/1.3 system-ui, sans-serif; color: #374151;
+    padding: 6px 4px; cursor: pointer; font: .82em/1.3 system-ui, sans-serif; color: #374151;
   }
   .tools button:hover { border-color: #9ca3af; }
   .tools button.on { background: #dc2626; border-color: #dc2626; color: #fff; }
   .tools button.held { background: #f59e0b; border-color: #f59e0b; color: #fff; }
-  .privacy { padding: 0 12px 10px; font-size: 10.5px; color: #6b7280; }
+  .privacy { padding: 0 12px 10px; font-size: .8em; color: #6b7280; }
 `;
 
 function gdChatHtml() {
@@ -108,6 +123,8 @@ function gdChatHtml() {
         <button id="stop">Stop</button>
       </div>
       <div class="privacy" id="privacy">Nothing is captured. Sharing is off.</div>
+      <div class="grip-e" id="gripE" title="Drag to widen"></div>
+      <div class="grip-s" id="gripS" title="Drag to make taller"></div>
       <div class="grip" id="grip" title="Resize"></div>
     </div>`;
 }
@@ -243,7 +260,14 @@ function gdDragPanel(panel, head) {
 // Drag the corner to resize, the way every other window on the machine works.
 // Width and height are both remembered; the log area is the flexible child, so
 // growing the panel grows the part with the guidance in it.
-function gdResizePanel(panel, grip) {
+// The panel's base font size follows its width. Clamped, because past about
+// twice the default the thing stops being a helper and becomes the page.
+function gdApplyScale(panel) {
+  const w = panel.offsetWidth || 330;
+  panel.style.setProperty("--s", String(Math.min(Math.max(w / 330, 1), 1.9).toFixed(3)));
+}
+
+function gdResizePanel(panel, grip, axis) {
   let sx = 0, sy = 0, w0 = 0, h0 = 0, sizing = false;
 
   grip.addEventListener("pointerdown", (e) => {
@@ -257,12 +281,17 @@ function gdResizePanel(panel, grip) {
 
   grip.addEventListener("pointermove", (e) => {
     if (!sizing) return;
-    const w = Math.min(Math.max(w0 + e.clientX - sx, 260), Math.max(260, innerWidth - 24));
-    const h = Math.min(Math.max(h0 + e.clientY - sy, 180), Math.max(180, innerHeight - 24));
-    panel.style.width = w + "px";
-    panel.style.height = h + "px";
-    // max-height would otherwise veto anything taller than 70vh
-    panel.style.maxHeight = "none";
+    if (axis !== "y") {
+      const w = Math.min(Math.max(w0 + e.clientX - sx, 260), Math.max(260, innerWidth - 24));
+      panel.style.width = w + "px";
+      gdApplyScale(panel);
+    }
+    if (axis !== "x") {
+      const h = Math.min(Math.max(h0 + e.clientY - sy, 180), Math.max(180, innerHeight - 24));
+      panel.style.height = h + "px";
+      // max-height would otherwise veto anything taller than 70vh
+      panel.style.maxHeight = "none";
+    }
   });
 
   const stop = () => {
@@ -274,6 +303,21 @@ function gdResizePanel(panel, grip) {
   };
   grip.addEventListener("pointerup", stop);
   grip.addEventListener("pointercancel", stop);
+}
+
+// Set at mount so stop() can reach them without the panel being a global.
+let gdChatCollapseFn = null;
+let gdChatGreeting = "Tell me what you want to do on this page, in your own words.";
+
+function gdChatReset() {
+  if (!gdChatRoot) return;
+  const log = gdChatRoot.getElementById("log");
+  while (log.firstChild) log.removeChild(log.firstChild);
+  gdChatSay(gdChatGreeting);
+}
+
+function gdChatCollapse() {
+  if (gdChatCollapseFn) gdChatCollapseFn(true);
 }
 
 function gdMountChat(handlers) {
@@ -319,7 +363,9 @@ function gdMountChat(handlers) {
   const head = root.querySelector(".head");
   const mini = root.getElementById("mini");
   gdDragPanel(panel, head);
-  gdResizePanel(panel, root.getElementById("grip"));
+  gdResizePanel(panel, root.getElementById("grip"), "both");
+  gdResizePanel(panel, root.getElementById("gripE"), "x");
+  gdResizePanel(panel, root.getElementById("gripS"), "y");
 
   const saved = gdReadPos();
   if (saved && Number.isFinite(saved.w) && Number.isFinite(saved.h)) {
@@ -342,8 +388,10 @@ function gdMountChat(handlers) {
     gdClampPanel(panel);
   };
   mini.addEventListener("click", () => setMin(!panel.classList.contains("min")));
+  gdChatCollapseFn = setMin;
   if (saved && saved.min) setMin(true);
   gdClampPanel(panel);
+  gdApplyScale(panel);
 
   // Hiding must never be a dead end: one stray click on × mid-demo would
   // otherwise cost a page reload to undo.
@@ -364,7 +412,7 @@ function gdMountChat(handlers) {
     gdClampPanel(panel);
   });
 
-  gdChatSay("Tell me what you want to do on this page, in your own words.");
+  gdChatSay(gdChatGreeting);
   setTimeout(() => q.focus(), 50);
   return root;
 }

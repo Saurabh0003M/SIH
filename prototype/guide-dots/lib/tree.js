@@ -162,6 +162,11 @@ function getInteractiveElements() {
       id,
       role: c.role,
       name: c.name,
+      // Whether the field still needs filling - a BOOLEAN, never the value.
+      // Without this the model cannot tell a blank form from a completed one,
+      // so it points at Submit while the user is staring at an empty box.
+      // The value itself never leaves the device; that promise is unchanged.
+      needsInput: gdNeedsInput(c.el),
       rect: {
         x: Math.round(c.r.left),
         y: Math.round(c.r.top),
@@ -170,6 +175,21 @@ function getInteractiveElements() {
       }
     };
   });
+}
+
+// true  = a control the user must put something into, and has not yet
+// false = already has a value
+// null  = not a value-bearing control at all (a link, a button)
+function gdNeedsInput(el) {
+  if (!el) return null;
+  const tag = el.tagName;
+  if (tag === "SELECT") return !el.value || el.selectedIndex <= 0;
+  if (tag === "TEXTAREA") return !el.value.trim();
+  if (tag !== "INPUT") return null;
+  const t = (el.type || "text").toLowerCase();
+  if (t === "checkbox" || t === "radio") return !el.checked;
+  if (t === "button" || t === "submit" || t === "reset" || t === "hidden") return null;
+  return !el.value.trim();
 }
 
 function gdGetElement(id) {

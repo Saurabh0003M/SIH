@@ -577,6 +577,15 @@ function gdThinkVerdict(result, chosenName, live) {
 
 // The panel outlives clearDots() on purpose, so it must be dismissed explicitly
 // when the run stops.
+// Stop must leave nothing behind. A stale "best guess" pill floating over
+// somebody else's website after the user pressed Stop reads as a broken
+// extension, not a finished one.
+function gdClearBanner() {
+  const overlay = document.getElementById("gd-overlay");
+  const b = overlay && overlay.querySelector(".gd-banner");
+  if (b) b.remove();
+}
+
 function gdThinkClear() {
   const overlay = document.getElementById("gd-overlay");
   const p = overlay && overlay.querySelector(".gd-think");

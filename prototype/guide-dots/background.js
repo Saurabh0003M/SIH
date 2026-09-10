@@ -12,14 +12,27 @@ try {
   console.log("[GuideDots] no config.local.js - using popup settings");
 }
 
+// The job is GUIDANCE, not "find the submit button". On a form the next step a
+// human needs is the first thing they must fill in - pointing at Search while
+// From and To are still blank is not guidance, it is a shortcut past the task.
 const GD_SYSTEM =
-  "You help a human find the ONE element to click next to achieve their goal. " +
-  "You are given a numbered list of elements visible on screen as id|role|name|x,y,w,h. " +
+  "You are guiding a human through a task one step at a time. Choose the ONE " +
+  "element they should deal with NEXT. " +
+  "Elements are given as id|role|name|x,y,w,h, and value-bearing controls are " +
+  "additionally marked EMPTY or FILLED. " +
+  "RULES: " +
+  "(1) If the goal needs information the page does not have yet, choose the " +
+  "FIRST EMPTY field they must fill - top to bottom, left to right by the " +
+  "coordinates - NOT the button that submits. " +
+  "(2) Choose the submit, search or confirm control only once the fields that " +
+  "matter are already FILLED. " +
+  "(3) For an EMPTY field, `next` must say WHAT TO TYPE into it, in plain " +
+  "words. For a button or link, `next` says what they will see after clicking. " +
   'Reply with JSON only: {"id": <integer id from the list, or null>, ' +
-  '"confidence": <0..1>, "reason": "<=12 words, why this element>", ' +
-  '"next": "<=12 words, what the user will see after clicking it"}. ' +
-  "Use null if nothing on this screen matches. Never invent an id that is not listed. " +
-  "confidence must reflect genuine certainty, not politeness.";
+  '"confidence": <0..1>, "reason": "<=12 words, why this is the next step>", ' +
+  '"next": "<=14 words, what to type here, or what happens after the click>"}. ' +
+  "Use null if nothing on this screen matches. Never invent an id that is not " +
+  "listed. confidence must reflect genuine certainty, not politeness.";
 
 const GD_DEFAULT_MODEL = {
   anthropic: "claude-haiku-4-5-20251001",
@@ -29,7 +42,11 @@ const GD_DEFAULT_MODEL = {
 
 function gdPrompt({ goal, url, elements, history }) {
   const lines = elements
-    .map((e) => `${e.id}|${e.role}|${e.name}|${e.rect.x},${e.rect.y},${e.rect.w},${e.rect.h}`)
+    .map((e) => {
+      const state = e.needsInput === true ? "|EMPTY"
+                  : e.needsInput === false ? "|FILLED" : "";
+      return `${e.id}|${e.role}|${e.name}|${e.rect.x},${e.rect.y},${e.rect.w},${e.rect.h}${state}`;
+    })
     .join("\n");
   const done = history && history.length ? `ALREADY DONE: ${history.join(" -> ")}\n` : "";
   return `GOAL: ${goal}\n${done}URL: ${url}\nELEMENTS:\n${lines}\n\nPick the NEXT step. RETURN JSON ONLY.`;

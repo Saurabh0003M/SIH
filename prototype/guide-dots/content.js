@@ -233,6 +233,9 @@
     clicked = [];
     clearDots();
     gdThinkClear();
+    gdClearBanner();   // the "best guess" pill must go with the dot
+    gdChatReset();     // and the transcript with it
+    gdChatCollapse();  // out of the way, one click from coming back
   }
 
   // ---- the on-page ask bar -------------------------------------------------
