@@ -132,7 +132,10 @@ async function gdResolveGeminiModel(apiKey) {
 // actually did for US, race the best ones, and take the first valid answer.
 // ---------------------------------------------------------------------------
 
-const GD_RACE_COUNT = 2; // race the 2 best. 3 costs ~50% more for marginal gain.
+const GD_RACE_COUNT = 3; // Was 2. On free tiers models go 429 'rate-limited
+// upstream' independently and often, and a 150-control page takes 8-14s to
+// answer - so two racers both failing is a live-demo outage, not a rarity.
+// Three costs nothing on free models and roughly halves that chance.
 
 async function gdStats() {
   const { modelStats } = await chrome.storage.local.get("modelStats");

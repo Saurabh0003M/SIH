@@ -31,7 +31,7 @@ function render() {
 }
 
 // Bump this when config.local.js changes and should override saved settings.
-const GD_CONFIG_VERSION = 5;
+const GD_CONFIG_VERSION = 6;
 
 chrome.storage.local.get(
   ["apiKey", "provider", "baseUrl", "model", "configVersion"],
