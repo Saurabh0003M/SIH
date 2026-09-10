@@ -34,11 +34,21 @@ const cdp = await connect(9333);
 await cdp.send("Page.enable");
 await cdp.send("Runtime.enable");
 
-// 1280x720 at deviceScaleFactor 1.5 is the rig that made the deck PNGs: the
-// output is a true 1920x1080 in which the dot's percentage is still readable
-// when the slide is projected.
+// Output is always a true 1920x1080. What changes is how much page fits inside
+// it: a SMALLER CSS viewport at a HIGHER scale factor means everything on the
+// page is drawn bigger, which is the difference between a judge at the back of
+// the room reading the confidence percentage and not.
+//
+//   1280x720 @ 1.5  -> 1920x1080, page at 1.00x  (the old rig, too small)
+//    960x540 @ 2.0  -> 1920x1080, page at 1.33x  (default now)
+//    854x480 @ 2.25 -> 1922x1080, page at 1.50x  (--zoom 1.5, tightest)
+const ZOOM = Number((process.argv.find((a) => a.startsWith("--zoom=")) || "").split("=")[1]) || 1.33;
+const CSS_W = Math.round(1920 / (1.5 * ZOOM) / 2) * 2;
+const CSS_H = Math.round(CSS_W * 9 / 16 / 2) * 2;
+const DSF = 1920 / CSS_W;
+console.log(`viewport ${CSS_W}x${CSS_H} @ dSF ${DSF.toFixed(2)} -> ${Math.round(CSS_W * DSF)}x${Math.round(CSS_H * DSF)} (page at ${ZOOM}x)`);
 await cdp.send("Emulation.setDeviceMetricsOverride", {
-  width: 1280, height: 720, deviceScaleFactor: 1.5, mobile: false
+  width: CSS_W, height: CSS_H, deviceScaleFactor: DSF, mobile: false
 });
 
 const frames = [];
