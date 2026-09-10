@@ -209,9 +209,17 @@ async function callLLM(payload) {
     const ranked = [...models].sort((a, b) => gdScore(stats[b]) - gdScore(stats[a]));
     const racers = ranked.slice(0, Math.max(1, Math.min(GD_RACE_COUNT, ranked.length)));
 
+    // 200 was enough when every model spent its budget on the answer. Reasoning
+    // models bill their thinking against the same allowance, so a small cap can
+    // come back finish_reason:"length" with an EMPTY answer - the same trap that
+    // bit the Gemini path. Our reply is a four-field object; a big ceiling costs
+    // nothing, because you pay for tokens produced, not tokens allowed.
+    const GD_CUSTOM_BUDGET = 1024;
+
     const attempt = (model) => {
       const started = Date.now();
-      return gdWithRetry(model, () => gdFetchJson(base + "/chat/completions", {
+
+      const post = (shape) => gdFetchJson(base + "/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -221,16 +229,52 @@ async function callLLM(payload) {
         },
         body: JSON.stringify({
           model,
-          temperature: 0,
-          max_tokens: 200,
+          ...(shape.dropTemperature ? {} : { temperature: 0 }),
+          [shape.budgetKey]: GD_CUSTOM_BUDGET,
           messages: [
             { role: "system", content: GD_SYSTEM },
             { role: "user", content: prompt }
           ]
         })
-      }))
+      });
+
+      // Newer OpenAI-family models reject `max_tokens` outright and want
+      // `max_completion_tokens`, and several refuse any temperature but their
+      // default. A gateway fronting them — Azure AI Foundry among them — says so
+      // in a 400. Ask again in the shape it asked for, rather than failing in
+      // front of a room.
+      const shape = { budgetKey: "max_tokens", dropTemperature: false };
+      const postAdapting = () =>
+        post(shape).catch((e) => {
+          if (e.status !== 400) throw e;
+          const said = String(e.message || "");
+          let adapted = false;
+          if (/max_completion_tokens/.test(said) && shape.budgetKey === "max_tokens") {
+            shape.budgetKey = "max_completion_tokens";
+            adapted = true;
+          }
+          if (/temperature/.test(said) && !shape.dropTemperature) {
+            shape.dropTemperature = true;
+            adapted = true;
+          }
+          if (!adapted) throw e;
+          console.log(`[GuideDots] ${model} wants a different request shape - asking again`);
+          return post(shape);
+        });
+
+      return gdWithRetry(model, postAdapting)
         .then((d) => {
-          const parsed = gdParseReply(d.choices[0].message.content);
+          // A gateway can answer 200 with no usable choice at all: a content
+          // filter tripped, or the budget ran out mid-thought. Say which.
+          const choice = d && d.choices && d.choices[0];
+          if (!choice || !choice.message || typeof choice.message.content !== "string") {
+            throw new Error(
+              choice && choice.finish_reason
+                ? `${model} returned no text (finish_reason: ${choice.finish_reason})`
+                : `${model} returned no answer`
+            );
+          }
+          const parsed = gdParseReply(choice.message.content);
           const ms = Date.now() - started;
           gdRecord(model, true, ms);
           console.log(`[GuideDots] ${model} answered in ${ms}ms`);
