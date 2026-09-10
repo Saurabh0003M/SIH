@@ -152,8 +152,20 @@ async function send(type) {
     await chrome.tabs.sendMessage(tab.id, { type, goal });
     done();
   } catch {
-    // Content script not in this tab yet - normal after reloading the extension.
+    // Nothing is listening in this tab. Usually that means the content script
+    // was never injected here. But it can also mean the extension was reloaded
+    // while the page stayed open: the old script's context is dead, yet its
+    // top-level declarations are still in the isolated world. Re-running the
+    // files there throws "Identifier 'gdChatRoot' has already been declared" on
+    // every single one, and the user sees ten red lines and no dot. Ask first.
     try {
+      const [probe] = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => typeof gdMountChat === "function"
+      });
+      if (probe && probe.result) {
+        return setStatus("Reload this page once - the extension was updated underneath it.", true);
+      }
       await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: CONTENT_FILES });
       await chrome.tabs.sendMessage(tab.id, { type, goal });
       done();

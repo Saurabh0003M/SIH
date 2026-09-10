@@ -389,17 +389,17 @@ kill(find(s4, "TextBox 8"))
 
 LX, LW = 0.35, 7.55
 pointer_card(
-    s4, LX, 1.30, LW, 1.22,
+    s4, LX, 1.30, LW, 1.40,
     "Analysis of the feasibility of the idea",
     [
         ("Technical: ", "built and running today; DOM + ARIA works on portals we do not control."),
-        ("Financial: ", "a compact text request per step on a free-tier model; a local model costs zero."),
+        ("Financial: ", "a compact text request per step on a free-tier model; a local model costs zero. Cloud for the next build is already covered \u2014 $1,000 in Microsoft Azure credits through Red Bull Basement 2026."),
         ("Operational: ", "installs as an extension. No ministry integration, no portal changes."),
     ],
     hsize=12.5, bsize=11)
 
 pointer_card(
-    s4, LX, 2.62, LW, 1.44,
+    s4, LX, 2.78, LW, 1.42,
     "Potential challenges and risks",
     [
         ("Unlabelled / icon-only controls ", "\u2014 our weakest case."),
@@ -410,7 +410,7 @@ pointer_card(
     hsize=12.5, bsize=11)
 
 pointer_card(
-    s4, LX, 4.16, LW, 1.44,
+    s4, LX, 4.28, LW, 1.42,
     "Strategies for overcoming these challenges",
     [
         ("Unlabelled controls drop the page score \u2192 the dot goes red", ", never a silent guess; vision grounding is the fallback."),
@@ -420,7 +420,7 @@ pointer_card(
     hsize=12.5, bsize=11)
 
 plain_card(
-    s4, LX, 5.70, LW, 1.12,
+    s4, LX, 5.78, LW, 1.06,
     "The measured run",
     [
         ("\u201ci want to take my money out\u201d on our practice portal: ",
@@ -544,12 +544,12 @@ def reflist(x, y, w, h, items):
             run(p, chunk, 11.5, bold=(i % 2 == 0), color=BODY)
 
 
-reflist(0.35, 1.72, 6.10, 2.52, REFS_L)
-reflist(6.87, 1.72, 6.10, 2.52, REFS_R)
+reflist(0.35, 1.72, 6.10, 2.30, REFS_L)
+reflist(6.87, 1.72, 6.10, 2.30, REFS_R)
 
 # the honest state of the evidence, and the one live link we have
 plain_card(
-    s6, 0.35, 4.40, 12.62, 1.10,
+    s6, 0.35, 4.12, 12.62, 1.06,
     "What these sources do and do not say",
     [
         ("The two learning figures validate the mechanism, not our product. ",
@@ -559,12 +559,12 @@ plain_card(
     ],
     tsize=12.5, bsize=11, fill=RGBColor(0xEC, 0xF6, 0xEE), dot=GREEN)
 
-card(s6, 0.35, 5.62, 12.62, 1.22, fill=RGBColor(0xEF, 0xF4, 0xFA))
-dotmark(s6, 0.51, 5.805, 0.115, SIH)
-tb, tf = textbox(s6, 0.69, 5.70, 12.06, 1.06)
+card(s6, 0.35, 5.26, 12.62, 1.58, fill=RGBColor(0xEF, 0xF4, 0xFA))
+dotmark(s6, 0.51, 5.445, 0.115, SIH)
+tb, tf = textbox(s6, 0.69, 5.34, 12.06, 1.42)
 p = tf.paragraphs[0]
 nobullet(p)
-run(p, "Our own work \u2014 code, evidence and attribution", 12.5, bold=True, color=HEAD)
+run(p, "Our own work, and where else this idea has been", 12.5, bold=True, color=HEAD)
 p.space_after = Pt(5)
 p = tf.add_paragraph()
 bullet(p, color=SIH)
@@ -575,9 +575,16 @@ run(p, " \u2014 the working prototype, the practice portal, the recorded runs, a
     11, color=BODY)
 p = tf.add_paragraph()
 bullet(p, color=SIH)
+p.space_after = Pt(3)
 run(p, "Read-only grounding runs on live public portals ", 11, bold=True, color=BODY)
 run(p, "(scholarships.gov.in, swayam.gov.in, aicte-india.org) are recorded in "
        "deck/real-site-run.md \u2014 including the ones Disha got wrong and reported red.",
+    11, color=BODY)
+p = tf.add_paragraph()
+bullet(p, color=SIH)
+run(p, "Red Bull Basement 2026: ", 11, bold=True, color=BODY)
+run(p, "this idea is in the programme. Participating teams receive $1,000 in Microsoft Azure "
+       "credits through Microsoft for Startups \u2014 an application-phase benefit, not a prize.",
     11, color=BODY)
 
 prs.save(OUT)

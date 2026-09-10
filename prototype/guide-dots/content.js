@@ -236,6 +236,10 @@
   }
 
   // ---- the on-page ask bar -------------------------------------------------
+  // Clear out any panel and overlay left by an earlier injection first. After
+  // "Reload" on chrome://extensions the old DOM survives with dead listeners,
+  // so without this the page shows two Disha panels at once.
+  gdEvictStale();
   ensureOverlay();
   gdMountChat({
     onAsk: (text) => start(text),
