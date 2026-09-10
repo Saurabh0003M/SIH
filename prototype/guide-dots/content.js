@@ -84,6 +84,13 @@
       return;
     }
 
+    // Get out of our own way before drawing: if the panel is sitting on the
+    // control, move it, then re-read the rect since the page may have shifted.
+    if (gdChatAvoid({ x: r.left, y: r.top, w: r.width, h: r.height })) {
+      const r2 = node.getBoundingClientRect();
+      r.x = r2.left; r.y = r2.top;
+    }
+
     const percent = Math.round(lastResult.confidence * 100);
     drawDot(
       { x: r.left, y: r.top, w: r.width, h: r.height },
@@ -132,19 +139,44 @@
     gdChatSay(text, kind === "info" ? "bot" : kind);
   }
 
+  // A page that is still arriving has almost nothing in the DOM. Reading it then
+  // produces a confident "nothing here matches" about a screen that has not
+  // rendered yet - which is exactly what happened on a slow BookMyShow load:
+  // one control found, and a red verdict next to a visible Book tickets button.
+  // So: wait for the mutations to stop, and if what we found is implausibly thin
+  // while the document is still loading, give it another moment and look again.
+  const GD_THIN_PAGE = 4;
+
+  async function readWhenSettled(token) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await waitForQuiet();
+      if (token !== runToken) return null;
+      const els = getInteractiveElements();
+      if (els.length >= GD_THIN_PAGE || document.readyState === "complete") return els;
+      showBanner(`Still loading - only ${els.length} controls so far, waiting...`, "info");
+      await new Promise((r) => setTimeout(r, 700));
+    }
+    return token === runToken ? getInteractiveElements() : null;
+  }
+
   async function step() {
     const token = ++runToken;
     ensureOverlay();
     clearDots();
 
+    const tRead = performance.now();
     showBanner("Reading this page...", "info");
-    const elements = getInteractiveElements();
+    const elements = await readWhenSettled(token);
+    if (!elements) return; // a newer run superseded this one
+    const readMs = Math.round(performance.now() - tRead);
     showBanner(elements.length + " controls found - choosing...", "info");
     // Show the working, not just the answer: the candidates and their real
     // on-device scores, while the choice is still being made.
     gdThinkScan(elements, goal);
 
+    const tDecide = performance.now();
     const result = await pickTarget(elements, goal, history, clicked);
+    const decideMs = Math.round(performance.now() - tDecide);
     if (token !== runToken || paused) return; // a newer run superseded this one
 
     lastResult = result;
@@ -169,7 +201,7 @@
       red: "Not sure - verify this one"
     };
     const pct = Math.round(result.confidence * 100);
-    gdThinkVerdict(result, chosen.name, !result.offline);
+    const tDraw = performance.now();
     say(`${WORDS[result.band]}: ${result.reason} (${pct}%)`, result.band);
     if (scaffold.level === "mastered") {
       say("You've done this step five times — try it without the dot.", "bot");
@@ -179,6 +211,11 @@
       );
     }
     paint();
+    gdThinkVerdict(result, chosen.name, !result.offline, {
+      read: readMs,
+      decide: decideMs,
+      draw: Math.round(performance.now() - tDraw)
+    });
   }
 
   async function onClick(event) {
@@ -218,6 +255,7 @@
   }
 
   function start(newGoal) {
+    gdChatOpen();   // a run you cannot read is not guidance
     goal = newGoal;
     paused = false;
     history = [];

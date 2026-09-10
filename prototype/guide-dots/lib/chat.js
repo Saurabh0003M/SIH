@@ -196,6 +196,7 @@ function gdWritePos(pos) {
     clean.w = pos.w;
     clean.h = pos.h;
   }
+  if (pos.open !== undefined) clean.open = Boolean(pos.open);
   try {
     sessionStorage.setItem(GD_POS_KEY, JSON.stringify(clean));
   } catch (e) {
@@ -307,6 +308,7 @@ function gdResizePanel(panel, grip, axis) {
 
 // Set at mount so stop() can reach them without the panel being a global.
 let gdChatCollapseFn = null;
+let gdChatOpenFn = null;
 let gdChatGreeting = "Tell me what you want to do on this page, in your own words.";
 
 function gdChatReset() {
@@ -318,6 +320,62 @@ function gdChatReset() {
 
 function gdChatCollapse() {
   if (gdChatCollapseFn) gdChatCollapseFn(true);
+}
+
+// Called when a run starts, so someone who pressed Start in the toolbar can
+// actually read what Disha says back.
+function gdChatOpen() {
+  if (gdChatOpenFn) gdChatOpenFn(true);
+}
+
+// If the dot is about to land underneath the panel, the panel moves. Guidance
+// you cannot see is not guidance, and sitting on top of the very control we are
+// telling someone to click is the worst place on the screen for us to be.
+function gdBoxesClash(r, box, pad) {
+  return !(r.x + r.w < box.left - pad || r.x > box.right + pad ||
+           r.y + r.h < box.top - pad || r.y > box.bottom + pad);
+}
+
+function gdChatAvoid(rect) {
+  if (!gdChatRoot || !rect) return false;
+  const panel = gdChatRoot.querySelector(".panel");
+  if (!panel || panel.style.display === "none" || panel.classList.contains("min")) return false;
+
+  const p = panel.getBoundingClientRect();
+  const pad = 14;
+  if (!gdBoxesClash(rect, p, pad)) return false;
+
+  // In preference order: slide left at the same height, go up the same column,
+  // then the two far corners. First one that clears the target wins.
+  const w = p.width, h = p.height;
+  const spots = [
+    { x: 18, y: p.top },
+    { x: p.left, y: 18 },
+    { x: 18, y: 18 },
+    { x: Math.max(18, innerWidth - w - 18), y: 18 }
+  ];
+  for (const c of spots) {
+    if (c.x < 0 || c.y < 0 || c.x + w > innerWidth || c.y + h > innerHeight) continue;
+    const box = { left: c.x, top: c.y, right: c.x + w, bottom: c.y + h };
+    if (gdBoxesClash(rect, box, pad)) continue;
+    const still = typeof matchMedia === "function" &&
+                  matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!still) {
+      panel.style.transition = "left .28s ease, top .28s ease";
+      setTimeout(() => { panel.style.transition = ""; }, 340);
+    }
+    panel.style.left = c.x + "px";
+    panel.style.top = c.y + "px";
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+    gdClampPanel(panel);
+    return true;
+  }
+
+  // Nowhere on screen is clear of it - a very large target, or a small window.
+  // Collapsing to the header is the one move that always uncovers the control.
+  gdChatCollapse();
+  return true;
 }
 
 function gdMountChat(handlers) {
@@ -402,15 +460,27 @@ function gdMountChat(handlers) {
   pill.hidden = true;
   wrap.appendChild(pill);
 
-  root.getElementById("hide").addEventListener("click", () => {
+  const showPanel = (on) => {
+    panel.style.display = on ? "" : "none";
+    pill.hidden = on;
+    if (on) gdClampPanel(panel);
+    const prev = gdReadPos() || {};
+    prev.open = on;
+    gdWritePos(prev);
+  };
+  gdChatOpenFn = showPanel;
+
+  root.getElementById("hide").addEventListener("click", () => showPanel(false));
+  pill.addEventListener("click", () => showPanel(true));
+
+  // Arrive as a pill, not a panel. Planting a chat window on every page somebody
+  // opens is somebody else's product, not ours: Disha waits until it is asked
+  // for - by clicking the pill, or by pressing Start in the toolbar. If the user
+  // opened it on this site already, that choice is remembered for the tab.
+  if (!(saved && saved.open)) {
     panel.style.display = "none";
     pill.hidden = false;
-  });
-  pill.addEventListener("click", () => {
-    panel.style.display = "";
-    pill.hidden = true;
-    gdClampPanel(panel);
-  });
+  }
 
   gdChatSay(gdChatGreeting);
   setTimeout(() => q.focus(), 50);

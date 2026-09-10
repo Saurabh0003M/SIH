@@ -115,6 +115,32 @@ async function pickTarget(elements, goal, history, clicked) {
     band,
     reason: res.reason || chosen.name,
     next: String(res.next || "").slice(0, 90),
-    offline: Boolean(res.offline)
+    offline: Boolean(res.offline),
+    // The working, so the panel can show it instead of asking to be believed:
+    // both halves of the score separately, and what the call actually cost.
+    modelConfidence,
+    quality,
+    meta: res._meta || null,
+    domPath: gdDomPath(gdGetElement(id))
   };
+}
+
+// A CSS-ish path to the control we chose. Developers read this instantly, and it
+// is the fastest way for anyone to check we are pointing at what we say we are.
+function gdDomPath(el, maxDepth = 4) {
+  if (!el) return "";
+  const parts = [];
+  let node = el;
+  while (node && node.nodeType === 1 && parts.length < maxDepth && node.tagName !== "BODY") {
+    let seg = node.tagName.toLowerCase();
+    if (node.id) {
+      parts.unshift(seg + "#" + node.id);
+      break;
+    }
+    const cls = (node.getAttribute("class") || "").trim().split(/\s+/)[0];
+    if (cls) seg += "." + cls;
+    parts.unshift(seg);
+    node = node.parentElement;
+  }
+  return parts.join(" > ").slice(0, 60);
 }

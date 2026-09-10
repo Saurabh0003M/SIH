@@ -544,7 +544,23 @@ function gdThinkScan(elements, goal) {
 }
 
 // Called once the answer is in, with the SAME result the dot is drawn from.
-function gdThinkVerdict(result, chosenName, live) {
+// One dim monospace line in the panel. Deliberately quiet: this is evidence for
+// anyone who looks, not decoration for everyone who does not.
+function gdThinkLine(parent, label, value, colour) {
+  const row = document.createElement("div");
+  row.textContent = label.padEnd(7) + value;
+  Object.assign(row.style, {
+    color: colour || "#8fa0bd",
+    whiteSpace: "pre",
+    fontSize: "10px",
+    letterSpacing: ".2px"
+  });
+  parent.appendChild(row);
+  return row;
+}
+
+
+function gdThinkVerdict(result, chosenName, live, timing) {
   const p = document.getElementById("gd-overlay") &&
     document.getElementById("gd-overlay").querySelector(".gd-think");
   if (!p) return;
@@ -573,6 +589,36 @@ function gdThinkVerdict(result, chosenName, live) {
   });
   p.appendChild(out);
   out.animate([{ opacity: 0 }, { opacity: 1 }], { duration: gdMs(200), easing: "ease-out", fill: "backwards" });
+
+  // ---- the receipts -------------------------------------------------------
+  const tele = document.createElement("div");
+  tele.style.marginTop = "5px";
+  p.appendChild(tele);
+
+  const m = result.meta;
+  const n = (v) => (v == null ? "?" : Number(v).toLocaleString());
+
+  if (Number.isFinite(result.modelConfidence) && Number.isFinite(result.quality)) {
+    gdThinkLine(tele, "scores",
+      `model ${result.modelConfidence.toFixed(2)} \u00b7 page ${result.quality.toFixed(2)}` +
+      `  \u2192 shown ${Math.min(result.modelConfidence, result.quality).toFixed(2)} (the weaker)`);
+  }
+  if (m && m.model) {
+    gdThinkLine(tele, "model", `${String(m.model).slice(0, 42)}  ${n(m.ms)}ms`);
+    if (m.tokensIn != null || m.tokensOut != null) {
+      gdThinkLine(tele, "tokens", `${n(m.tokensIn)} in \u00b7 ${n(m.tokensOut)} out`);
+    }
+  } else if (!live) {
+    gdThinkLine(tele, "model", "none \u2014 offline word match, 0 tokens, nothing left the device");
+  }
+  if (timing) {
+    gdThinkLine(tele, "timing",
+      `read ${n(timing.read)}ms \u00b7 decide ${n(timing.decide)}ms \u00b7 draw ${n(timing.draw)}ms`);
+  }
+  if (result.domPath) gdThinkLine(tele, "path", result.domPath);
+
+  tele.animate([{ opacity: 0 }, { opacity: 1 }],
+    { duration: gdMs(260), easing: "ease-out", fill: "backwards" });
 }
 
 // The panel outlives clearDots() on purpose, so it must be dismissed explicitly

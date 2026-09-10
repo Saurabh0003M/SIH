@@ -90,6 +90,21 @@ function gdParseReply(text) {
   };
 }
 
+// Everything the user is entitled to know about the call we just made on their
+// behalf: which model answered, how long it took, and what it cost in tokens.
+// Attached to the reply so the on-page panel can show its working instead of
+// asking anyone to trust it.
+function gdMeta(parsed, model, ms, usage) {
+  parsed._meta = {
+    model,
+    ms,
+    tokensIn: usage && usage.in != null ? usage.in : null,
+    tokensOut: usage && usage.out != null ? usage.out : null
+  };
+  return parsed;
+}
+
+
 async function gdFetchJson(url, options) {
   const r = await fetch(url, options);
   if (!r.ok) {
@@ -195,6 +210,7 @@ async function callLLM(payload) {
   const prompt = gdPrompt(payload);
 
   if (provider === "ollama") {
+    const t0 = Date.now();
     const data = await gdWithRetry("ollama", () =>
       gdFetchJson("http://localhost:11434/api/generate", {
       method: "POST",
@@ -208,7 +224,10 @@ async function callLLM(payload) {
       })
       })
     );
-    return gdParseReply(data.response);
+    return gdMeta(gdParseReply(data.response), model, Date.now() - t0, {
+      in: data.prompt_eval_count,
+      out: data.eval_count
+    });
   }
 
   if (!cfg.apiKey) throw new Error("no API key set — open the popup and add one");
@@ -298,7 +317,10 @@ async function callLLM(payload) {
           const ms = Date.now() - started;
           gdRecord(model, true, ms);
           console.log(`[GuideDots] ${model} answered in ${ms}ms`);
-          return parsed;
+          return gdMeta(parsed, model, ms, {
+            in: d.usage && d.usage.prompt_tokens,
+            out: d.usage && d.usage.completion_tokens
+          });
         })
         .catch((e) => {
           gdRecord(model, false, Date.now() - started);
