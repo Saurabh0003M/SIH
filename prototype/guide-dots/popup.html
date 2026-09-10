@@ -3,56 +3,111 @@
   <head>
     <meta charset="utf-8" />
     <style>
-      body { font: 13px/1.4 system-ui, sans-serif; width: 290px; margin: 10px; }
-      input, button, select { box-sizing: border-box; width: 100%; margin: 4px 0; padding: 6px 8px; }
-      .row { display: flex; gap: 6px; }
+      /* Deliberately the same design as the on-page panel in lib/chat.js: the
+         dark header, the 14px radius, the same greys, the same dark primary
+         button. Two surfaces that look like two products is confusing when they
+         belong to one. */
+      :root {
+        --ink: #111827;
+        --line: #d1d5db;
+        --muted: #6b7280;
+        --soft: #f3f4f6;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        width: 330px;
+        font: 13px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: #fff;
+      }
+      .head {
+        display: flex; align-items: center; gap: 8px;
+        padding: 10px 12px; background: var(--ink); color: #fff;
+      }
+      .head b { font-size: 13px; font-weight: 600; letter-spacing: .2px; }
+      .head .sub { font-size: 11px; opacity: .65; margin-left: auto; }
+      .body { padding: 10px 12px 12px; }
+
+      input, select {
+        width: 100%; border: 1px solid var(--line); border-radius: 8px;
+        padding: 8px 10px; font: inherit; outline: none; margin: 0 0 6px;
+        background: #fff; color: var(--ink);
+      }
+      input:focus, select:focus { border-color: var(--ink); }
+      input::placeholder { color: #9ca3af; }
+
+      .row { display: flex; gap: 6px; margin-top: 4px; }
       .row button { flex: 1; }
+      button {
+        border: 1px solid var(--line); background: #fff; border-radius: 8px;
+        padding: 8px 10px; cursor: pointer;
+        font: 12px/1.3 system-ui, sans-serif; color: #374151;
+      }
+      button:hover { border-color: #9ca3af; }
+      button.primary {
+        background: var(--ink); border-color: var(--ink); color: #fff;
+        font-weight: 600;
+      }
+      button.primary:hover { background: #1f2937; }
+      button.wide { width: 100%; margin-top: 6px; }
+
       #keyState {
         display: flex; justify-content: space-between; align-items: center;
         background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;
-        padding: 6px 8px; border-radius: 6px; margin: 6px 0; font-size: 12px;
+        padding: 7px 10px; border-radius: 8px; margin: 0 0 6px; font-size: 12px;
       }
       #changeKey {
-        background: none; border: none; color: #166534; text-decoration: underline;
+        background: none; border: 0; color: #166534; text-decoration: underline;
         cursor: pointer; width: auto; margin: 0; padding: 0; font-size: 12px;
       }
-      #status { margin-top: 6px; min-height: 16px; font-size: 12px; }
+      #status { margin-top: 8px; min-height: 16px; font-size: 10.5px; color: var(--muted); }
+      #due { font-size: 12px; }
     </style>
   </head>
   <body>
-    <input id="goal" type="text" placeholder="What do you want to do?" />
-
-    <select id="provider">
-      <option value="offline">No model (works with no internet)</option>
-      <option value="ollama">Local model (free, offline)</option>
-      <option value="custom">My gateway (OpenAI-compatible)</option>
-      <option value="gemini">Gemini API</option>
-      <option value="anthropic">Anthropic API</option>
-    </select>
-
-    <div id="customBox" hidden>
-      <input id="baseUrl" type="text" placeholder="https://openrouter.ai/api/v1" />
-      <input id="modelName" type="text" placeholder="model-a:free, model-b:free (fastest wins)" />
+    <div class="head">
+      <b>Disha</b>
+      <span class="sub">extension settings</span>
     </div>
 
-    <div id="keyState" hidden>
-      <span>&#10003; API key saved</span>
-      <button id="changeKey" type="button">change</button>
+    <div class="body">
+      <input id="goal" type="text" placeholder="What do you want to do?" />
+
+      <select id="provider">
+        <option value="offline">No model (works with no internet)</option>
+        <option value="ollama">Local model (free, offline)</option>
+        <option value="custom">My gateway (OpenAI-compatible)</option>
+        <option value="gemini">Gemini API</option>
+        <option value="anthropic">Anthropic API</option>
+      </select>
+
+      <div id="customBox" hidden>
+        <input id="baseUrl" type="text" placeholder="https://openrouter.ai/api/v1" />
+        <input id="modelName" type="text" placeholder="model-a:free, model-b:free (fastest wins)" />
+      </div>
+
+      <div id="keyState" hidden>
+        <span>&#10003; API key saved</span>
+        <button id="changeKey" type="button">change</button>
+      </div>
+
+      <div id="keyBox">
+        <input id="apiKey" type="password" placeholder="Paste API key (saves itself)" />
+      </div>
+
+      <div class="row">
+        <button id="start" class="primary" type="button">Start</button>
+        <button id="pause" type="button">Pause</button>
+        <button id="stop" type="button">Stop</button>
+      </div>
+
+      <button id="testdot" class="wide" type="button">Test dot (no AI)</button>
+
+      <div id="status"></div>
+      <div id="due"></div>
     </div>
 
-    <div id="keyBox">
-      <input id="apiKey" type="password" placeholder="Paste API key (saves itself)" />
-    </div>
-
-    <div class="row">
-      <button id="start" type="button">Start</button>
-      <button id="pause" type="button">Pause</button>
-      <button id="stop" type="button">Stop</button>
-    </div>
-
-    <button id="testdot" type="button">Test dot (no AI)</button>
-    <div id="status"></div>
-    <div id="due"></div>
     <script src="config.local.js"></script>
     <script src="lib/remember.js"></script>
     <script src="popup.js"></script>

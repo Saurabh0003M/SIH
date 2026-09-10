@@ -34,31 +34,36 @@ timeout /t 3 /nobreak >nul
 
 echo.
 echo Opening the portal...
-start "" http://localhost:8931/index.html
+start "" http://localhost:8931/practice.html
 
 cls
 echo ============================================================
 echo   DISHA IS RUNNING
 echo ============================================================
 echo.
-echo   THE PORTAL (start here)
-echo     http://localhost:8931/index.html
+echo   1. THE STUDENT PORTAL - demo this one
+echo      http://localhost:8931/practice.html
+echo      Vidya Setu, a student assistance portal. Type a goal into Disha:
+echo        renew my scholarship for this year        (goes GREEN)
+echo        apply for a scholarship                   (goes AMBER - three Apply buttons)
+echo        complain that my application was rejected (link is off screen - arrow first)
 echo.
-echo   THE LIVE PROTOTYPE - type a goal and follow the dots
-echo     http://localhost:8777/demo/index.html
-echo     Try:  i want to take my money out
-echo           something is wrong, i want to raise a complaint
+echo   2. THE PRODUCT PORTAL - what Disha is, for a judge who wants to read
+echo      http://localhost:8931/index.html
+echo      Architecture:  http://localhost:8931/architecture.html
+echo      Modules:       http://localhost:8931/modules.html
 echo.
-echo   HANDS-FREE, IF YOU DO NOT WANT TO TYPE ON STAGE
-echo     http://localhost:8777/demo/index.html?auto=1
-echo     One scene only:   ...?auto=1^&scene=chain
-echo     Scenes: chain ^| red-verify ^| arrow ^| fade
+echo   3. THE PRACTICE BROKER - the older sandbox, four-step chain
+echo      http://localhost:8777/demo/index.html
+echo      Try:  i want to take my money out
 echo.
-echo   PRACTICE PORTAL - a government-shaped sandbox
-echo     http://localhost:8931/practice.html
+echo   4. HANDS-FREE, IF YOU DO NOT WANT TO TYPE ON STAGE
+echo      http://localhost:8777/demo/index.html?auto=1
+echo      One scene:  ...?auto=1^&scene=chain
+echo      Scenes: chain ^| red-verify ^| nav ^| fade
 echo.
-echo   HOW THE DOT IS CHOSEN - the numbers behind one decision
-echo     http://localhost:8778/how-the-dot-is-chosen.html
+echo   5. HOW THE DOT IS CHOSEN - the numbers behind one decision
+echo      http://localhost:8778/how-the-dot-is-chosen.html
 echo.
 echo ============================================================
 echo   [!] Keep this window OPEN during the demo.
