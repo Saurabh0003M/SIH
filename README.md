@@ -1,6 +1,6 @@
 <h1>Disha <sub><sup>दिशा — "direction"</sup></sub></h1>
 
-![SIH 2026](https://img.shields.io/badge/SIH_2026-PS_26207-0b6e4f?style=flat-square)
+![SIH 2026](https://img.shields.io/badge/SIH_2026-PS_26202-0b6e4f?style=flat-square)
 ![Team](https://img.shields.io/badge/team-Code_Blooded-1f2937?style=flat-square)
 ![Build](https://img.shields.io/badge/build_step-none-2563eb?style=flat-square)
 ![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-4285F4?style=flat-square)

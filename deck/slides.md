@@ -45,9 +45,9 @@ Fill the six template fields exactly as they are named. Nothing else goes on thi
 
 | Field | Value |
 |---|---|
-| `Problem Statement ID –` | **26207** |
+| `Problem Statement ID –` | **26202** |
 | `Problem Statement Title-` | **Student Innovation** *(bring-your-own idea)* |
-| `Theme-` | **Smart Education** |
+| `Theme-` | **Smart Automation** |
 | `PS Category- Software/Hardware` | **Software** |
 | `Team ID-` | *leave blank* — issued only after the intercollege round |
 | `Team Name (Registered on portal)` | **Code Blooded** |

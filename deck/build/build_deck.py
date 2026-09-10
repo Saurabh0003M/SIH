@@ -256,23 +256,28 @@ sldIdLst.remove(ids[6])
 s1, s2, s3, s4, s5, s6 = list(prs.slides)
 
 # ---------- SLIDE 1 — TITLE PAGE --------------------------------------------
+# Verbatim from the portal listing for PS 26202. The title is a long sentence,
+# not a two-word label, so it gets its own smaller size or it runs off the slide.
+PS_TITLE = ("Ideas focused on the intelligent use of resources for transforming and "
+            "advancements of technology with combining the artificial intelligence to "
+            "explore more various sources and get valuable insights.")
 VALUES = [
-    "  26207",
-    "  Student Innovation",
-    "  Smart Education",
-    "  Software",
-    "",                       # Team ID: issued only after the intercollege round
-    "  Code Blooded",
+    ("  26202", 18),
+    ("  Student Innovation (Open Innovation) — " + PS_TITLE, 11),
+    ("  Smart Automation", 18),
+    ("  Software", 18),
+    ("", 18),                 # Team ID: issued only after the intercollege round
+    ("  Code Blooded", 18),
 ]
 tb = find(s1, "TextBox 9")
 tb.width = In(7.0)
 paras = [p for p in tb.text_frame.paragraphs if p.runs]
-for para, val in zip(paras, VALUES):
+for para, (val, size) in zip(paras, VALUES):
     para.alignment = PP_ALIGN.LEFT
     for r in para.runs:
-        r.font.size = Pt(20)
+        r.font.size = Pt(min(size, 18))
     if val:
-        run(para, val, 20, bold=False, color=RGBColor(0x0B, 0x30, 0x5B))
+        run(para, val, size, bold=False, color=RGBColor(0x0B, 0x30, 0x5B))
 
 # ---------- SLIDE 2 — IDEA TITLE --------------------------------------------
 title = find(s2, "Title 1")

@@ -90,7 +90,7 @@ They do not forgive a confident wrong answer, because they will test the next on
 
 ---
 
-## Education fit (they will ask — PS 26207 is Smart Education)
+## Theme fit (they will ask — PS 26202 is **Smart Automation**, not Smart Education)
 
 **"How is this education and not just a helper tool?"**
 > Because the help is designed to disappear. Every time the student completes a step alone, the

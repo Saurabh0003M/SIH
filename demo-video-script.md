@@ -100,7 +100,7 @@ then click **Step 3 · the field** to show the red case.
 > Two independent numbers have to agree before it will claim anything: what the words scored, and
 > what the page itself supports. We show you the weaker of the two, never the average.
 
-**Closing card:** project name · PS 26207 · team name, and the line
+**Closing card:** project name · PS 26202 · team name, and the line
 *"It doesn't do it for you. It teaches you to do it yourself."*
 
 ---

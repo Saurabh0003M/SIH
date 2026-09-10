@@ -1,4 +1,4 @@
-# SIH 2026 — PS 26207 idea PPT: content blocks
+# SIH 2026 — PS 26202 idea PPT: content blocks
 **Status: draft by claude-code, 2026-09-08. Every number below is traced to the three research
 reports in `F:\SIH\research`. Map these blocks onto the OFFICIAL SIH template — do not restructure
 the official template.**

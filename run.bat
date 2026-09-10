@@ -1,6 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
-title Disha Demo Launcher - SIH 2026 PS 26207
+title Disha Demo Launcher - SIH 2026 PS 26202
 
 cd /d "%~dp0"
 
