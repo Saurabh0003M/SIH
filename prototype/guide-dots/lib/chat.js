@@ -49,6 +49,17 @@ const GD_CHAT_CSS = `
   }
   .pill:hover { background: #1f2937; }
   .pill[hidden] { display: none; }
+  /* a real corner grip, like any window. Without one the panel is whatever
+     width we decided, on every screen, forever. */
+  .grip {
+    position: absolute; right: 2px; bottom: 2px; width: 16px; height: 16px;
+    cursor: nwse-resize; touch-action: none;
+    background:
+      linear-gradient(135deg, transparent 0 55%, #9ca3af 55% 62%, transparent 62% 72%,
+                      #9ca3af 72% 79%, transparent 79%);
+    border-bottom-right-radius: 12px;
+  }
+  .panel.min .grip { display: none; }
   .log { padding: 10px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; }
   .msg { padding: 7px 10px; border-radius: 10px; max-width: 88%; word-wrap: break-word; }
   .me   { background: #111827; color: #fff; align-self: flex-end; border-bottom-right-radius: 3px; }
@@ -97,6 +108,7 @@ function gdChatHtml() {
         <button id="stop">Stop</button>
       </div>
       <div class="privacy" id="privacy">Nothing is captured. Sharing is off.</div>
+      <div class="grip" id="grip" title="Resize"></div>
     </div>`;
 }
 
@@ -163,6 +175,10 @@ function gdWritePos(pos) {
     clean.x = pos.x;
     clean.y = pos.y;
   }
+  if (Number.isFinite(pos.w) && Number.isFinite(pos.h)) {
+    clean.w = pos.w;
+    clean.h = pos.h;
+  }
   try {
     sessionStorage.setItem(GD_POS_KEY, JSON.stringify(clean));
   } catch (e) {
@@ -224,6 +240,42 @@ function gdDragPanel(panel, head) {
   addEventListener("resize", () => gdClampPanel(panel));
 }
 
+// Drag the corner to resize, the way every other window on the machine works.
+// Width and height are both remembered; the log area is the flexible child, so
+// growing the panel grows the part with the guidance in it.
+function gdResizePanel(panel, grip) {
+  let sx = 0, sy = 0, w0 = 0, h0 = 0, sizing = false;
+
+  grip.addEventListener("pointerdown", (e) => {
+    const r = panel.getBoundingClientRect();
+    sx = e.clientX; sy = e.clientY; w0 = r.width; h0 = r.height;
+    sizing = true;
+    grip.setPointerCapture(e.pointerId);
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  grip.addEventListener("pointermove", (e) => {
+    if (!sizing) return;
+    const w = Math.min(Math.max(w0 + e.clientX - sx, 260), Math.max(260, innerWidth - 24));
+    const h = Math.min(Math.max(h0 + e.clientY - sy, 180), Math.max(180, innerHeight - 24));
+    panel.style.width = w + "px";
+    panel.style.height = h + "px";
+    // max-height would otherwise veto anything taller than 70vh
+    panel.style.maxHeight = "none";
+  });
+
+  const stop = () => {
+    if (!sizing) return;
+    sizing = false;
+    const size = { w: parseFloat(panel.style.width), h: parseFloat(panel.style.height) };
+    const prev = gdReadPos() || {};
+    gdWritePos({ x: prev.x, y: prev.y, min: panel.classList.contains("min"), ...size });
+  };
+  grip.addEventListener("pointerup", stop);
+  grip.addEventListener("pointercancel", stop);
+}
+
 function gdMountChat(handlers) {
   if (gdChatRoot) return gdChatRoot;
   // Eviction is content.js's job, once, BEFORE it builds the overlay. Doing it
@@ -267,8 +319,14 @@ function gdMountChat(handlers) {
   const head = root.querySelector(".head");
   const mini = root.getElementById("mini");
   gdDragPanel(panel, head);
+  gdResizePanel(panel, root.getElementById("grip"));
 
   const saved = gdReadPos();
+  if (saved && Number.isFinite(saved.w) && Number.isFinite(saved.h)) {
+    panel.style.width = saved.w + "px";
+    panel.style.height = saved.h + "px";
+    panel.style.maxHeight = "none";
+  }
   if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)) {
     panel.style.left = saved.x + "px";
     panel.style.top = saved.y + "px";
