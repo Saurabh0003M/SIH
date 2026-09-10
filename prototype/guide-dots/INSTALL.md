@@ -47,6 +47,28 @@ must be ≥ 0.75. The word-matcher alone can never clear the first bar, so you n
 The key is stored in Chrome's local extension storage on your own machine. It is never written to
 this folder and never leaves your browser except in the request to Google.
 
+### If the Gemini free tier runs out
+
+It does run out — it is a daily cap, so it comes back, but not necessarily when you need it. Disha
+speaks to **any OpenAI-compatible gateway**, so you are never stuck on one provider.
+
+Make a free key at **https://openrouter.ai/keys**, then in the popup choose
+**My gateway (OpenAI-compatible)** and fill in:
+
+| Field | Value |
+|---|---|
+| Base URL | `https://openrouter.ai/api/v1` |
+| Models | `google/gemma-4-26b-a4b-it:free, nvidia/nemotron-3.5-lightning:free, nex-agi/nex-n2.5-mini:free` |
+| API key | your OpenRouter key |
+
+Models are comma-separated on purpose: Disha races the fastest few and uses whichever answers first,
+so one model being rate-limited does not stop the demo. Anything ending `:free` costs nothing — there
+were **18 such models** when this was written, and the current list is at
+https://openrouter.ai/api/v1/models (it is public, no key needed).
+
+The same three fields work for any other OpenAI-compatible endpoint, including NVIDIA's
+`https://integrate.api.nvidia.com/v1` and Azure AI Foundry.
+
 ## 4. Use it on a real site
 
 Open any website, click the toolbar icon, type what you want to do, and press **Start**.
