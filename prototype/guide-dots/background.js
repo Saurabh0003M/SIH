@@ -120,11 +120,48 @@ async function gdFetchJson(url, options) {
 // because retrying a wrong key just wastes the user's time twice.
 const GD_RETRY_STATUS = new Set([408, 429, 500, 502, 503, 504]);
 
+// A 429 has two opposite meanings and they need opposite responses. "You are
+// going too fast" clears in seconds and is worth one polite retry. "You have
+// used your allowance for today" does not clear at all, and retrying it spends
+// 2.5 seconds of someone's attention to arrive at the same refusal. Gateways
+// say which in the body; OpenRouter says "free-models-per-day".
+const GD_QUOTA_WORDS =
+  /per-?day|daily limit|quota|insufficient[_ ]quota|out of credit|add \d+ credits|exceeded your current/i;
+
+function gdIsQuotaError(e) {
+  return Boolean(e) && e.status === 429 && GD_QUOTA_WORDS.test(String(e.message || ""));
+}
+
+// The allowance belongs to the KEY, not the model, so once it is gone every
+// model in the race hits the same wall - racing six of them just makes six
+// identical refusals. Remember it and stop dialling. Being instantly honest
+// beats a three-second pause that ends in the same place.
+const GD_QUOTA = { until: 0, why: "" };
+const GD_QUOTA_HOLD_MS = 10 * 60 * 1000; // then re-test: daily quotas do roll over
+
+function gdQuotaLatch(message) {
+  GD_QUOTA.until = Date.now() + GD_QUOTA_HOLD_MS;
+  // The body is JSON and gdFetchJson pasted it in raw. Dig the sentence out, so
+  // the banner reads like English instead of like a stack trace.
+  const said = String(message || "").replace(/^\d+\s*/, "");
+  const inner = said.match(/"message"\s*:\s*"([^"]+)"/);
+  GD_QUOTA.why = (inner ? inner[1] : said).slice(0, 150);
+  console.warn("[GuideDots] key is out of quota - staying offline for 10 minutes");
+}
+
+function gdQuotaBlocked() {
+  return Date.now() < GD_QUOTA.until;
+}
+
 async function gdWithRetry(label, fn) {
   try {
     return await fn();
   } catch (e) {
     if (!GD_RETRY_STATUS.has(e.status)) throw e;
+    if (gdIsQuotaError(e)) {
+      gdQuotaLatch(e.message); // waiting 2.5s for a daily quota to refill is theatre
+      throw e;
+    }
     // Honour Retry-After when we can infer it; otherwise a flat, short pause.
     const waitMs = e.status === 429 ? 2500 : 1200;
     console.log(`[GuideDots] ${label} returned ${e.status} - retrying once in ${waitMs}ms`);
@@ -206,6 +243,13 @@ async function callLLM(payload) {
     baseUrl: stored.baseUrl || defaults.baseUrl
   };
   const provider = cfg.provider || "ollama";
+
+  // Nothing on the network can help until the allowance resets, and the offline
+  // planner is already wired up behind us. Fail in milliseconds, not seconds.
+  if (provider !== "ollama" && gdQuotaBlocked()) {
+    throw new Error("out of free quota - " + GD_QUOTA.why);
+  }
+
   const model = cfg.model || GD_DEFAULT_MODEL[provider];
   const prompt = gdPrompt(payload);
 
@@ -336,6 +380,7 @@ async function callLLM(payload) {
       const why = (aggregate.errors || [aggregate])
         .map((e) => e.message)
         .join(" | ");
+      if (gdQuotaBlocked()) throw new Error("out of free quota - " + GD_QUOTA.why);
       throw new Error("all models failed - " + why.slice(0, 180));
     }
   }

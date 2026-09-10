@@ -102,5 +102,11 @@ Two things worth knowing:
   website.
 - **Everything is red.** That is Disha being honest about a page it cannot read confidently, not a
   crash. Unlabelled or icon-only controls are its weakest case, and it says so instead of guessing.
+- **"Today's free model quota is used up".** The free allowance belongs to the API key, not to any
+  one model, so all of them run out together and changing the model list does nothing. Either add
+  credit to that gateway account, or paste a key from a different gateway's free tier — NVIDIA
+  (`https://integrate.api.nvidia.com/v1`, keys at build.nvidia.com) speaks the same protocol, so
+  base URL + model + key in the popup is the whole switch. Disha keeps working offline meanwhile,
+  capped at amber, and says which of the two answered.
 - **Nothing happens with "Local model".** That option expects Ollama running on your machine. Pick
   **No model** or **Gemini API** instead.

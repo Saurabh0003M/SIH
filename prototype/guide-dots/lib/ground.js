@@ -81,9 +81,18 @@ async function pickTarget(elements, goal, history, clicked) {
       // Degrade instead of dying. Tell the user we did, so the drop in
       // certainty is visible and not silent.
       const fallback = gdLocalPick(payload, goal, clicked);
+      // "model unavailable" is true but useless - it reads as "this is broken".
+      // An exhausted free allowance is a fact about the account, not a fault in
+      // the product, and saying so is the difference between looking broken and
+      // looking prepared.
+      const why = /out of free quota|per-?day|daily|quota|add \d+ credits/i
+        .test(String((res && res.error) || ""))
+        ? "today's free model quota is used up"
+        : "model unreachable";
       fallback.reason = fallback.id < 0
-        ? `model unavailable, and ${fallback.reason}`
-        : `offline guess: ${fallback.reason}`;
+        ? `${why} - and offline, ${fallback.reason}`
+        : `${why} - offline guess: ${fallback.reason}`;
+      fallback.degraded = why;
       res = fallback;
     }
   }
@@ -121,6 +130,7 @@ async function pickTarget(elements, goal, history, clicked) {
     modelConfidence,
     quality,
     meta: res._meta || null,
+    degraded: res.degraded || "",
     domPath: gdDomPath(gdGetElement(id))
   };
 }
