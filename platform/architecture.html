@@ -4,9 +4,50 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-  /* Deliberately light-only: these are screenshotted into slides. */
-  body { background:#FFFFFF; color:#141A26; font:400 16px/1.5 "Barlow",system-ui,sans-serif; margin:0; padding:28px; }
-  .sheet { max-width:1240px; margin:0 auto; }
+  :root {
+    --paper:#F2F4F7; --surface:#FFFFFF; --surface-2:#E8EBF1; --ink:#141A26;
+    --ink-soft:#55607A; --line:#D6DBE5; --accent:#2F4BD8; --accent-ink:#FFFFFF;
+    --go:#14803C; --wait:#B45309; --stop:#C22B2B;
+    --go-bg:#E4F3EA; --wait-bg:#FBF0DD; --stop-bg:#FAE7E7;
+    --shadow:0 1px 2px rgb(20 26 38 / 6%), 0 10px 30px rgb(20 26 38 / 7%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:#0D1220; --surface:#151C2C; --surface-2:#1E273A; --ink:#EAEEF6;
+      --ink-soft:#98A3BA; --line:#2A3448; --accent:#7E92FF; --accent-ink:#0D1220;
+      --go:#4ADE80; --wait:#FBBF24; --stop:#F87171;
+      --go-bg:#14301F; --wait-bg:#33260B; --stop-bg:#351717;
+      --shadow:0 1px 2px rgb(0 0 0 / 40%), 0 10px 30px rgb(0 0 0 / 35%);
+    }
+  }
+  .topbar { background:var(--ink); color:var(--paper); border-bottom:4px solid var(--accent); }
+  .topbar .wrap { display:flex; align-items:center; gap:16px; padding-block:14px; }
+  .mark { font:700 26px/1 "Barlow Condensed",sans-serif; letter-spacing:.12em; text-transform:uppercase; }
+  .mark span { color:var(--accent); }
+  .topbar .meaning { font-size:13px; color:#9AA6C0; margin-left:auto; }
+  .nav { display:flex; gap:4px; flex-wrap:wrap; }
+  /* The bar is painted with var(--ink), which INVERTS between themes — so the
+     links must be var(--paper), not a hardcoded light grey. Hardcoding it left
+     light-grey text on a light bar in dark mode, which is unreadable. */
+  .nav a { color:var(--paper); opacity:.72; text-decoration:none; font-size:14px;
+           padding:6px 10px; border-radius:3px; }
+  .nav a:hover { background:rgb(128 128 128 / 22%); opacity:1; }
+  .nav a[aria-current] { opacity:1; box-shadow:inset 0 -2px 0 var(--accent); }
+  .topbar .meaning { color:var(--paper); opacity:.6; }
+  @media (max-width:700px) { .topbar .meaning { display:none; } }
+
+  body { background:var(--paper); color:var(--ink);
+         font:400 16px/1.5 "Barlow",system-ui,sans-serif; margin:0; }
+  .wrap { max-width:1240px; margin:0 auto; padding-inline:22px; }
+
+  /* The DIAGRAM stays light in both themes on purpose: it is screenshotted
+     into the slide deck, and a dark figure on a projected white slide is
+     unreadable. The page around it follows the site. The capture clips to
+     .sheet, so this chrome never reaches the deck. */
+  .sheet { max-width:1240px; margin:26px auto 40px; padding:28px 26px 34px;
+           background:#FFFFFF; color:#141A26; border-radius:14px;
+           box-shadow:0 1px 2px rgb(0 0 0 / 10%), 0 16px 44px rgb(0 0 0 / 22%); }
+  @media (max-width:700px) { .sheet { margin:14px 10px 24px; border-radius:10px; } }
   h1 { font:600 30px/1.1 "Barlow Condensed",sans-serif; text-transform:uppercase; letter-spacing:.02em; margin:0 0 4px; }
   .sub { color:#55607A; font-size:15px; margin:0 0 22px; }
   svg { width:100%; height:auto; display:block; }
@@ -20,8 +61,18 @@
   @media print { .backlink { display:none; } }
 </style>
 
-<!-- Kept above the sheet so it crops out cleanly when this is screenshotted for a slide. -->
-<p class="backlink"><a href="index.html">&larr; Disha</a> &nbsp;·&nbsp; <a href="practice.html">Practice portal</a> &nbsp;·&nbsp; <a href="modules.html">Modules</a></p>
+<div class="topbar">
+  <div class="wrap">
+    <div class="mark">DIS<span>HA</span></div>
+    <nav class="nav">
+      <a href="index.html">Overview</a>
+      <a href="practice.html">Practice portal</a>
+      <a href="architecture.html" aria-current="page">How it works</a>
+      <a href="modules.html">Modules</a>
+    </nav>
+    <div class="meaning">दिशा &nbsp;·&nbsp; direction</div>
+  </div>
+</div>
 
 <div class="sheet">
   <h1>How Disha decides where to point</h1>
