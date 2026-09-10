@@ -212,6 +212,68 @@ def strip_chrome(slide):
             sh.width, sh.height = In(10.38), In(0.95)
 
 
+def flowstep(slide, x, y, w, h, num, label, sub, colour=None):
+    """One beat of a workflow: a numbered token, three words, and a whisper."""
+    colour = colour or SIH
+    card(slide, x, y, w, h)
+    numcircle(slide, x + w / 2, y + 0.34, 0.42, num, colour)
+    tb, tf = textbox(slide, x + 0.08, y + 0.60, w - 0.16, h - 0.66)
+    p = tf.paragraphs[0]
+    nobullet(p)
+    p.alignment = PP_ALIGN.CENTER
+    run(p, label, 12, bold=True, color=HEAD)
+    p2 = tf.add_paragraph()
+    nobullet(p2)
+    p2.alignment = PP_ALIGN.CENTER
+    run(p2, sub, 9.5, color=MUTED)
+
+
+def arrowbetween(slide, x, y, w, h):
+    sh = slide.shapes.add_shape(MSO_SHAPE.RIGHT_ARROW, In(x), In(y), In(w), In(h))
+    sh.fill.solid()
+    sh.fill.fore_color.rgb = RGBColor(0xC8, 0xD3, 0xE2)
+    sh.line.fill.background()
+    sh.shadow.inherit = False
+    return sh
+
+
+def numcircle(slide, cx, cy, d, label, color):
+    """A numbered token. Carries the eye down the card without a word of text."""
+    sh = slide.shapes.add_shape(MSO_SHAPE.OVAL, In(cx - d / 2), In(cy - d / 2), In(d), In(d))
+    sh.fill.solid()
+    sh.fill.fore_color.rgb = color
+    sh.line.fill.background()
+    sh.shadow.inherit = False
+    tf = sh.text_frame
+    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+    p = tf.paragraphs[0]
+    nobullet(p)
+    p.alignment = PP_ALIGN.CENTER
+    run(p, label, 15, bold=True, color=WHITE)
+    return sh
+
+
+def chip(slide, x, y, w, text, size=9.5, fill=RGBColor(0xFF, 0xFF, 0xFF)):
+    """One source, as an object you can point at - not a line in a paragraph."""
+    h = 0.30
+    sh = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, In(x), In(y), In(w), In(h))
+    sh.adjustments[0] = 0.30
+    sh.fill.solid()
+    sh.fill.fore_color.rgb = fill
+    sh.line.color.rgb = RGBColor(0xC8, 0xD3, 0xE2)
+    sh.line.width = Pt(0.75)
+    sh.shadow.inherit = False
+    tf = sh.text_frame
+    tf.margin_left = tf.margin_right = Pt(5)
+    tf.margin_top = tf.margin_bottom = 0
+    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    p = tf.paragraphs[0]
+    nobullet(p)
+    p.alignment = PP_ALIGN.CENTER
+    run(p, text, size, color=BODY)
+    return sh
+
+
 def find(slide, name):
     for sh in slide.shapes:
         if sh.name == name:
@@ -279,358 +341,424 @@ for para, (val, size) in zip(paras, VALUES):
     if val:
         run(para, val, size, bold=False, color=RGBColor(0x0B, 0x30, 0x5B))
 
-# ---------- SLIDE 2 — IDEA TITLE --------------------------------------------
+# ---------- SLIDE 2 — IDEA TITLE ---------------------------------------------
+# Rebuilt as a workflow. The old version put three paragraphs where a judge needed
+# one glance: what happens, in order, and who does the clicking.
 title = find(s2, "Title 1")
 tr = [r for r in title.text_frame.paragraphs[0].runs]
-tr[-1].text = "Disha \u2014 it points, you click, and then it fades"
+tr[-1].text = "Disha — it points, you click, and then it fades"
 for r in tr:
     r.font.size = Pt(30)
 set_oval(s2)
 strip_chrome(s2)
-kill(find(s2, "TextBox 8"))   # its pointers are reproduced verbatim below
+kill(find(s2, "TextBox 8"))
 
-tb, tf = textbox(s2, 0.28, 0.88, 12.77, 0.38)
+tb, tf = textbox(s2, 0.28, 0.86, 12.77, 0.34)
 p = tf.paragraphs[0]
 nobullet(p)
-run(p, "Proposed Solution (Describe your Idea/Solution/Prototype)", 15,
+run(p, "Proposed Solution  ·  Detailed explanation of the proposed solution", 14,
     bold=True, color=HEAD)
+
+FLOW = [
+    ("1", "Open any portal", "nothing installed on their side"),
+    ("2", "Disha reads the controls", "names and roles, not your text"),
+    ("3", "One dot appears", "its colour is the confidence"),
+    ("4", "You click", "Disha never can"),
+    ("5", "The dot fades", "gone after five clean runs"),
+]
+FW = (12.77 - 4 * 0.34) / 5
+for i, (n, lab, sub) in enumerate(FLOW):
+    x = 0.28 + i * (FW + 0.34)
+    flowstep(s2, x, 1.24, FW, 1.30, n, lab, sub,
+             colour=GREEN if i == 4 else SIH)
+    if i < 4:
+        arrowbetween(s2, x + FW + 0.05, 1.24 + 0.44, 0.24, 0.22)
 
 LX, LW = 0.28, 6.30
 pointer_card(
-    s2, LX, 1.28, LW, 1.98,
-    "Detailed explanation of the proposed solution",
-    [
-        "Disha reads the page's own controls and their accessible names, then marks the one next step with a colour-coded dot.",
-        ("You click. Disha never can. ", "At an OTP or payment step it pauses and hands control back."),
-        ("Every success dims the dot; five clean repetitions remove it entirely.", ""),
-        ("Not pre-scripted for any portal", " \u2014 it reads whatever is on screen."),
-    ],
-    hsize=13, bsize=11.5)
-
-pointer_card(
-    s2, LX, 3.34, LW, 1.74,
+    s2, LX, 2.76, LW, 1.62,
     "How it addresses the problem",
-    [
-        ("A citizen who does not know the word ", "withdraw still finishes the task \u2014 and finishes it themselves."),
-        "No paid intermediary, no travel, no \u201ccome back next week\u201d.",
-        ("Because it points instead of clicking, ", "it is safe on Aadhaar, banking and scholarship portals where an autopilot agent is not."),
-    ],
+    ["Finishes the task without knowing the word “withdraw”.",
+     "No paid intermediary, no travel, no second visit.",
+     "Points instead of clicking — safe on Aadhaar and banking."],
     hsize=13, bsize=11.5)
 
-pointer_card(
-    s2, LX, 5.16, LW, 1.72,
-    "Innovation and uniqueness of the solution",
-    [
-        ("Confidence you can see. ", "The dot's colour is not the model's self-report \u2014 the page evidence is scored separately and both must agree."),
-        ("It teaches, then leaves. ", "Guidance fades on success, returns after a mistake."),
-        ("Zero integration cost. ", "No ministry rebuilds anything."),
-    ],
-    hsize=13, bsize=11.5)
-
-RX, RW = 6.72, 6.33
-videoslot(s2, "01-chain", RX, 1.28, RW)
-caption(s2, RX, 1.28 + RW * 9 / 16 + 0.05, RW,
-        "Live capture \u2014 four dots, three screens, one goal typed in plain words.")
-
-# the band legend: the product's own three colours, explained once
-card(s2, RX, 5.26, RW, 1.62)
-tb, tf = textbox(s2, RX + 0.16, 5.34, RW - 0.32, 1.48)
+card(s2, LX, 4.52, LW, 2.02)
+dotmark(s2, LX + 0.16, 4.705, 0.115, SIH)
+tb, tf = textbox(s2, LX + 0.34, 4.60, LW - 0.48, 1.86)
 p = tf.paragraphs[0]
 nobullet(p)
-run(p, "What the colour means", 12, bold=True, color=HEAD)
-p.space_after = Pt(4)
-for col, lab, txt in ((GREEN, "Green", "model \u2265 0.80 and page \u2265 0.75"),
-                      (AMBER, "Amber", "best guess \u2014 check before clicking"),
-                      (RED, "Red", "not sure \u2014 verify this one")):
+run(p, "Innovation and uniqueness of the solution", 13, bold=True, color=HEAD)
+p.space_after = Pt(5)
+p2 = tf.add_paragraph()
+nobullet(p2)
+p2.space_after = Pt(4)
+run(p2, "Two independent judgements must agree before you see green:", 11, color=BODY)
+for col, lab, txt in ((GREEN, "GREEN", "model ≥ 0.80  and  page ≥ 0.75"),
+                      (AMBER, "AMBER", "best guess — check before clicking"),
+                      (RED, "RED", "not sure — verify this one")):
     para = tf.add_paragraph()
     bullet(para, color=col)
     para.space_after = Pt(2)
-    run(para, lab + ": ", 10.5, bold=True, color=col)
-    run(para, txt, 10.5, color=BODY)
+    run(para, lab + "  ", 11, bold=True, color=col)
+    run(para, txt, 11, color=BODY)
 
-card(s2, 0.28, 6.94, 12.77, 0.42, fill=RGBColor(0xFF, 0xF6, 0xE6),
+RX, RW = 6.72, 6.33
+videoslot(s2, "01-chain", RX, 2.76, RW)
+caption(s2, RX, 2.76 + RW * 9 / 16 + 0.05, RW,
+        "Live capture — four dots, three screens, one goal typed in plain words.",
+        align=PP_ALIGN.CENTER)
+
+card(s2, 0.28, 6.72, 12.77, 0.60, fill=RGBColor(0xFF, 0xF6, 0xE6),
      line=RGBColor(0xF0, 0xD9, 0xA8))
-tb, tf = textbox(s2, 0.44, 6.97, 12.45, 0.36)
+tb, tf = textbox(s2, 0.44, 6.78, 12.45, 0.50)
 p = tf.paragraphs[0]
 nobullet(p)
-run(p, "Closest shipped product: Microsoft Copilot Vision \u201cHighlights.\u201d ", 10,
-    bold=True, color=RGBColor(0x7A, 0x4A, 0x00))
-run(p, "We do not claim to have invented on-screen pointing. Ours is the combination "
-       "\u2014 exposed confidence, DOM + ARIA grounding, a fading scaffold, and India-specific task packs.",
-    10, color=RGBColor(0x5A, 0x3E, 0x0A))
+p.alignment = PP_ALIGN.CENTER
+run(p, "Microsoft Copilot Vision already points at things. ", 11, bold=True,
+    color=RGBColor(0x7A, 0x4A, 0x00))
+run(p, "We do not claim to have invented that. Ours is the combination — exposed confidence, "
+       "DOM + ARIA grounding, a scaffold that removes itself.", 11, color=RGBColor(0x5A, 0x3E, 0x0A))
 
-# ---------- SLIDE 3 — TECHNICAL APPROACH ------------------------------------
+# ---------- SLIDE 3 — TECHNICAL APPROACH -------------------------------------
+# The diagram does the explaining. The left column stops being prose and becomes
+# what it always was: a stack of names, and a pipeline.
 set_oval(s3)
 strip_chrome(s3)
 kill(find(s3, "TextBox 8"))
 
 LX, LW = 0.28, 5.30
-pointer_card(
-    s3, LX, 0.92, LW, 2.20,
-    "Technologies to be used (e.g. programming languages, frameworks, hardware)",
-    [
-        ("Manifest V3 Chrome extension", ", vanilla JavaScript, no build step."),
-        ("Model is pluggable", " \u2014 Gemini free tier, Anthropic, or a local Ollama model with no internet."),
-        ("DOM + ARIA", ", not Chrome's accessibility tree \u2014 that needs the debugger permission and breaks on old government markup."),
-        ("Vision grounding (GUI-Actor, MIT)", " is the documented fallback."),
-    ],
-    hsize=11.5, bsize=10.5)
 
-# methodology block, with the pipeline as a monospaced chain
-y = 3.20
-card(s3, LX, y, LW, 2.72)
-dotmark(s3, LX + 0.16, y + 0.185, 0.115, SIH)
-tb, tf = textbox(s3, LX + 0.34, y + 0.08, LW - 0.48, 2.56)
+tb, tf = textbox(s3, LX, 0.86, LW, 0.30)
 p = tf.paragraphs[0]
 nobullet(p)
-run(p, "Methodology and process for implementation (Flow Charts/Images/ working prototype)",
-    11.5, bold=True, color=HEAD)
-p.space_after = Pt(5)
-p = tf.add_paragraph()
+run(p, "Technologies to be used", 13, bold=True, color=HEAD)
+
+STACK = ["Manifest V3 extension", "Vanilla JS · no build",
+         "DOM + ARIA", "not the a11y tree",
+         "Model is pluggable", "Gemini · OpenRouter · local",
+         "Vision fallback", "GUI-Actor (MIT), documented"]
+CW2 = (LW - 0.10) / 2
+for i, txt in enumerate(STACK):
+    x = LX + (i % 2) * (CW2 + 0.10)
+    y = 1.18 + (i // 2) * 0.38
+    chip(s3, x, y, CW2, txt, size=9.5,
+         fill=RGBColor(0xEF, 0xF4, 0xFA) if i % 2 == 0 else RGBColor(0xFF, 0xFF, 0xFF))
+
+tb, tf = textbox(s3, LX, 2.80, LW, 0.30)
+p = tf.paragraphs[0]
 nobullet(p)
-p.space_after = Pt(5)
-run(p, "page \u2192 enumerate interactive elements + ARIA names \u2192 compact text list "
-       "\u2192 model returns {id, confidence} \u2192 on-device grounding score \u2192 colour band "
-       "\u2192 draw dot \u2192 human clicks \u2192 wait for the DOM to settle \u2192 next step",
-    9.5, color=RGBColor(0x1B, 0x3A, 0x5C), font=MONO)
-for lead, rest in (
-    ("Green needs 0.80 model ", "and 0.75 page evidence \u2014 two numbers, not one."),
-    ("We display the weaker of the two, never the average", " \u2014 so the number can never contradict the colour."),
-):
-    para = tf.add_paragraph()
-    bullet(para, color=SIH)
-    para.space_after = Pt(2)
-    run(para, lead, 10.5, bold=True, color=BODY)
-    run(para, rest, 10.5, color=BODY)
+run(p, "Methodology and process for implementation", 13, bold=True, color=HEAD)
+
+PIPE = [
+    ("1", "Read the page", "every control, its name and role"),
+    ("2", "Ask the model", "a compact text list, never a screenshot"),
+    ("3", "Score it ourselves", "on-device, from the page evidence"),
+    ("4", "Both must agree", "the weaker number becomes the colour"),
+    ("5", "Draw one dot", "the human clicks; we wait for the DOM"),
+]
+for i, (n, head_, sub) in enumerate(PIPE):
+    y = 3.14 + i * 0.60
+    numcircle(s3, LX + 0.26, y + 0.23, 0.40, n, SIH if i < 4 else GREEN)
+    tb, tf = textbox(s3, LX + 0.56, y + 0.02, LW - 0.60, 0.52)
+    p = tf.paragraphs[0]
+    nobullet(p)
+    run(p, head_, 11.5, bold=True, color=HEAD)
+    q = tf.add_paragraph()
+    nobullet(q)
+    run(q, sub, 10, color=MUTED)
 
 plain_card(
-    s3, LX, 6.04, LW, 1.28,
-    "Product status",
-    [("Working prototype, verified end-to-end in a browser: ",
-      "live grounding, colour bands, contingent fading, on-page ask bar, screen share "
-      "with a real pause, offline mode. Vision fallback and the live-model green dot are next.")],
+    s3, LX, 6.18, LW, 1.12,
+    "Working prototype, verified in a browser",
+    [("live grounding, colour bands, contingent fading, on-page ask bar, screen share with a "
+      "real pause, offline mode. Vision fallback and the live-model green dot are next.", "")],
     tsize=11.5, bsize=10, fill=RGBColor(0xEC, 0xF6, 0xEE), dot=GREEN)
 
 RX, RW = 5.92, 7.13
-# Re-shot at a 1100px viewport and dSF 2.6, so the labels are drawn large; at
-# 7.1 inches on the slide they are readable from the back of a room. It is
-# taller than 16:9, so it takes the column and the navigation clip moves to the
-# Q&A loop deck.
 from PIL import Image as _Img
 _aw, _ah = _Img.open(SHOTS + r"\architecture.png").size
 AH = RW * _ah / _aw
-picture(s3, SHOTS + r"\architecture.png", RX, 0.92, RW)
-caption(s3, RX, 0.92 + AH + 0.04, RW,
-        "Read \u2192 Decide \u2192 Guide, and the boundary nothing crosses: "
+picture(s3, SHOTS + r"\architecture.png", RX, 0.86, RW)
+caption(s3, RX, 0.86 + AH + 0.04, RW,
+        "Two independent judgements, and the boundary nothing crosses: "
         "only control names leave the device.",
         h=0.30, align=PP_ALIGN.CENTER)
 
 # ---------- SLIDE 4 — FEASIBILITY AND VIABILITY ------------------------------
+# The measured run was a bullet. It is the most persuasive thing we own - a tool
+# that says "not sure" on a near-tie - so it is now the bottom third of the slide,
+# as four circles readable from the back of the room.
 set_oval(s4)
 strip_chrome(s4)
 kill(find(s4, "TextBox 8"))
 
-LX, LW = 0.28, 6.60
-pointer_card(
-    s4, LX, 0.92, LW, 1.66,
-    "Analysis of the feasibility of the idea",
-    [
-        ("Technical: ", "built and running today; DOM + ARIA works on portals we do not control."),
-        ("Financial: ", "a compact text request per step on a free-tier model; a local model costs zero. Cloud for the next build is already covered \u2014 $1,000 in Microsoft Azure credits through Red Bull Basement 2026."),
-        ("Operational: ", "installs as an extension. No ministry integration, no portal changes."),
-    ],
-    hsize=12.5, bsize=11)
+LX, LW = 0.28, 7.02
 
-pointer_card(
-    s4, LX, 2.66, LW, 1.62,
-    "Potential challenges and risks",
-    [
-        ("Unlabelled / icon-only controls ", "\u2014 our weakest case."),
-        ("The model picks the wrong element.", ""),
-        ("Trust: ", "users may over-rely on a confident-looking dot."),
-        ("Market: ", "Copilot Vision already points at things."),
-    ],
-    hsize=12.5, bsize=11)
+tb, tf = textbox(s4, LX, 0.88, LW, 0.30)
+p = tf.paragraphs[0]
+nobullet(p)
+run(p, "Analysis of the feasibility of the idea", 13, bold=True, color=HEAD)
 
-pointer_card(
-    s4, LX, 4.36, LW, 1.62,
-    "Strategies for overcoming these challenges",
-    [
-        ("Unlabelled controls drop the page score \u2192 the dot goes red", ", never a silent guess; vision grounding is the fallback."),
-        ("A wrong pick costs a glance, not a transaction ", "\u2014 the human always clicks."),
-        ("Over-reliance is answered by the fade itself.", ""),
-    ],
-    hsize=12.5, bsize=11)
+FEAS = [
+    ("Technical", ["running today, on portals", "we do not control"]),
+    ("Financial", ["free-tier model;", "a local one costs zero"]),
+    ("Operational", ["an extension — no ministry", "integration, no portal change"]),
+    ("Market", ["$1,000 Azure credits", "already in hand"]),
+]
+MW = (LW - 3 * 0.10) / 4
+for i, (head_, sublines) in enumerate(FEAS):
+    x = LX + i * (MW + 0.10)
+    card(s4, x, 1.20, MW, 1.12)
+    tb, tf = textbox(s4, x + 0.08, 1.28, MW - 0.16, 0.96)
+    p = tf.paragraphs[0]
+    nobullet(p)
+    p.alignment = PP_ALIGN.CENTER
+    run(p, head_, 12, bold=True, color=HEAD)
+    for line in sublines:
+        q = tf.add_paragraph()
+        nobullet(q)
+        q.alignment = PP_ALIGN.CENTER
+        run(q, line, 9.5, color=MUTED)
 
-plain_card(
-    s4, LX, 6.06, LW, 1.26,
-    "The measured run",
-    [
-        ("\u201ci want to take my money out\u201d on our practice portal: ",
-         "64% \u2192 57% \u2192 51% red \u2192 75%."),
-        ("That run used the offline matcher with no model, ",
-         "which is capped below green by design. Accuracy is unmeasured."),
-    ],
-    tsize=12, bsize=10.5, fill=RGBColor(0xFD, 0xF0, 0xF0), dot=RED)
+tb, tf = textbox(s4, LX, 2.44, LW, 0.30)
+p = tf.paragraphs[0]
+nobullet(p)
+run(p, "Potential challenges and risks", 13, bold=True, color=HEAD)
+run(p, "   →   ", 13, bold=True, color=MUTED)
+run(p, "Strategies for overcoming these challenges", 13, bold=True, color=HEAD)
 
-RX, RW = 7.02, 6.03
-videoslot(s4, "02-red-verify", RX, 0.92, RW)
-caption(s4, RX, 0.92 + RW * 9 / 16 + 0.04, RW,
-        "The near-tie that goes red at 51%, and the card that says why.", h=0.28)
-EW = 4.30
-picture(s4, SHOTS + r"\explainer-red-case.png", RX + (RW - EW) / 2, 4.66, EW)
-caption(s4, RX, 4.66 + EW * 9 / 16 + 0.03, RW,
-        "Both numbers, side by side: page 0.815, words 0.763, margin 0.052.",
-        align=PP_ALIGN.CENTER, size=8.5, h=0.26)
+PAIRS = [
+    ("Unlabelled / icon-only controls", "page score drops → the dot goes red, never a silent guess"),
+    ("The model picks the wrong element", "a glance wasted, not a transaction — the human always clicks"),
+    ("Users over-trust a confident dot", "the fade removes the dot once they can do it alone"),
+    ("Copilot Vision already points", "nobody else shows the confidence, or takes it away"),
+]
+for i, (risk, fix) in enumerate(PAIRS):
+    y = 2.78 + i * 0.46
+    chip(s4, LX, y, 2.62, risk, size=10, fill=RGBColor(0xFD, 0xF0, 0xF0))
+    arrowbetween(s4, LX + 2.70, y + 0.08, 0.22, 0.15)
+    tb, tf = textbox(s4, LX + 3.00, y + 0.02, LW - 3.00, 0.28)
+    p = tf.paragraphs[0]
+    nobullet(p)
+    run(p, fix, 10.5, color=BODY)
+
+RX, RW = 7.55, 5.50
+videoslot(s4, "02-red-verify", RX, 0.88, RW)
+caption(s4, RX, 0.88 + RW * 9 / 16 + 0.05, RW,
+        "The near-tie it refuses to guess — red at 51%, and the card saying why.",
+        align=PP_ALIGN.CENTER)
+picture(s4, SHOTS + r"\explainer-red-case.png", RX + 0.45, 4.45, 4.60)
+
+card(s4, LX, 4.72, LW, 2.58, fill=RGBColor(0xFD, 0xF7, 0xF7), line=RGBColor(0xF0, 0xC8, 0xC8))
+tb, tf = textbox(s4, LX + 0.18, 4.80, LW - 0.36, 0.34)
+p = tf.paragraphs[0]
+nobullet(p)
+run(p, "The measured run  ·  “i want to take my money out”", 12.5, bold=True, color=HEAD)
+
+RUN = [("64%", "Wallet", AMBER), ("57%", "Withdraw", AMBER),
+       ("51%", "Amount field", RED), ("75%", "Confirm", AMBER)]
+D = 1.02
+gap = (LW - 0.5 - 4 * D) / 3
+for i, (pct, lab, col) in enumerate(RUN):
+    cx = LX + 0.25 + D / 2 + i * (D + gap)
+    sh = s4.shapes.add_shape(MSO_SHAPE.OVAL, In(cx - D / 2), In(5.28), In(D), In(D))
+    sh.fill.solid()
+    sh.fill.fore_color.rgb = col
+    sh.line.fill.background()
+    sh.shadow.inherit = False
+    tfc = sh.text_frame
+    tfc.margin_left = tfc.margin_right = tfc.margin_top = tfc.margin_bottom = 0
+    pc = tfc.paragraphs[0]
+    nobullet(pc)
+    pc.alignment = PP_ALIGN.CENTER
+    run(pc, pct, 22, bold=True, color=WHITE)
+    tb, tf = textbox(s4, cx - D / 2 - 0.10, 5.28 + D + 0.04, D + 0.20, 0.28)
+    p = tf.paragraphs[0]
+    nobullet(p)
+    p.alignment = PP_ALIGN.CENTER
+    run(p, lab, 10.5, bold=True, color=BODY)
+    if i < 3:
+        arrowbetween(s4, cx + D / 2 + gap / 2 - 0.13, 5.28 + D / 2 - 0.09, 0.26, 0.18)
+
+tb, tf = textbox(s4, LX + 0.18, 6.86, LW - 0.36, 0.40)
+p = tf.paragraphs[0]
+nobullet(p)
+run(p, "Offline matcher, no model — capped below green by design. ", 10.5, bold=True, color=RED)
+run(p, "Accuracy is unmeasured; these four numbers are the only ones we quote.",
+    10.5, color=BODY)
 
 # ---------- SLIDE 5 — IMPACT AND BENEFITS ------------------------------------
+# Numbers first, then a before/after a judge can read in one look. The old
+# version buried three sourced statistics under two paragraphs of prose.
 set_oval(s5)
 strip_chrome(s5)
 kill(find(s5, "TextBox 8"))
 
-LX, LW = 0.28, 6.45
-pointer_card(
-    s5, LX, 0.92, LW, 1.88,
-    "Potential impact on the target audience",
-    [
-        ("Positive \u2014 improvement: ", "the citizen completes the task alone instead of paying someone to click."),
-        ("New opportunities: ", "a teacher or NGO worker walks a task once and it becomes a pack others reuse."),
-        ("Negative \u2014 technology adoption: ", "it needs a browser and a first install."),
-    ],
-    hsize=12.5, bsize=11)
+LX, LW = 0.28, 7.00
 
-pointer_card(
-    s5, LX, 2.88, LW, 2.05,
-    "Benefits of the solution (social, economic, environmental, etc.)",
-    [
-        ("Social \u2014 improved access, empowerment: ", "independence on services people are already entitled to."),
-        ("Economic \u2014 cost: ", "avoids the per-visit intermediary and travel documented in the CSC studies."),
-        ("Educational: ", "guidance fades on demonstrated success \u2014 active learning +0.47 SD, "
-         "spaced retrieval g = 0.74. Both validate the mechanism, not our product."),
-    ],
-    hsize=12.5, bsize=11)
-
-# three sourced stat callouts
 STATS = [
-    ("21%", "of rural Indians aged 15\u201324 can search, email and bank online",
-     "MoSPI CAMS 2022\u201323, combined ICT-skill measure"),
-    ("11.4%", "of connected households use the internet for government services",
-     "NCAER, June 2026"),
-    ("1 in 5", "households using digital services depends on help from outside",
-     "NCAER, June 2026"),
+    ("21%", ["of rural Indians 15–24 can", "search, email and bank online"], "MoSPI CAMS 2022–23"),
+    ("11.4%", ["of connected households use", "the internet for gov services"], "NCAER, June 2026"),
+    ("1 in 5", ["households using digital services", "depend on help from outside"], "NCAER, June 2026"),
 ]
-sw = (LW - 0.24) / 3
+SW = (LW - 2 * 0.12) / 3
 for i, (big, mid, src) in enumerate(STATS):
-    x = LX + i * (sw + 0.12)
-    card(s5, x, 5.02, sw, 2.28, fill=RGBColor(0xEF, 0xF4, 0xFA))
-    tb, tf = textbox(s5, x + 0.12, 5.08, sw - 0.24, 2.16)
-    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    x = LX + i * (SW + 0.12)
+    card(s5, x, 0.88, SW, 1.62, fill=RGBColor(0xEF, 0xF4, 0xFA))
+    tb, tf = textbox(s5, x + 0.10, 0.96, SW - 0.20, 1.46)
     p = tf.paragraphs[0]
     nobullet(p)
     p.alignment = PP_ALIGN.CENTER
-    run(p, big, 26, bold=True, color=SIH)
-    p2 = tf.add_paragraph()
-    nobullet(p2)
-    p2.alignment = PP_ALIGN.CENTER
-    run(p2, mid, 9.5, color=BODY)
-    p3 = tf.add_paragraph()
-    nobullet(p3)
-    p3.alignment = PP_ALIGN.CENTER
-    p3.space_before = Pt(3)
-    run(p3, src, 8, color=MUTED, italic=True)
+    run(p, big, 30, bold=True, color=SIH)
+    for line in mid:
+        q = tf.add_paragraph()
+        nobullet(q)
+        q.alignment = PP_ALIGN.CENTER
+        run(q, line, 9.5, color=BODY)
+    q = tf.add_paragraph()
+    nobullet(q)
+    q.alignment = PP_ALIGN.CENTER
+    q.space_before = Pt(3)
+    run(q, src, 8, color=MUTED, italic=True)
 
-RX, RW = 6.87, 6.18
-videoslot(s5, "04-fade", RX, 0.92, RW)
-caption(s5, RX, 0.92 + RW * 9 / 16 + 0.04, RW,
-        "The same task three times until the dot is gone \u2014 the education claim, on video.",
-        h=0.28)
-PW = 4.20
-picture(s5, SHOTS + r"\practice-portal.png", RX + (RW - PW) / 2, 4.76, PW)
-caption(s5, RX, 4.76 + PW * 9 / 16 + 0.03, RW,
-        "Vidya Setu \u2014 the practice sandbox, shaped like a government portal, safe to fail in.",
-        align=PP_ALIGN.CENTER, size=8.5, h=0.26)
+tb, tf = textbox(s5, LX, 2.60, LW, 0.30)
+p = tf.paragraphs[0]
+nobullet(p)
+run(p, "Potential impact on the target audience", 13, bold=True, color=HEAD)
+
+BEFORE_AFTER = [
+    ("Today", RGBColor(0xF3, 0xF4, 0xF6), RGBColor(0xD1, 0xD5, 0xDB), MUTED,
+     ["Pays someone at a shop to click", "Travels, waits, comes back next week",
+      "Learns nothing — same again next time"]),
+    ("With Disha", RGBColor(0xEC, 0xF6, 0xEE), RGBColor(0xB6, 0xDF, 0xC4), GREEN,
+     ["Finishes it themselves, at home", "One dot, in their own words",
+      "After five clean runs the dot is gone"]),
+]
+BW = (LW - 0.46) / 2
+for i, (head_, fill, line_, accent, items) in enumerate(BEFORE_AFTER):
+    x = LX + i * (BW + 0.46)
+    card(s5, x, 2.94, BW, 1.72, fill=fill, line=line_)
+    tb, tf = textbox(s5, x + 0.14, 3.02, BW - 0.28, 1.56)
+    p = tf.paragraphs[0]
+    nobullet(p)
+    run(p, head_, 13, bold=True, color=accent)
+    p.space_after = Pt(4)
+    for it in items:
+        q = tf.add_paragraph()
+        bullet(q, color=accent)
+        q.space_after = Pt(2)
+        run(q, it, 10.5, color=BODY)
+arrowbetween(s5, LX + BW + 0.09, 3.66, 0.28, 0.26)
+
+tb, tf = textbox(s5, LX, 4.76, LW, 0.30)
+p = tf.paragraphs[0]
+nobullet(p)
+run(p, "Benefits of the solution (social, economic, environmental, etc.)", 13,
+    bold=True, color=HEAD)
+
+BEN = [
+    ("Social", ["independence on services", "people already qualify for"]),
+    ("Economic", ["no per-visit intermediary,", "no travel (CSC studies)"]),
+    ("Educational", ["+0.47 SD active learning,", "g = 0.74 spaced retrieval"]),
+]
+for i, (head_, lines) in enumerate(BEN):
+    x = LX + i * (SW + 0.12)
+    card(s5, x, 5.10, SW, 1.16, fill=RGBColor(0xEC, 0xF6, 0xEE), line=RGBColor(0xB6, 0xDF, 0xC4))
+    tb, tf = textbox(s5, x + 0.10, 5.18, SW - 0.20, 1.00)
+    p = tf.paragraphs[0]
+    nobullet(p)
+    p.alignment = PP_ALIGN.CENTER
+    run(p, head_, 12, bold=True, color=GREEN)
+    for line in lines:
+        q = tf.add_paragraph()
+        nobullet(q)
+        q.alignment = PP_ALIGN.CENTER
+        run(q, line, 9.5, color=BODY)
+
+tb, tf = textbox(s5, LX, 6.38, LW, 0.42)
+p = tf.paragraphs[0]
+nobullet(p)
+run(p, "Both learning figures validate the mechanism, not our product. ", 10.5,
+    bold=True, color=BODY)
+run(p, "It needs a browser and one install — that is the adoption cost.", 10.5, color=MUTED)
+
+RX, RW = 7.50, 5.55
+videoslot(s5, "04-fade", RX, 0.88, RW)
+caption(s5, RX, 0.88 + RW * 9 / 16 + 0.05, RW,
+        "The same task three times until the dot is gone.", align=PP_ALIGN.CENTER)
+PW = 4.60
+picture(s5, SHOTS + r"\practice-portal.png", RX + (RW - PW) / 2, 4.42, PW)
+caption(s5, RX, 4.42 + PW * 9 / 16 + 0.04, RW,
+        "Vidya Setu — the student practice portal, safe to fail in.",
+        align=PP_ALIGN.CENTER, size=9, h=0.26)
 
 # ---------- SLIDE 6 — RESEARCH AND REFERENCES --------------------------------
+# Was a wall of citations nobody reads. A judge does not want to read our
+# bibliography; they want to see, in three seconds, that each claim has something
+# behind it. So: four columns of evidence, each answering "what does this prove".
 set_oval(s6)
 strip_chrome(s6)
 kill(find(s6, "TextBox 8"))
 
-tb, tf = textbox(s6, 0.28, 0.90, 12.77, 0.38)
+tb, tf = textbox(s6, 0.28, 0.88, 12.77, 0.38)
 p = tf.paragraphs[0]
 nobullet(p)
-run(p, "Details / Links of the reference and research work", 16, bold=True, color=HEAD)
+run(p, "Details / Links of the reference and research work", 15, bold=True, color=HEAD)
 
-REFS_L = [
-    ("MoSPI", ", Comprehensive Annual Modular Survey 2022\u201323 \u2014 the 21% combined ICT-skill figure."),
-    ("NSS 78th Round (2020\u201321)", " \u2014 computer literacy 24.7% national, 18.1% rural."),
-    ("NCAER", ", The Evolving Landscape of Digital Inclusion in India, June 2026."),
-    ("PIB / MeitY", " \u2014 CSC network: 48.54 crore transactions, 5,01,731 centres, FY 2025\u201326."),
-    ("IAMAI\u2013Kantar", ", Internet in India 2024 \u00b7 BHASHINI metrics dashboard."),
+EVIDENCE = [
+    ("1", SIH, "The problem is real",
+     ["MoSPI CAMS 2022–23", "NSS 78th Round", "NCAER, June 2026", "PIB · MeitY"],
+     "21% ICT-skill · 1 in 5 households need outside help"),
+    ("2", GREEN, "The mechanism works",
+     ["Freeman, PNAS 2014", "Adesope 2017 · Latimier 2021", "Renkl et al. — fading",
+      "Fitts 1954 · Wobbrock 2009"],
+     "+0.47 SD · g = 0.74 — validates the mechanism, not our product"),
+    ("3", AMBER, "The prior art",
+     ["MS Copilot Vision", "microsoft/GUI-Actor (MIT)", "SeeClick · CogAgent · OSWorld",
+      "Lazar 2015 · Trewin 2014"],
+     "Pointing already ships. Exposed confidence does not."),
+    ("4", RED, "Our own evidence",
+     ["github.com/Saurabh0003M/SIH", "deck/real-site-run.md", "Red Bull Basement 2026"],
+     "Code, recorded runs, licences — including the ones we got wrong."),
 ]
-REFS_R = [
-    ("Freeman et al., PNAS 2014", " \u2014 active learning, +0.47 SD across 225 studies."),
-    ("Adesope et al. 2017", " (retrieval, g = 0.51) \u00b7 ", "Latimier et al. 2021", " (spacing, g = 0.74)."),
-    ("Renkl et al.", " \u2014 guidance fading triggered by mastery evidence, not elapsed time."),
-    ("Microsoft Copilot Vision release notes", " \u2014 the closest shipped prior art."),
-    ("microsoft/GUI-Actor", " (MIT) \u2014 the vision-grounding fallback on our roadmap."),
-]
 
+CW = (12.77 - 3 * 0.18) / 4
+for i, (num, colour, title, chips, proof) in enumerate(EVIDENCE):
+    x = 0.28 + i * (CW + 0.18)
+    card(s6, x, 1.36, CW, 3.32)
+    numcircle(s6, x + CW / 2, 1.72, 0.46, num, colour)
+    tb, tf = textbox(s6, x + 0.12, 2.02, CW - 0.24, 0.36)
+    p = tf.paragraphs[0]
+    nobullet(p)
+    p.alignment = PP_ALIGN.CENTER
+    run(p, title, 13.5, bold=True, color=HEAD)
+    for j, c in enumerate(chips):
+        chip(s6, x + 0.16, 2.48 + j * 0.36, CW - 0.32, c)
+    tb, tf = textbox(s6, x + 0.14, 2.48 + len(chips) * 0.36 + 0.10, CW - 0.28, 0.80)
+    p = tf.paragraphs[0]
+    nobullet(p)
+    p.alignment = PP_ALIGN.CENTER
+    run(p, proof, 10, color=MUTED, italic=True)
 
-def reflist(x, y, w, h, items):
-    card(s6, x, y, w, h)
-    tb, tf = textbox(s6, x + 0.18, y + 0.12, w - 0.36, h - 0.24)
-    first = True
-    for it in items:
-        p = tf.paragraphs[0] if first else tf.add_paragraph()
-        first = False
-        bullet(p, color=SIH)
-        p.space_after = Pt(7)
-        for i, chunk in enumerate(it):
-            run(p, chunk, 11.5, bold=(i % 2 == 0), color=BODY)
-
-
-reflist(0.28, 1.36, 6.25, 2.86, REFS_L)
-reflist(6.80, 1.36, 6.25, 2.86, REFS_R)
-
-# the honest state of the evidence, and the one live link we have
 plain_card(
-    s6, 0.28, 4.32, 12.77, 1.20,
-    "What these sources do and do not say",
-    [
-        ("The two learning figures validate the mechanism, not our product. ",
-         "We have not measured Disha's accuracy, and we do not quote one."),
-        ("48.54 crore is a count of transactions, not of citizens; ",
-         "21% is a combined ICT-skill measure, not \u201ccannot use a government website\u201d."),
-    ],
+    s6, 0.28, 5.52, 12.77, 0.86,
+    "What these sources do NOT say",
+    [("Accuracy is unmeasured. ",
+      "48.54 crore counts transactions, not citizens. 21% is a combined ICT-skill measure, "
+      "not “cannot use a government website”. The learning figures validate the mechanism."),],
     tsize=12.5, bsize=11, fill=RGBColor(0xEC, 0xF6, 0xEE), dot=GREEN)
 
-card(s6, 0.28, 5.64, 12.77, 1.68, fill=RGBColor(0xEF, 0xF4, 0xFA))
-dotmark(s6, 0.44, 5.825, 0.115, SIH)
-tb, tf = textbox(s6, 0.62, 5.72, 12.21, 1.52)
+tb, tf = textbox(s6, 0.28, 6.52, 12.77, 0.60)
 p = tf.paragraphs[0]
 nobullet(p)
-run(p, "Our own work, and where else this idea has been", 12.5, bold=True, color=HEAD)
-p.space_after = Pt(5)
-p = tf.add_paragraph()
-bullet(p, color=SIH)
-p.space_after = Pt(3)
-run(p, "github.com/Saurabh0003M/SIH", 12, bold=True, color=SIH)
-run(p, " \u2014 the working prototype, the practice portal, the recorded runs, and "
-       "ATTRIBUTION.md: every borrowed repository with its licence and commit hash.",
-    11, color=BODY)
-p = tf.add_paragraph()
-bullet(p, color=SIH)
-p.space_after = Pt(3)
-run(p, "Read-only grounding runs on live public portals ", 11, bold=True, color=BODY)
-run(p, "(scholarships.gov.in, swayam.gov.in, aicte-india.org) are recorded in "
-       "deck/real-site-run.md \u2014 including the ones Disha got wrong and reported red.",
-    11, color=BODY)
-p = tf.add_paragraph()
-bullet(p, color=SIH)
-run(p, "Red Bull Basement 2026: ", 11, bold=True, color=BODY)
-run(p, "this idea is in the programme. Participating teams receive $1,000 in Microsoft Azure "
-       "credits through Microsoft for Startups \u2014 an application-phase benefit, not a prize.",
-    11, color=BODY)
+p.alignment = PP_ALIGN.CENTER
+run(p, "github.com/Saurabh0003M/SIH", 18, bold=True, color=SIH)
+p2 = tf.add_paragraph()
+nobullet(p2)
+p2.alignment = PP_ALIGN.CENTER
+run(p2, "the working prototype, the practice portal, every recorded run, and ATTRIBUTION.md "
+        "— every borrowed repository with its licence and commit hash", 10.5, color=MUTED)
 
 # ---------- SLIDE 7 — the Q&A loop (room only) -------------------------------
 # Not part of the six. This is the slide you leave up while judges ask questions:
