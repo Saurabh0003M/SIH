@@ -58,9 +58,31 @@ foreach ($i in 1..$pres.Slides.Count) {
   }
 }
 
+# Clicking a media shape toggles pause, which is a trap on stage: a presenter
+# clicking to advance while the pointer sits over the video freezes it instead.
+# Strip the interactive click sequence so a click does nothing to the clip.
+foreach ($i in 1..$pres.Slides.Count) {
+  $tl = $pres.Slides.Item($i).TimeLine
+  # a Sequence has no Delete of its own; emptying it of effects removes it
+  for ($k = $tl.InteractiveSequences.Count; $k -ge 1; $k--) {
+    $sq = $tl.InteractiveSequences.Item($k)
+    for ($e = $sq.Count; $e -ge 1; $e--) { $sq.Item($e).Delete() }
+    $done += ("slide {0}  removed a click-to-pause sequence" -f $i)
+  }
+}
+
 $pres.Save()
+
+# The PDF goes to the portal, which allows exactly six slides. Slide 7 is the
+# Q&A loop and belongs only in the room, so drop it for the export and then
+# close WITHOUT saving, leaving the pptx itself at seven.
+if ($pres.Slides.Count -gt 6) {
+  $pres.Slides.Item($pres.Slides.Count).Delete()
+  $done += "slide 7 (Q&A loop) excluded from the PDF"
+}
 if (Test-Path $pdf) { Remove-Item $pdf -Force }
 $pres.SaveCopyAs($pdf, 32)
+$pres.Saved = -1   # discard the deletion; the pptx on disk keeps slide 7
 $pres.Close()
 $app.Quit()
 

@@ -179,6 +179,39 @@ def videoslot(slide, clip, x, y, w):
     return sh
 
 
+def strip_chrome(slide):
+    """Reclaim the space the template spends on itself.
+
+    The blue footer bar, the page number and the footer caption cost 0.55in
+    across the bottom of every content slide, and the team oval and the SIH
+    lockup cost the top corners. Projected, that space is worth more than the
+    branding: it is the difference between a 4.7in video and a 6.3in one. The
+    oval and the logo stay, just smaller, so the deck is still recognisably the
+    official template.
+    """
+    for sh in list(slide.shapes):
+        low = sh.top is not None and sh.top > In(6.5)
+        if (sh.name.startswith("Rectangle") and low) \
+           or sh.name.startswith("Slide Number Placeholder") \
+           or sh.name.startswith("Footer Placeholder"):
+            kill(sh)
+    for sh in slide.shapes:
+        if sh.name.startswith("Oval"):
+            sh.left, sh.top, sh.width, sh.height = In(0.16), In(0.09), In(1.00), In(0.48)
+            for para in sh.text_frame.paragraphs:
+                for r in para.runs:
+                    r.font.size = Pt(8)
+        elif sh.name.startswith("Picture"):
+            sh.left, sh.top, sh.width, sh.height = In(11.70), In(0.07), In(1.34), In(0.68)
+        elif sh.name.startswith("Title"):
+            # All four, deliberately. These placeholders inherit their geometry
+            # from the layout, so writing only top/height creates an xfrm whose
+            # missing width defaults to zero - and the title then wraps one
+            # letter per line down the left edge.
+            sh.left, sh.top = In(1.24), In(-0.10)
+            sh.width, sh.height = In(10.38), In(0.95)
+
+
 def find(slide, name):
     for sh in slide.shapes:
         if sh.name == name:
@@ -248,17 +281,18 @@ tr[-1].text = "Disha \u2014 it points, you click, and then it fades"
 for r in tr:
     r.font.size = Pt(30)
 set_oval(s2)
+strip_chrome(s2)
 kill(find(s2, "TextBox 8"))   # its pointers are reproduced verbatim below
 
-tb, tf = textbox(s2, 0.35, 1.20, 12.6, 0.42)
+tb, tf = textbox(s2, 0.28, 0.88, 12.77, 0.38)
 p = tf.paragraphs[0]
 nobullet(p)
-run(p, "Proposed Solution (Describe your Idea/Solution/Prototype)", 16,
+run(p, "Proposed Solution (Describe your Idea/Solution/Prototype)", 15,
     bold=True, color=HEAD)
 
-LX, LW = 0.35, 7.72
+LX, LW = 0.28, 6.30
 pointer_card(
-    s2, LX, 1.66, LW, 1.55,
+    s2, LX, 1.28, LW, 1.98,
     "Detailed explanation of the proposed solution",
     [
         "Disha reads the page's own controls and their accessible names, then marks the one next step with a colour-coded dot.",
@@ -269,7 +303,7 @@ pointer_card(
     hsize=13, bsize=11.5)
 
 pointer_card(
-    s2, LX, 3.30, LW, 1.42,
+    s2, LX, 3.34, LW, 1.74,
     "How it addresses the problem",
     [
         ("A citizen who does not know the word ", "withdraw still finishes the task \u2014 and finishes it themselves."),
@@ -279,7 +313,7 @@ pointer_card(
     hsize=13, bsize=11.5)
 
 pointer_card(
-    s2, LX, 4.82, LW, 1.45,
+    s2, LX, 5.16, LW, 1.72,
     "Innovation and uniqueness of the solution",
     [
         ("Confidence you can see. ", "The dot's colour is not the model's self-report \u2014 the page evidence is scored separately and both must agree."),
@@ -288,14 +322,14 @@ pointer_card(
     ],
     hsize=13, bsize=11.5)
 
-RX, RW = 8.28, 4.68
-videoslot(s2, "01-chain", RX, 1.66, RW)
-caption(s2, RX, 1.66 + RW * 9 / 16 + 0.04, RW,
+RX, RW = 6.72, 6.33
+videoslot(s2, "01-chain", RX, 1.28, RW)
+caption(s2, RX, 1.28 + RW * 9 / 16 + 0.05, RW,
         "Live capture \u2014 four dots, three screens, one goal typed in plain words.")
 
 # the band legend: the product's own three colours, explained once
-card(s2, RX, 4.98, RW, 1.34)
-tb, tf = textbox(s2, RX + 0.16, 5.04, RW - 0.32, 1.22)
+card(s2, RX, 5.26, RW, 1.62)
+tb, tf = textbox(s2, RX + 0.16, 5.34, RW - 0.32, 1.48)
 p = tf.paragraphs[0]
 nobullet(p)
 run(p, "What the colour means", 12, bold=True, color=HEAD)
@@ -309,9 +343,9 @@ for col, lab, txt in ((GREEN, "Green", "model \u2265 0.80 and page \u2265 0.75")
     run(para, lab + ": ", 10.5, bold=True, color=col)
     run(para, txt, 10.5, color=BODY)
 
-card(s2, 0.35, 6.40, 12.62, 0.45, fill=RGBColor(0xFF, 0xF6, 0xE6),
+card(s2, 0.28, 6.94, 12.77, 0.42, fill=RGBColor(0xFF, 0xF6, 0xE6),
      line=RGBColor(0xF0, 0xD9, 0xA8))
-tb, tf = textbox(s2, 0.52, 6.44, 12.3, 0.38)
+tb, tf = textbox(s2, 0.44, 6.97, 12.45, 0.36)
 p = tf.paragraphs[0]
 nobullet(p)
 run(p, "Closest shipped product: Microsoft Copilot Vision \u201cHighlights.\u201d ", 10,
@@ -322,11 +356,12 @@ run(p, "We do not claim to have invented on-screen pointing. Ours is the combina
 
 # ---------- SLIDE 3 — TECHNICAL APPROACH ------------------------------------
 set_oval(s3)
+strip_chrome(s3)
 kill(find(s3, "TextBox 8"))
 
-LX, LW = 0.35, 6.10
+LX, LW = 0.28, 5.30
 pointer_card(
-    s3, LX, 1.30, LW, 1.88,
+    s3, LX, 0.92, LW, 2.20,
     "Technologies to be used (e.g. programming languages, frameworks, hardware)",
     [
         ("Manifest V3 Chrome extension", ", vanilla JavaScript, no build step."),
@@ -337,10 +372,10 @@ pointer_card(
     hsize=11.5, bsize=10.5)
 
 # methodology block, with the pipeline as a monospaced chain
-y = 3.30
-card(s3, LX, y, LW, 2.30)
+y = 3.20
+card(s3, LX, y, LW, 2.72)
 dotmark(s3, LX + 0.16, y + 0.185, 0.115, SIH)
-tb, tf = textbox(s3, LX + 0.34, y + 0.08, LW - 0.48, 2.14)
+tb, tf = textbox(s3, LX + 0.34, y + 0.08, LW - 0.48, 2.56)
 p = tf.paragraphs[0]
 nobullet(p)
 run(p, "Methodology and process for implementation (Flow Charts/Images/ working prototype)",
@@ -364,32 +399,35 @@ for lead, rest in (
     run(para, rest, 10.5, color=BODY)
 
 plain_card(
-    s3, LX, 5.72, LW, 1.10,
+    s3, LX, 6.04, LW, 1.28,
     "Product status",
     [("Working prototype, verified end-to-end in a browser: ",
       "live grounding, colour bands, contingent fading, on-page ask bar, screen share "
       "with a real pause, offline mode. Vision fallback and the live-model green dot are next.")],
     tsize=11.5, bsize=10, fill=RGBColor(0xEC, 0xF6, 0xEE), dot=GREEN)
 
-RX, RW = 6.66, 6.32
-AW = 6.00
-picture(s3, SHOTS + r"\architecture.png", RX, 1.30, AW)
-caption(s3, RX, 1.30 + AW * 9 / 16 + 0.03, RW,
-        "Read \u2192 Decide \u2192 Guide, and the boundary nothing crosses: only control names leave the device.",
-        h=0.28)
-
-videoslot(s3, "03-navigation", RX, 5.06, 3.20)
-caption(s3, RX + 3.34, 5.34, 2.95,
-        "Every navigation state in one take \u2014 two arrowheads, then one, then the dot, "
-        "then the same going up.", size=9.5)
+RX, RW = 5.92, 7.13
+# Re-shot at a 1100px viewport and dSF 2.6, so the labels are drawn large; at
+# 7.1 inches on the slide they are readable from the back of a room. It is
+# taller than 16:9, so it takes the column and the navigation clip moves to the
+# Q&A loop deck.
+from PIL import Image as _Img
+_aw, _ah = _Img.open(SHOTS + r"\architecture.png").size
+AH = RW * _ah / _aw
+picture(s3, SHOTS + r"\architecture.png", RX, 0.92, RW)
+caption(s3, RX, 0.92 + AH + 0.04, RW,
+        "Read \u2192 Decide \u2192 Guide, and the boundary nothing crosses: "
+        "only control names leave the device.",
+        h=0.30, align=PP_ALIGN.CENTER)
 
 # ---------- SLIDE 4 — FEASIBILITY AND VIABILITY ------------------------------
 set_oval(s4)
+strip_chrome(s4)
 kill(find(s4, "TextBox 8"))
 
-LX, LW = 0.35, 7.55
+LX, LW = 0.28, 6.60
 pointer_card(
-    s4, LX, 1.30, LW, 1.40,
+    s4, LX, 0.92, LW, 1.66,
     "Analysis of the feasibility of the idea",
     [
         ("Technical: ", "built and running today; DOM + ARIA works on portals we do not control."),
@@ -399,7 +437,7 @@ pointer_card(
     hsize=12.5, bsize=11)
 
 pointer_card(
-    s4, LX, 2.78, LW, 1.42,
+    s4, LX, 2.66, LW, 1.62,
     "Potential challenges and risks",
     [
         ("Unlabelled / icon-only controls ", "\u2014 our weakest case."),
@@ -410,7 +448,7 @@ pointer_card(
     hsize=12.5, bsize=11)
 
 pointer_card(
-    s4, LX, 4.28, LW, 1.42,
+    s4, LX, 4.36, LW, 1.62,
     "Strategies for overcoming these challenges",
     [
         ("Unlabelled controls drop the page score \u2192 the dot goes red", ", never a silent guess; vision grounding is the fallback."),
@@ -420,7 +458,7 @@ pointer_card(
     hsize=12.5, bsize=11)
 
 plain_card(
-    s4, LX, 5.78, LW, 1.06,
+    s4, LX, 6.06, LW, 1.26,
     "The measured run",
     [
         ("\u201ci want to take my money out\u201d on our practice portal: ",
@@ -430,23 +468,24 @@ plain_card(
     ],
     tsize=12, bsize=10.5, fill=RGBColor(0xFD, 0xF0, 0xF0), dot=RED)
 
-RX, RW = 8.10, 4.87
-videoslot(s4, "02-red-verify", RX, 1.30, RW)
-caption(s4, RX, 1.30 + RW * 9 / 16 + 0.03, RW,
+RX, RW = 7.02, 6.03
+videoslot(s4, "02-red-verify", RX, 0.92, RW)
+caption(s4, RX, 0.92 + RW * 9 / 16 + 0.04, RW,
         "The near-tie that goes red at 51%, and the card that says why.", h=0.28)
-EW = 3.80
-picture(s4, SHOTS + r"\explainer-red-case.png", RX + (RW - EW) / 2, 4.45, EW)
-caption(s4, RX, 4.45 + EW * 9 / 16 + 0.02, RW,
+EW = 4.30
+picture(s4, SHOTS + r"\explainer-red-case.png", RX + (RW - EW) / 2, 4.66, EW)
+caption(s4, RX, 4.66 + EW * 9 / 16 + 0.03, RW,
         "Both numbers, side by side: page 0.815, words 0.763, margin 0.052.",
         align=PP_ALIGN.CENTER, size=8.5, h=0.26)
 
 # ---------- SLIDE 5 — IMPACT AND BENEFITS ------------------------------------
 set_oval(s5)
+strip_chrome(s5)
 kill(find(s5, "TextBox 8"))
 
-LX, LW = 0.35, 7.40
+LX, LW = 0.28, 6.45
 pointer_card(
-    s5, LX, 1.30, LW, 1.48,
+    s5, LX, 0.92, LW, 1.88,
     "Potential impact on the target audience",
     [
         ("Positive \u2014 improvement: ", "the citizen completes the task alone instead of paying someone to click."),
@@ -456,7 +495,7 @@ pointer_card(
     hsize=12.5, bsize=11)
 
 pointer_card(
-    s5, LX, 2.88, LW, 1.68,
+    s5, LX, 2.88, LW, 2.05,
     "Benefits of the solution (social, economic, environmental, etc.)",
     [
         ("Social \u2014 improved access, empowerment: ", "independence on services people are already entitled to."),
@@ -478,8 +517,8 @@ STATS = [
 sw = (LW - 0.24) / 3
 for i, (big, mid, src) in enumerate(STATS):
     x = LX + i * (sw + 0.12)
-    card(s5, x, 4.76, sw, 2.06, fill=RGBColor(0xEF, 0xF4, 0xFA))
-    tb, tf = textbox(s5, x + 0.12, 4.82, sw - 0.24, 1.94)
+    card(s5, x, 5.02, sw, 2.28, fill=RGBColor(0xEF, 0xF4, 0xFA))
+    tb, tf = textbox(s5, x + 0.12, 5.08, sw - 0.24, 2.16)
     tf.vertical_anchor = MSO_ANCHOR.MIDDLE
     p = tf.paragraphs[0]
     nobullet(p)
@@ -495,22 +534,23 @@ for i, (big, mid, src) in enumerate(STATS):
     p3.space_before = Pt(3)
     run(p3, src, 8, color=MUTED, italic=True)
 
-RX, RW = 7.92, 5.05
-videoslot(s5, "04-fade", RX, 1.30, RW)
-caption(s5, RX, 1.30 + RW * 9 / 16 + 0.03, RW,
+RX, RW = 6.87, 6.18
+videoslot(s5, "04-fade", RX, 0.92, RW)
+caption(s5, RX, 0.92 + RW * 9 / 16 + 0.04, RW,
         "The same task three times until the dot is gone \u2014 the education claim, on video.",
         h=0.28)
-PW = 3.80
-picture(s5, SHOTS + r"\practice-portal.png", RX + (RW - PW) / 2, 4.52, PW)
-caption(s5, RX, 4.52 + PW * 9 / 16 + 0.02, RW,
+PW = 4.20
+picture(s5, SHOTS + r"\practice-portal.png", RX + (RW - PW) / 2, 4.76, PW)
+caption(s5, RX, 4.76 + PW * 9 / 16 + 0.03, RW,
         "Vidya Setu \u2014 the practice sandbox, shaped like a government portal, safe to fail in.",
         align=PP_ALIGN.CENTER, size=8.5, h=0.26)
 
 # ---------- SLIDE 6 — RESEARCH AND REFERENCES --------------------------------
 set_oval(s6)
+strip_chrome(s6)
 kill(find(s6, "TextBox 8"))
 
-tb, tf = textbox(s6, 0.35, 1.22, 12.6, 0.4)
+tb, tf = textbox(s6, 0.28, 0.90, 12.77, 0.38)
 p = tf.paragraphs[0]
 nobullet(p)
 run(p, "Details / Links of the reference and research work", 16, bold=True, color=HEAD)
@@ -544,12 +584,12 @@ def reflist(x, y, w, h, items):
             run(p, chunk, 11.5, bold=(i % 2 == 0), color=BODY)
 
 
-reflist(0.35, 1.72, 6.10, 2.30, REFS_L)
-reflist(6.87, 1.72, 6.10, 2.30, REFS_R)
+reflist(0.28, 1.36, 6.25, 2.86, REFS_L)
+reflist(6.80, 1.36, 6.25, 2.86, REFS_R)
 
 # the honest state of the evidence, and the one live link we have
 plain_card(
-    s6, 0.35, 4.12, 12.62, 1.06,
+    s6, 0.28, 4.32, 12.77, 1.20,
     "What these sources do and do not say",
     [
         ("The two learning figures validate the mechanism, not our product. ",
@@ -559,9 +599,9 @@ plain_card(
     ],
     tsize=12.5, bsize=11, fill=RGBColor(0xEC, 0xF6, 0xEE), dot=GREEN)
 
-card(s6, 0.35, 5.26, 12.62, 1.58, fill=RGBColor(0xEF, 0xF4, 0xFA))
-dotmark(s6, 0.51, 5.445, 0.115, SIH)
-tb, tf = textbox(s6, 0.69, 5.34, 12.06, 1.42)
+card(s6, 0.28, 5.64, 12.77, 1.68, fill=RGBColor(0xEF, 0xF4, 0xFA))
+dotmark(s6, 0.44, 5.825, 0.115, SIH)
+tb, tf = textbox(s6, 0.62, 5.72, 12.21, 1.52)
 p = tf.paragraphs[0]
 nobullet(p)
 run(p, "Our own work, and where else this idea has been", 12.5, bold=True, color=HEAD)
@@ -586,6 +626,75 @@ run(p, "Red Bull Basement 2026: ", 11, bold=True, color=BODY)
 run(p, "this idea is in the programme. Participating teams receive $1,000 in Microsoft Azure "
        "credits through Microsoft for Startups \u2014 an application-phase benefit, not a prize.",
     11, color=BODY)
+
+# ---------- SLIDE 7 — the Q&A loop (room only) -------------------------------
+# Not part of the six. This is the slide you leave up while judges ask questions:
+# three clips looping side by side, so the product keeps demonstrating itself
+# while you talk. insert_videos.ps1 deletes it before writing the PDF, so the
+# portal submission is still exactly six slides.
+s7 = prs.slides.add_slide(s6.slide_layout)
+for shp in list(s7.shapes):
+    kill(shp)  # start from a clean sheet; the layout's placeholders are in the way
+
+tb, tf = textbox(s7, 0.28, 0.16, 12.77, 0.62)
+p = tf.paragraphs[0]
+nobullet(p)
+p.alignment = PP_ALIGN.CENTER
+run(p, "Disha is running. Ask us anything.", 30, bold=True, color=HEAD, font="Times New Roman")
+
+QA = [
+    ("01-chain", "Four dots, three screens", "one goal, typed in plain words"),
+    ("02-red-verify", "The near-tie it refuses to guess", "red at 51%, and the card saying why"),
+    ("03-navigation", "Every navigation state", "two arrowheads, then one, then the dot"),
+]
+QW = (13.33 - 2 * 0.24 - 2 * 0.15) / 3
+for i, (clip, head, sub_) in enumerate(QA):
+    x = 0.24 + i * (QW + 0.15)
+    videoslot(s7, clip, x, 1.02, QW)
+    y = 1.02 + QW * 9 / 16 + 0.06
+    tb, tf = textbox(s7, x, y, QW, 0.60)
+    p = tf.paragraphs[0]
+    nobullet(p)
+    p.alignment = PP_ALIGN.CENTER
+    run(p, head, 12.5, bold=True, color=HEAD)
+    p2 = tf.add_paragraph()
+    nobullet(p2)
+    p2.alignment = PP_ALIGN.CENTER
+    run(p2, sub_, 10.5, color=MUTED, italic=True)
+
+# the numbers a judge is most likely to reach for, and the limits, in one band
+band_y = 1.02 + QW * 9 / 16 + 0.78
+card(s7, 0.28, band_y, 12.77, 7.32 - band_y, fill=RGBColor(0xF4, 0xF7, 0xFB))
+tb, tf = textbox(s7, 0.52, band_y + 0.10, 12.29, 7.32 - band_y - 0.20)
+p = tf.paragraphs[0]
+nobullet(p)
+run(p, "What you are looking at", 13, bold=True, color=HEAD)
+p.space_after = Pt(5)
+for lead, rest in (
+    ("Measured on our practice portal: ",
+     "“i want to take my money out” gave 64% → 57% → 51% red → 75%. "
+     "That run used the offline matcher with no model, which is capped below green by design."),
+    ("Green needs two numbers to agree: ",
+     "model ≥ 0.80 AND page evidence ≥ 0.75. We display the weaker of the two, never the "
+     "average, so the number can never contradict the colour."),
+    ("Read-only runs on live public portals: ",
+     "scholarships.gov.in, swayam.gov.in, aicte-india.org — including the ones it got wrong "
+     "and reported red. Nothing was clicked on any of them."),
+    ("What we do not claim: ",
+     "accuracy is unmeasured, the vision fallback is documented but not built, and Microsoft "
+     "Copilot Vision already points at things — we say so on slide 2."),
+    ("Why not let the AI click? ",
+     "On an Aadhaar or a banking page a wrong click is a transaction, not a glance. And the "
+     "moment it clicks for you, you have learned nothing. The human clicking is the product."),
+    ("Who pays for it? ",
+     "Nobody has to. Free-tier model, or a local one at zero cost that never leaves the machine. "
+     "Installs as an extension — no ministry integration, no portal changes."),
+):
+    para = tf.add_paragraph()
+    bullet(para, color=SIH)
+    para.space_after = Pt(3)
+    run(para, lead, 11, bold=True, color=BODY)
+    run(para, rest, 11, color=BODY)
 
 prs.save(OUT)
 print("saved", OUT)

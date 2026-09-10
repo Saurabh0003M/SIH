@@ -38,7 +38,14 @@
   th { color:var(--mut); font-weight:500; }
   .up { color:#059669; } .down { color:#dc2626; }
   label { display:block; font-size:13px; color:var(--mut); margin:14px 0 5px; }
-  input[type=text] { width:100%; max-width:300px; padding:9px 11px; border:1px solid var(--line); border-radius:8px; font:inherit; }
+  /* --line (#e2e8f0) is right for card edges and far too faint for a form
+     field: on a projector the amount box looked like plain text with a 0
+     floating in it. A field has to read as a field - it is the control the
+     red dot lands on. */
+  input[type=text] { width:100%; max-width:300px; padding:9px 11px; border:1.5px solid #94a3b8;
+                     border-radius:8px; font:inherit; background:#fff; color:var(--ink); }
+  input[type=text]::placeholder { color:#94a3b8; }
+  input[type=text]:focus { border-color:var(--brand); outline:2px solid rgb(13 148 136 / 18%); outline-offset:1px; }
   .bank { display:flex; align-items:center; gap:10px; margin-top:6px; }
   footer { border-top:1px solid var(--line); background:#fff; margin-top:60px; }
   .fcols { max-width:1040px; margin:0 auto; padding:32px 20px; display:grid; grid-template-columns:repeat(4,1fr); gap:26px; }
