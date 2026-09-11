@@ -65,6 +65,7 @@ async function pickTarget(elements, goal, history, clicked) {
   let res;
   if (provider === "offline") {
     res = gdLocalPick(payload, goal, clicked);
+    res.reason = `offline: ${res.reason}`; // chosen deliberately, not fallen back to
   } else {
     try {
       res = await chrome.runtime.sendMessage({
@@ -90,9 +91,14 @@ async function pickTarget(elements, goal, history, clicked) {
         ? "today's free model quota is used up"
         : "model unreachable";
       fallback.reason = fallback.id < 0
-        ? `${why} - and offline, ${fallback.reason}`
+        ? `${why} - ${fallback.reason}`
         : `${why} - offline guess: ${fallback.reason}`;
       fallback.degraded = why;
+      // "model unreachable" is a category, not a cause. A 401, a timeout, a
+      // sleeping service worker and a model that answered with prose all land
+      // here and look identical, which makes the next one impossible to
+      // diagnose from a screenshot. Keep the real sentence for the panel.
+      fallback.errorDetail = String((res && res.error) || "").slice(0, 160);
       res = fallback;
     }
   }
@@ -131,6 +137,8 @@ async function pickTarget(elements, goal, history, clicked) {
     quality,
     meta: res._meta || null,
     degraded: res.degraded || "",
+    errorDetail: res.errorDetail || "",
+    closest: res.closest || "",
     domPath: gdDomPath(gdGetElement(id))
   };
 }

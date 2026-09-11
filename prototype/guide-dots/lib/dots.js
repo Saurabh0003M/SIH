@@ -615,6 +615,8 @@ function gdThinkVerdict(result, chosenName, live, timing) {
     gdThinkLine(tele, "timing",
       `read ${n(timing.read)}ms \u00b7 decide ${n(timing.decide)}ms \u00b7 draw ${n(timing.draw)}ms`);
   }
+  if (result.closest) gdThinkLine(tele, "closest", result.closest + "  (below the 35% floor)");
+  if (result.errorDetail) gdThinkLine(tele, "why", result.errorDetail, "#f0a3a3");
   if (result.domPath) gdThinkLine(tele, "path", result.domPath);
 
   tele.animate([{ opacity: 0 }, { opacity: 1 }],
@@ -664,7 +666,7 @@ function showBanner(text, kind) {
       font: "13px/1.4 system-ui, sans-serif",
       color: "#fff",
       pointerEvents: "none",
-      maxWidth: "80vw",
+      maxWidth: "440px",
       textAlign: "center",
       boxShadow: "0 2px 10px rgb(0 0 0 / 35%)"
     });

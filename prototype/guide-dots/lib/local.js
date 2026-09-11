@@ -179,7 +179,7 @@ function gdLocalPick(elements, goal, clicked) {
     return {
       id: -1,
       confidence: 0,
-      reason: "offline: nothing on this screen matches those words",
+      reason: "nothing on this screen matches those words",
       offline: true
     };
   }
@@ -202,7 +202,10 @@ function gdLocalPick(elements, goal, clicked) {
     return {
       id: -1,
       confidence,
-      reason: `offline: nothing here clearly matches - closest was "${best.name}"`,
+      reason: "nothing here clearly matches those words",
+      // The near-miss is worth keeping, but in the panel where there is room -
+      // not in a banner across the top of someone's page.
+      closest: `"${best.name}" at ${Math.round(confidence * 100)}%`,
       offline: true
     };
   }
